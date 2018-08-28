@@ -3,8 +3,15 @@ package org.state.patch.sql;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.Duration;
+import java.util.Collections;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.state.patch.sql.config.Configurator;
 import org.state.patch.sql.config.ServiceConfig;
 
@@ -31,6 +38,37 @@ public class Main {
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
-    }
 
+        try (Consumer<String, String> consumer = new KafkaConsumer<>(config.patchtopic.consumer)) {
+            // consumer.subscribe(Collections.singleton(config.patchtopic.topic));
+
+            for (PartitionInfo info : consumer.partitionsFor(config.patchtopic.topic)) {
+                TopicPartition tp = new TopicPartition(config.patchtopic.topic, info.partition());
+                consumer.assign(Collections.singleton(tp));
+                consumer.seek(tp, 0L);
+            }
+
+            final int giveUp = 10;
+            int noRecordsCount = 0;
+
+            while (noRecordsCount < giveUp) {
+                final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(1000));
+                if (consumerRecords.count() == 0) {
+                    noRecordsCount++;
+                    continue;
+                }
+
+                consumerRecords.forEach(record -> {
+                    System.out.printf("Consumer Record: (%s, %s, %d, %d)\n",
+                        record.key(), record.value(),
+                        record.partition(), record.offset());
+                });
+
+                consumer.commitSync();
+            }
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+        System.out.println("Execution Completted.");
+    }
 }
