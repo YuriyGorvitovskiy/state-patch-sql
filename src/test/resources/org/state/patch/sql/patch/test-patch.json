@@ -1,0 +1,28 @@
+{
+    "operations": [{
+        "@type": "create-table",
+        "name": "test_table_a",
+        "columns": [
+            {
+                "name": "id",
+                "type": "integer",
+                "primary": true
+            },{
+                "name": "num",
+                "type": "floating"
+            },{
+                "name": "bool",
+                "type": "boolean"
+            },{
+                "name": "name",
+                "type": "name"
+            },{
+                "name": "txt",
+                "type": "text"
+            },{
+                "name": "stamp",
+                "type": "datetime"
+            }
+        ]
+    }]
+}
