@@ -2,7 +2,8 @@ package org.state.patch.sql.database;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.patch.Table;
+import org.state.patch.sql.patch.CreateTable;
+import org.state.patch.sql.patch.DeleteTable;
 
 public abstract class Database {
 
@@ -23,5 +24,7 @@ public abstract class Database {
         this.datasource.setPassword(config.password);
     }
 
-    public abstract String sqlCreateTable(Table table);
+    public abstract String sqlCreateTable(CreateTable table);
+
+    public abstract String sqlDeleteTable(DeleteTable operation);
 }

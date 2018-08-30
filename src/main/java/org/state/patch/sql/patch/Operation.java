@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(property = "@type", use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
-        @Type(value = Table.class, name = "create-table")
+        @Type(value = CreateTable.class, name = "create-table"),
+        @Type(value = DeleteTable.class, name = "delete-table"),
 })
 public abstract class Operation {
 }

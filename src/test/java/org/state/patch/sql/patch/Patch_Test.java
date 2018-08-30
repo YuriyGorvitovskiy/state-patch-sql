@@ -23,9 +23,9 @@ public class Patch_Test {
 
         // Validate
         assertNotNull(resource);
-        assertEquals(1, resource.operations.size());
+        assertEquals(2, resource.operations.size());
 
-        Table createTable = (Table) resource.operations.get(0);
+        CreateTable createTable = (CreateTable) resource.operations.get(0);
         assertEquals("test_table_a", createTable.name);
         assertEquals(6, createTable.columns.size());
 
@@ -58,5 +58,8 @@ public class Patch_Test {
         assertEquals("stamp", column.name);
         assertEquals("datetime", column.type);
         assertEquals(Boolean.FALSE, column.primary);
+
+        DeleteTable deleteTable = (DeleteTable) resource.operations.get(1);
+        assertEquals("test_table_a", deleteTable.name);
     }
 }

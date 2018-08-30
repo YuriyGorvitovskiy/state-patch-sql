@@ -2,7 +2,8 @@ package org.state.patch.sql.database;
 
 import org.state.patch.sql.config.DatabaseConfig;
 import org.state.patch.sql.patch.Column;
-import org.state.patch.sql.patch.Table;
+import org.state.patch.sql.patch.CreateTable;
+import org.state.patch.sql.patch.DeleteTable;
 
 public class Postgres extends Database {
 
@@ -13,33 +14,44 @@ public class Postgres extends Database {
     }
 
     @Override
-    public String sqlCreateTable(Table table) {
-        StringBuilder tableSQL = new StringBuilder();
-        StringBuilder primarySQL = new StringBuilder();
-        tableSQL.append("CREATE TABLE ");
-        tableSQL.append(table.name);
-        tableSQL.append(" (\n");
+    public String sqlCreateTable(CreateTable table) {
+        StringBuilder mainSql = new StringBuilder();
+        StringBuilder primaryKeySql = new StringBuilder();
+        mainSql.append("CREATE TABLE ");
+        mainSql.append(table.name);
+        mainSql.append(" (\n");
         String tableSQLSeparator = "    ";
         String primarySQLSeparator = "";
         for (Column column : table.columns) {
-            tableSQL.append(tableSQLSeparator);
-            tableSQL.append(column.name);
-            tableSQL.append("  ");
-            tableSQL.append(toSQLType(column.type));
+            mainSql.append(tableSQLSeparator);
+            mainSql.append(column.name);
+            mainSql.append("  ");
+            mainSql.append(toSQLType(column.type));
             tableSQLSeparator = ",\n    ";
 
             if (column.primary) {
-                primarySQL.append(primarySQLSeparator);
-                primarySQL.append(column.name);
+                primaryKeySql.append(primarySQLSeparator);
+                primaryKeySql.append(column.name);
                 primarySQLSeparator = ", ";
             }
         }
-        tableSQL.append(tableSQLSeparator);
-        tableSQL.append("PRIMARY KEY (");
-        tableSQL.append(primarySQL);
-        tableSQL.append(")\n");
-        tableSQL.append(");");
-        return tableSQL.toString();
+        mainSql.append(tableSQLSeparator);
+        mainSql.append("PRIMARY KEY (");
+        mainSql.append(primaryKeySql);
+        mainSql.append(")\n");
+        mainSql.append(");");
+
+        return mainSql.toString();
+    }
+
+    @Override
+    public String sqlDeleteTable(DeleteTable operation) {
+        StringBuilder mainSql = new StringBuilder();
+        mainSql.append("DROP TABLE IF EXISTS ");
+        mainSql.append(operation.name);
+        mainSql.append(" CASCADE;");
+
+        return mainSql.toString();
     }
 
     public String toSQLType(String type) {
@@ -60,4 +72,5 @@ public class Postgres extends Database {
                 throw new RuntimeException("Unknown datatype: " + type);
         }
     }
+
 }
