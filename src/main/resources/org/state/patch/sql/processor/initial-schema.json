@@ -1,0 +1,62 @@
+{
+    "operations": [
+        {
+            "@type": "create-table",
+            "name": "schema_version",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "name",
+                    "primary": true
+                },
+                {
+                    "name": "version",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "@type": "create-table",
+            "name": "schema_table",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "name",
+                    "primary": true
+                },
+                {
+                    "name": "used_ix",
+                    "type": "integer"
+                }
+            ]
+        },
+        {
+            "@type": "create-table",
+            "name": "schema_column",
+            "columns": [
+                {
+                    "name": "table_id",
+                    "type": "name",
+                    "primary": true
+                },
+                {
+                    "name": "name",
+                    "type": "name",
+                    "primary": true
+                },
+                {
+                    "name": "type",
+                    "type": "name"
+                },
+                {
+                    "name": "table_ix",
+                    "type": "integer"
+                },
+                {
+                    "name": "is_primary",
+                    "type": "boolean"
+                }
+            ]
+        }
+    ]
+}

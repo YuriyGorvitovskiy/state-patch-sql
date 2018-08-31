@@ -1,11 +1,47 @@
 package org.state.patch.sql.database;
 
+import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
 import org.state.patch.sql.patch.Column;
 import org.state.patch.sql.patch.CreateTable;
 import org.state.patch.sql.patch.DeleteTable;
 
 public class Postgres extends Database {
+    public static class PostgresQueryBuilder implements SelectBuilder {
+        StringBuilder mainSql = new StringBuilder();
+
+        public PostgresQueryBuilder(String... columns) {
+            mainSql.append("SELECT ");
+            mainSql.append(StringUtils.joinWith(", ", (Object[]) columns));
+            mainSql.append("\n");
+        }
+
+        @Override
+        public SelectBuilder from(String table) {
+            mainSql.append("    FROM ");
+            mainSql.append(table);
+            mainSql.append("\n");
+
+            return this;
+        }
+
+        @Override
+        public SelectBuilder whereMatch(String... columns) {
+            mainSql.append("    WHERE ");
+            mainSql.append(StringUtils.joinWith(" = ? AND ", (Object[]) columns));
+            mainSql.append(" = ?\n");
+
+            return this;
+        }
+
+        @Override
+        public String toSql() {
+            mainSql.append(";");
+
+            return mainSql.toString();
+        }
+
+    }
 
     public static final String NAME = "POSTGRES";
 
@@ -71,6 +107,54 @@ public class Postgres extends Database {
             default:
                 throw new RuntimeException("Unknown datatype: " + type);
         }
+    }
+
+    @Override
+    public String sqlCheckTableExists() {
+        StringBuilder mainSql = new StringBuilder();
+        mainSql.append("SELECT EXISTS (\n");
+        mainSql.append("   SELECT 1\n");
+        mainSql.append("       FROM  pg_tables\n");
+        mainSql.append("       WHERE   schemaname = 'public'\n");
+        mainSql.append("           AND tablename = ?\n");
+        mainSql.append(");");
+
+        return mainSql.toString();
+    }
+
+    @Override
+    public SelectBuilder sqlSelect(String... columns) {
+        return new PostgresQueryBuilder(columns);
+    }
+
+    @Override
+    public String sqlInsert(String table, String... columns) {
+        StringBuilder mainSql = new StringBuilder();
+        mainSql.append("INSERT INTO ");
+        mainSql.append(table);
+        mainSql.append(" (");
+        mainSql.append(StringUtils.joinWith(", ", (Object[]) columns));
+        mainSql.append(")\n");
+        mainSql.append("    VALUES (");
+        mainSql.append(StringUtils.repeat("?", ", ", columns.length));
+        mainSql.append(")\n");
+        mainSql.append(";");
+
+        return mainSql.toString();
+    }
+
+    @Override
+    public String sqlDelete(String table, String... columns) {
+        StringBuilder mainSql = new StringBuilder();
+        mainSql.append("DELETE FROM ");
+        mainSql.append(table);
+        mainSql.append("\n");
+        mainSql.append("    WHERE ");
+        mainSql.append(StringUtils.joinWith(" = ? AND ", (Object[]) columns));
+        mainSql.append(" = ?\n");
+        mainSql.append(";");
+
+        return mainSql.toString();
     }
 
 }

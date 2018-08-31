@@ -7,6 +7,29 @@ import org.state.patch.sql.patch.DeleteTable;
 
 public abstract class Database {
 
+    public static interface SelectBuilder {
+
+        /**
+         * contribute to SQL the following
+         *
+         * FROM table
+         */
+        public SelectBuilder from(String table);
+
+        /**
+         * contribute to SQL the following
+         *
+         * WHERE columns[0] = ? AND ... AND columns[n] = ?
+         */
+        public SelectBuilder whereMatch(String... columns);
+
+        /**
+         *
+         * @return complete Query statement SQL
+         */
+        public String toSql();
+    }
+
     public final BasicDataSource datasource;
 
     public static Database createDatabase(DatabaseConfig config) {
@@ -27,4 +50,21 @@ public abstract class Database {
     public abstract String sqlCreateTable(CreateTable table);
 
     public abstract String sqlDeleteTable(DeleteTable operation);
+
+    /**
+     * @return prepared SQL statement with 1 parameter – table name.
+     */
+    public abstract String sqlCheckTableExists();
+
+    public abstract SelectBuilder sqlSelect(String... columns);
+
+    /**
+     * @return prepared SQL statement with #columns parameters.
+     */
+    public abstract String sqlInsert(String table, String... columns);
+
+    /**
+     * @return prepared SQL statement with #columns parameters.
+     */
+    public abstract String sqlDelete(String table, String... columns);
 }

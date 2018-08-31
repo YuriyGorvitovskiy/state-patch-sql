@@ -26,7 +26,62 @@ public class Postgres_Test {
         test_Generator("delete-table", DeleteTable.class, (p, r) -> p.sqlDeleteTable(r));
     }
 
-    private <T> void test_Generator(String testName, Class<T> clazz, BiFunction<Postgres, T, String> processor)
+    @Test
+    public void test_CheckTableExists() throws Exception {
+        // Setup
+        Postgres postgres = new Postgres(new DatabaseConfig());
+
+        // Execute
+        String actualSql = postgres.sqlCheckTableExists();
+
+        // Verify
+        assertSql("check-table-exists.sql", actualSql);
+    }
+
+    @Test
+    public void test_Select() throws Exception {
+        // Setup
+        Postgres postgres = new Postgres(new DatabaseConfig());
+
+        // Execute
+        String actualSql = postgres
+            .sqlSelect("col_a", "col_b", "col_c")
+            .from("tbl")
+            .whereMatch("id", "name")
+            .toSql();
+
+        // Verify
+        assertSql("select.sql", actualSql);
+    }
+
+    @Test
+    public void test_Insert() throws Exception {
+        // Setup
+        Postgres postgres = new Postgres(new DatabaseConfig());
+
+        // Execute
+        String actualSql = postgres.sqlInsert("tbl", "col_a", "col_b", "col_c");
+
+        // Verify
+        assertSql("insert.sql", actualSql);
+    }
+
+    @Test
+    public void test_Delete() throws Exception {
+        // Setup
+        Postgres postgres = new Postgres(new DatabaseConfig());
+
+        // Execute
+        String actualSql = postgres.sqlDelete("tbl", "id");
+
+        // Verify
+        assertSql("delete.sql", actualSql);
+    }
+
+    private <T> void test_Generator(
+            String testName,
+            Class<T> clazz,
+            BiFunction<Postgres, T, String> processor)
             throws Exception {
         // Setup
         T resource = null;
@@ -34,16 +89,21 @@ public class Postgres_Test {
             byte[] bytes = IOUtils.toByteArray(in);
             resource = new ObjectMapper().readValue(bytes, clazz);
         }
-        String expectedSql = null;
-        try (InputStream in = Postgres_Test.class.getResourceAsStream(testName + ".sql")) {
-            expectedSql = IOUtils.toString(in, StandardCharsets.UTF_8);
-        }
         Postgres postgres = new Postgres(new DatabaseConfig());
 
         // Execute
         String actualSql = processor.apply(postgres, resource);
 
         // Validate
+        assertSql(testName + ".sql", actualSql);
+    }
+
+    private void assertSql(String expectedResource, String actualSql) throws Exception {
+        String expectedSql = null;
+        try (InputStream in = Postgres_Test.class.getResourceAsStream(expectedResource)) {
+            expectedSql = IOUtils.toString(in, StandardCharsets.UTF_8);
+        }
         assertEquals(expectedSql, actualSql);
     }
+
 }

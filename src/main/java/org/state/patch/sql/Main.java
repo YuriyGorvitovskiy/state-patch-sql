@@ -21,6 +21,7 @@ public class Main {
 
         System.out.println("Configuring Processor.");
         PatchProcessor processor = new PatchProcessor(database);
+        processor.prepareDatabase();
 
         System.out.println("Start Patch Consuming and Processing.");
         consumer.run(processor);

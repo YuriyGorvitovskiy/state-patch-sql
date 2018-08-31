@@ -5,5 +5,5 @@ public class Column {
 
     public String type;
 
-    public Boolean primary = Boolean.FALSE;
+    public boolean primary = false;
 }
