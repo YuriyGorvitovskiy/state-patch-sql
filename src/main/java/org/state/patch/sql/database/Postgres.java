@@ -1,9 +1,13 @@
 package org.state.patch.sql.database;
 
+import java.sql.Types;
+
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
 import org.state.patch.sql.patch.Column;
+import org.state.patch.sql.patch.CreateColumn;
 import org.state.patch.sql.patch.CreateTable;
+import org.state.patch.sql.patch.DeleteColumn;
 import org.state.patch.sql.patch.DeleteTable;
 
 public class Postgres extends Database {
@@ -50,6 +54,19 @@ public class Postgres extends Database {
     }
 
     @Override
+    public String sqlCheckTableExists() {
+        StringBuilder mainSql = new StringBuilder();
+        mainSql.append("SELECT EXISTS (\n");
+        mainSql.append("   SELECT 1\n");
+        mainSql.append("       FROM  pg_tables\n");
+        mainSql.append("       WHERE   schemaname = 'public'\n");
+        mainSql.append("           AND tablename = ?\n");
+        mainSql.append(");");
+
+        return mainSql.toString();
+    }
+
+    @Override
     public String sqlCreateTable(CreateTable table) {
         StringBuilder mainSql = new StringBuilder();
         StringBuilder primaryKeySql = new StringBuilder();
@@ -90,34 +107,30 @@ public class Postgres extends Database {
         return mainSql.toString();
     }
 
-    public String toSQLType(String type) {
-        switch (type) {
-            case "boolean":
-                return "boolean";
-            case "datetime":
-                return "timestamp with time zone";
-            case "floating":
-                return "double precision";
-            case "integer":
-                return "bigint";
-            case "text":
-                return "text";
-            case "name":
-                return "character varying (256)";
-            default:
-                throw new RuntimeException("Unknown datatype: " + type);
-        }
+    @Override
+    public String sqlCreateColumn(CreateColumn operation) {
+        StringBuilder mainSql = new StringBuilder();
+        mainSql.append("ALTER TABLE ");
+        mainSql.append(operation.table_id);
+        mainSql.append("\n");
+        mainSql.append("    ADD COLUMN ");
+        mainSql.append(operation.name);
+        mainSql.append("  ");
+        mainSql.append(toSQLType(operation.type));
+        mainSql.append(";");
+
+        return mainSql.toString();
     }
 
     @Override
-    public String sqlCheckTableExists() {
+    public String sqlDeleteColumn(DeleteColumn operation) {
         StringBuilder mainSql = new StringBuilder();
-        mainSql.append("SELECT EXISTS (\n");
-        mainSql.append("   SELECT 1\n");
-        mainSql.append("       FROM  pg_tables\n");
-        mainSql.append("       WHERE   schemaname = 'public'\n");
-        mainSql.append("           AND tablename = ?\n");
-        mainSql.append(");");
+        mainSql.append("ALTER TABLE ");
+        mainSql.append(operation.table_id);
+        mainSql.append("\n");
+        mainSql.append("    DROP COLUMN ");
+        mainSql.append(operation.name);
+        mainSql.append(";");
 
         return mainSql.toString();
     }
@@ -155,6 +168,45 @@ public class Postgres extends Database {
         mainSql.append(";");
 
         return mainSql.toString();
+    }
+
+    @Override
+    public int getNullType(String type) {
+        switch (type) {
+            case "boolean":
+                return Types.BOOLEAN;
+            case "datetime":
+                return Types.TIMESTAMP_WITH_TIMEZONE;
+            case "floating":
+                return Types.DOUBLE;
+            case "integer":
+                return Types.BIGINT;
+            case "text":
+                return Types.VARCHAR;
+            case "name":
+                return Types.VARCHAR;
+            default:
+                throw new RuntimeException("Unknown datatype: " + type);
+        }
+    }
+
+    public String toSQLType(String type) {
+        switch (type) {
+            case "boolean":
+                return "boolean";
+            case "datetime":
+                return "timestamp with time zone";
+            case "floating":
+                return "double precision";
+            case "integer":
+                return "bigint";
+            case "text":
+                return "text";
+            case "name":
+                return "character varying (256)";
+            default:
+                throw new RuntimeException("Unknown datatype: " + type);
+        }
     }
 
 }

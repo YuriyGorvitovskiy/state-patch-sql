@@ -23,10 +23,6 @@
                     "name": "id",
                     "type": "name",
                     "primary": true
-                },
-                {
-                    "name": "used_ix",
-                    "type": "integer"
                 }
             ]
         },
@@ -49,12 +45,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "table_ix",
+                    "name": "primary_ix",
                     "type": "integer"
-                },
-                {
-                    "name": "is_primary",
-                    "type": "boolean"
                 }
             ]
         }

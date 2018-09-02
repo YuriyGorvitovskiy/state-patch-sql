@@ -10,7 +10,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.database.Database;
 import org.state.patch.sql.patch.Column;
+import org.state.patch.sql.patch.CreateColumn;
 import org.state.patch.sql.patch.CreateTable;
+import org.state.patch.sql.patch.DeleteColumn;
 import org.state.patch.sql.patch.DeleteTable;
 import org.state.patch.sql.patch.Operation;
 import org.state.patch.sql.patch.Patch;
@@ -100,17 +102,21 @@ public class PatchProcessor implements Consumer<Patch> {
         }
     }
 
-    public void process(Patch patch, boolean external) {
+    public void process(Patch patch, boolean updateSchema) {
         for (Operation operation : patch.operations) {
             if (operation instanceof CreateTable) {
-                createTable((CreateTable) operation, external);
+                createTable((CreateTable) operation, updateSchema);
             } else if (operation instanceof DeleteTable) {
-                deleteTable((DeleteTable) operation, external);
+                deleteTable((DeleteTable) operation, updateSchema);
+            } else if (operation instanceof CreateColumn) {
+                createColumn((CreateColumn) operation, updateSchema);
+            } else if (operation instanceof DeleteColumn) {
+                deleteColumn((DeleteColumn) operation, updateSchema);
             }
         }
     }
 
-    private void createTable(CreateTable operation, boolean external) {
+    private void createTable(CreateTable operation, boolean updateSchema) {
         System.out.println("Creating table '" + operation.name + "'.");
         String sql = null;
         try (Connection connection = database.datasource.getConnection()) {
@@ -119,25 +125,27 @@ public class PatchProcessor implements Consumer<Patch> {
                 statement.execute();
             }
 
-            if (!external) {
+            if (!updateSchema) {
                 return;
             }
 
-            sql = database.sqlInsert("schema_table", "id", "used_ix");
+            sql = database.sqlInsert("schema_table", "id");
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, operation.name);
-                statement.setLong(2, operation.columns.size());
                 statement.executeUpdate();
             }
-            sql = database.sqlInsert("schema_column", "table_id", "name", "type", "table_ix", "is_primary");
+            sql = database.sqlInsert("schema_column", "table_id", "name", "type", "primary_ix");
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 long index = 1;
                 for (Column column : operation.columns) {
                     statement.setString(1, operation.name);
                     statement.setString(2, column.name);
                     statement.setString(3, column.type);
-                    statement.setLong(4, index++);
-                    statement.setBoolean(5, column.primary);
+                    if (column.primary) {
+                        statement.setLong(4, index++);
+                    } else {
+                        statement.setNull(4, database.getNullType("integer"));
+                    }
                     statement.addBatch();
                 }
                 statement.executeBatch();
@@ -147,7 +155,7 @@ public class PatchProcessor implements Consumer<Patch> {
         }
     }
 
-    private void deleteTable(DeleteTable operation, boolean external) {
+    private void deleteTable(DeleteTable operation, boolean updateSchema) {
         System.out.println("Deleting table '" + operation.name + "'.");
         String sql = null;
         try (Connection connection = database.datasource.getConnection()) {
@@ -156,7 +164,7 @@ public class PatchProcessor implements Consumer<Patch> {
                 statement.execute();
             }
 
-            if (!external) {
+            if (!updateSchema) {
                 return;
             }
 
@@ -172,6 +180,57 @@ public class PatchProcessor implements Consumer<Patch> {
                 statement.executeUpdate();
             }
 
+        } catch (Throwable ex) {
+            throw new RuntimeException("Failed SQL:\n" + sql, ex);
+        }
+    }
+
+    private void createColumn(CreateColumn operation, boolean updateSchema) {
+        System.out.println("Creating column '" + operation.table_id + "." + operation.name + "'.");
+        String sql = null;
+        try (Connection connection = database.datasource.getConnection()) {
+            sql = database.sqlCreateColumn(operation);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.execute();
+            }
+
+            if (!updateSchema) {
+                return;
+            }
+
+            sql = database.sqlInsert("schema_column", "table_id", "name", "type", "primary_ix");
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, operation.table_id);
+                statement.setString(2, operation.name);
+                statement.setString(3, operation.type);
+                statement.setNull(4, database.getNullType("integer"));
+
+                statement.execute();
+            }
+        } catch (Throwable ex) {
+            throw new RuntimeException("Failed SQL:\n" + sql, ex);
+        }
+    }
+
+    private void deleteColumn(DeleteColumn operation, boolean updateSchema) {
+        System.out.println("Deleting column '" + operation.table_id + "." + operation.name + "'.");
+        String sql = null;
+        try (Connection connection = database.datasource.getConnection()) {
+            sql = database.sqlDeleteColumn(operation);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.execute();
+            }
+
+            if (!updateSchema) {
+                return;
+            }
+
+            sql = database.sqlDelete("schema_column", "table_id", "name");
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, operation.table_id);
+                statement.setString(2, operation.name);
+                statement.executeUpdate();
+            }
         } catch (Throwable ex) {
             throw new RuntimeException("Failed SQL:\n" + sql, ex);
         }

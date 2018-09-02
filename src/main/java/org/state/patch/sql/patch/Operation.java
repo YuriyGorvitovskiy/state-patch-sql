@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @Type(value = CreateTable.class, name = "create-table"),
         @Type(value = DeleteTable.class, name = "delete-table"),
+        @Type(value = CreateColumn.class, name = "create-column"),
+        @Type(value = DeleteColumn.class, name = "delete-column"),
 })
 public abstract class Operation {
 }

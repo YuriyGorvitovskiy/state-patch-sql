@@ -2,7 +2,9 @@ package org.state.patch.sql.database;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.state.patch.sql.config.DatabaseConfig;
+import org.state.patch.sql.patch.CreateColumn;
 import org.state.patch.sql.patch.CreateTable;
+import org.state.patch.sql.patch.DeleteColumn;
 import org.state.patch.sql.patch.DeleteTable;
 
 public abstract class Database {
@@ -51,6 +53,10 @@ public abstract class Database {
 
     public abstract String sqlDeleteTable(DeleteTable operation);
 
+    public abstract String sqlCreateColumn(CreateColumn operation);
+
+    public abstract String sqlDeleteColumn(DeleteColumn operation);
+
     /**
      * @return prepared SQL statement with 1 parameter – table name.
      */
@@ -67,4 +73,7 @@ public abstract class Database {
      * @return prepared SQL statement with #columns parameters.
      */
     public abstract String sqlDelete(String table, String... columns);
+
+    public abstract int getNullType(String type);
+
 }
