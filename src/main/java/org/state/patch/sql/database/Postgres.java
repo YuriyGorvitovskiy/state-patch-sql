@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
@@ -167,6 +168,22 @@ public class Postgres extends Database {
         mainSql.append("    VALUES (");
         mainSql.append(StringUtils.repeat("?", ", ", columns.length));
         mainSql.append(")\n");
+        mainSql.append(";");
+
+        return mainSql.toString();
+    }
+
+    @Override
+    public String sqlUpdate(String table, List<String> updateColumns, List<String> primaryColumns) {
+        StringBuilder mainSql = new StringBuilder();
+        mainSql.append("UPDATE ");
+        mainSql.append(table);
+        mainSql.append(" SET ");
+        mainSql.append(StringUtils.join(updateColumns, " = ?, "));
+        mainSql.append(" = ?\n");
+        mainSql.append("    WHERE (");
+        mainSql.append(StringUtils.join(primaryColumns, " = ? AND "));
+        mainSql.append(" = ?)\n");
         mainSql.append(";");
 
         return mainSql.toString();

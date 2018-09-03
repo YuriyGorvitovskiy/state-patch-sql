@@ -125,7 +125,8 @@ public class PatchProcessor implements Consumer<Patch> {
 
                         String columnName = result.getString(2);
                         String columnType = result.getString(3);
-                        int primaryIndex = result.getInt(4);
+
+                        result.getInt(4);
                         boolean primary = !result.wasNull();
 
                         Column column = new Column(columnName, columnType, primary);
@@ -209,13 +210,97 @@ public class PatchProcessor implements Consumer<Patch> {
     }
 
     private void changeRecord(ChangeRecord operation, boolean updateSchema) {
-        // TODO Auto-generated method stub
+        System.out.println("Update record '" + operation.id + "'.");
+        String[] parts = operation.id.split(":");
+        Table table = tables.get(parts[0]);
+        if (null == table) {
+            System.out.println("Unsupproted table '" + parts + "'.");
+            return;
+        }
+        if (table.primary.size() != parts.length - 1) {
+            throw new RuntimeException(
+                "Primary key has " + table.primary + " columns, but id contains " + (parts.length - 1) + " parts.");
+        }
 
+        List<String> primaryColumns = new ArrayList<>();
+        for (Column column : table.primary) {
+            primaryColumns.add(column.name);
+        }
+
+        List<String> updateColumns = new ArrayList<>();
+        for (String key : operation.attributes.keySet()) {
+            Column column = table.columns.get(key);
+            if (null != column && !column.primary) {
+                updateColumns.add(column.name);
+            }
+        }
+
+        String sql = null;
+        try (Connection connection = database.datasource.getConnection()) {
+            sql = database.sqlUpdate(table.name, updateColumns, primaryColumns);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                int i = 1;
+                for (String columnName : updateColumns) {
+                    Column column = table.columns.get(columnName);
+                    database.setJSON(
+                        statement,
+                        i,
+                        column.type,
+                        operation.attributes.get(columnName));
+                    i++;
+                }
+                for (Column column : table.primary) {
+                    database.setJSON(
+                        statement,
+                        i,
+                        column.type,
+                        parts[i - updateColumns.size()]);
+                    i++;
+                }
+                statement.executeUpdate();
+            }
+
+        } catch (Throwable ex) {
+            throw new RuntimeException("Failed SQL:\n" + sql, ex);
+        }
     }
 
     private void deleteRecord(DeleteRecord operation, boolean updateSchema) {
-        // TODO Auto-generated method stub
+        System.out.println("Delete record '" + operation.id + "'.");
+        String[] parts = operation.id.split(":");
+        Table table = tables.get(parts[0]);
+        if (null == table) {
+            System.out.println("Unsupproted table '" + parts + "'.");
+            return;
+        }
+        if (table.primary.size() != parts.length - 1) {
+            throw new RuntimeException(
+                "Primary key has " + table.primary + " columns, but id contains " + (parts.length - 1) + " parts.");
+        }
 
+        List<String> primaryColumns = new ArrayList<>();
+        for (Column column : table.primary) {
+            primaryColumns.add(column.name);
+        }
+
+        String sql = null;
+        try (Connection connection = database.datasource.getConnection()) {
+            sql = database.sqlDelete(table.name, primaryColumns.toArray(new String[primaryColumns.size()]));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                int i = 1;
+                for (Column column : table.primary) {
+                    database.setJSON(
+                        statement,
+                        i,
+                        column.type,
+                        parts[i]);
+                    i++;
+                }
+                statement.executeUpdate();
+            }
+        } catch (Throwable ex) {
+            throw new RuntimeException("Failed SQL:\n" + sql, ex);
+        }
     }
 
     private void createTable(CreateTable operation, boolean updateSchema) {
