@@ -1,5 +1,7 @@
 package org.state.patch.sql.database;
 
+import java.sql.PreparedStatement;
+
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.state.patch.sql.config.DatabaseConfig;
 import org.state.patch.sql.patch.CreateColumn;
@@ -83,5 +85,7 @@ public abstract class Database {
     public abstract String sqlDelete(String table, String... columns);
 
     public abstract int getNullType(String type);
+
+    public abstract void setJSON(PreparedStatement statement, int i, String type, Object object) throws Exception;
 
 }

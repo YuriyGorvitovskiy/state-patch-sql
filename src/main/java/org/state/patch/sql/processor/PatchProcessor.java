@@ -4,17 +4,22 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.database.Database;
+import org.state.patch.sql.patch.ChangeRecord;
 import org.state.patch.sql.patch.CreateColumn;
 import org.state.patch.sql.patch.CreateTable;
 import org.state.patch.sql.patch.DeleteColumn;
+import org.state.patch.sql.patch.DeleteRecord;
 import org.state.patch.sql.patch.DeleteTable;
+import org.state.patch.sql.patch.InsertRecord;
 import org.state.patch.sql.patch.Operation;
 import org.state.patch.sql.patch.Patch;
 
@@ -125,7 +130,7 @@ public class PatchProcessor implements Consumer<Patch> {
 
                         Column column = new Column(columnName, columnType, primary);
                         if (primary) {
-                            table.primary.add(primaryIndex, column);
+                            table.primary.add(column);
                         }
                         table.columns.put(column.name, column);
                     }
@@ -146,8 +151,71 @@ public class PatchProcessor implements Consumer<Patch> {
                 createColumn((CreateColumn) operation, updateSchema);
             } else if (operation instanceof DeleteColumn) {
                 deleteColumn((DeleteColumn) operation, updateSchema);
+            } else if (operation instanceof InsertRecord) {
+                insertRecord((InsertRecord) operation, updateSchema);
+            } else if (operation instanceof ChangeRecord) {
+                changeRecord((ChangeRecord) operation, updateSchema);
+            } else if (operation instanceof DeleteRecord) {
+                deleteRecord((DeleteRecord) operation, updateSchema);
             }
         }
+    }
+
+    private void insertRecord(InsertRecord operation, boolean updateSchema) {
+        System.out.println("Insert record '" + operation.id + "'.");
+        String[] parts = operation.id.split(":");
+        Table table = tables.get(parts[0]);
+        if (null == table) {
+            System.out.println("Unsupproted table '" + parts + "'.");
+            return;
+        }
+        if (table.primary.size() != parts.length - 1) {
+            throw new RuntimeException(
+                "Primary key has " + table.primary + " columns, but id contains " + (parts.length - 1) + " parts.");
+        }
+
+        List<String> columnNames = new ArrayList<>();
+        for (Column column : table.primary) {
+            columnNames.add(column.name);
+        }
+
+        for (String key : operation.attributes.keySet()) {
+            Column column = table.columns.get(key);
+            if (null != column && !column.primary) {
+                columnNames.add(column.name);
+            }
+        }
+
+        String sql = null;
+        try (Connection connection = database.datasource.getConnection()) {
+            sql = database.sqlInsert(table.name, columnNames.toArray(new String[columnNames.size()]));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                int i = 1;
+                for (String columnName : columnNames) {
+                    Column column = table.columns.get(columnName);
+                    database.setJSON(
+                        statement,
+                        i,
+                        column.type,
+                        (i < parts.length ? parts[i] : operation.attributes.get(columnName)));
+                    i++;
+                }
+                statement.executeUpdate();
+            }
+
+        } catch (Throwable ex) {
+            throw new RuntimeException("Failed SQL:\n" + sql, ex);
+        }
+    }
+
+    private void changeRecord(ChangeRecord operation, boolean updateSchema) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void deleteRecord(DeleteRecord operation, boolean updateSchema) {
+        // TODO Auto-generated method stub
+
     }
 
     private void createTable(CreateTable operation, boolean updateSchema) {

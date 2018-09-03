@@ -1,6 +1,9 @@
 package org.state.patch.sql.database;
 
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
@@ -9,7 +12,12 @@ import org.state.patch.sql.patch.CreateTable;
 import org.state.patch.sql.patch.DeleteColumn;
 import org.state.patch.sql.patch.DeleteTable;
 
+import com.fasterxml.jackson.databind.util.StdDateFormat;
+
 public class Postgres extends Database {
+
+    StdDateFormat DATE_FORMAT = new StdDateFormat();
+
     public static class PostgresQueryBuilder implements SelectBuilder {
         StringBuilder mainSql = new StringBuilder();
 
@@ -215,6 +223,66 @@ public class Postgres extends Database {
             default:
                 throw new RuntimeException("Unknown datatype: " + type);
         }
+    }
+
+    @Override
+    public void setJSON(PreparedStatement statement, int index, String type, Object object) throws Exception {
+        if (null == object) {
+            statement.setNull(index, getNullType(type));
+            return;
+        }
+
+        switch (type) {
+            case "boolean":
+                if (object instanceof Boolean) {
+                    statement.setBoolean(index, (Boolean) object);
+                    return;
+                }
+                if (object instanceof String) {
+                    statement.setBoolean(index, Boolean.valueOf((String) object));
+                    return;
+                }
+                break;
+            case "datetime":
+                if (object instanceof String) {
+                    Date date = DATE_FORMAT.parse((String) object);
+                    statement.setTimestamp(index, new Timestamp(date.getTime()));
+                    return;
+                }
+                if (object instanceof Date) {
+                    statement.setTimestamp(index, new Timestamp(((Date) object).getTime()));
+                    return;
+                }
+                break;
+            case "floating":
+                if (object instanceof String) {
+                    statement.setDouble(index, Double.valueOf((String) object));
+                    return;
+                }
+                if (object instanceof Number) {
+                    statement.setDouble(index, ((Number) object).doubleValue());
+                    return;
+                }
+                break;
+            case "integer":
+                if (object instanceof String) {
+                    statement.setLong(index, Long.valueOf((String) object));
+                    return;
+                }
+                if (object instanceof Number) {
+                    statement.setLong(index, ((Number) object).longValue());
+                    return;
+                }
+                break;
+            case "text":
+            case "name":
+                if (object instanceof String) {
+                    statement.setString(index, (String) object);
+                    return;
+                }
+                break;
+        }
+        throw new RuntimeException("Wrong value type. Expect " + type + ".");
     }
 
 }

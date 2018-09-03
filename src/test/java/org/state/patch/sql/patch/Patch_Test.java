@@ -91,7 +91,7 @@ public class Patch_Test {
         assertEquals(Boolean.TRUE, insertRecord.attributes.get("bool"));
         assertEquals("Tom", insertRecord.attributes.get("name"));
         assertEquals("Hello, world!", insertRecord.attributes.get("txt"));
-        assertEquals("2018-09-02 17:15:07Z", insertRecord.attributes.get("stamp"));
+        assertEquals("2018-09-02T17:15:07.123Z", insertRecord.attributes.get("stamp"));
         assertEquals(5, insertRecord.attributes.size());
 
         insertRecord = (InsertRecord) resource.operations.get(6);
@@ -100,7 +100,7 @@ public class Patch_Test {
         assertEquals(Boolean.FALSE, insertRecord.attributes.get("bool"));
         assertEquals("John", insertRecord.attributes.get("name"));
         assertEquals("Hello, space!", insertRecord.attributes.get("txt"));
-        assertEquals("2018-09-02 17:16:43Z", insertRecord.attributes.get("stamp"));
+        assertEquals("2018-09-02T17:16:43.321Z", insertRecord.attributes.get("stamp"));
         assertEquals("Should be skipped", insertRecord.attributes.get("extra"));
         assertEquals(6, insertRecord.attributes.size());
 

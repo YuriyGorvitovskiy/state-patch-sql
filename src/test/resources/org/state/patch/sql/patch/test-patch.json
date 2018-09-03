@@ -69,7 +69,7 @@
                 "bool": true,
                 "name": "Tom",
                 "txt": "Hello, world!",
-                "stamp": "2018-09-02 17:15:07Z"
+                "stamp": "2018-09-02T17:15:07.123Z"
             }
         },
         {
@@ -80,7 +80,7 @@
                 "bool": false,
                 "name": "John",
                 "txt": "Hello, space!",
-                "stamp": "2018-09-02 17:16:43Z",
+                "stamp": "2018-09-02T17:16:43.321Z",
                 "extra": "Should be skipped"
             }
         },
