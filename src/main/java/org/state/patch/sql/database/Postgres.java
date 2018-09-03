@@ -4,7 +4,6 @@ import java.sql.Types;
 
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.patch.Column;
 import org.state.patch.sql.patch.CreateColumn;
 import org.state.patch.sql.patch.CreateTable;
 import org.state.patch.sql.patch.DeleteColumn;
@@ -34,6 +33,15 @@ public class Postgres extends Database {
             mainSql.append("    WHERE ");
             mainSql.append(StringUtils.joinWith(" = ? AND ", (Object[]) columns));
             mainSql.append(" = ?\n");
+
+            return this;
+        }
+
+        @Override
+        public SelectBuilder orderBy(String... columns) {
+            mainSql.append("    ORDER BY ");
+            mainSql.append(StringUtils.joinWith(" ASC, ", (Object[]) columns));
+            mainSql.append(" ASC\n");
 
             return this;
         }
@@ -75,7 +83,7 @@ public class Postgres extends Database {
         mainSql.append(" (\n");
         String tableSQLSeparator = "    ";
         String primarySQLSeparator = "";
-        for (Column column : table.columns) {
+        for (CreateTable.Column column : table.columns) {
             mainSql.append(tableSQLSeparator);
             mainSql.append(column.name);
             mainSql.append("  ");
@@ -111,7 +119,7 @@ public class Postgres extends Database {
     public String sqlCreateColumn(CreateColumn operation) {
         StringBuilder mainSql = new StringBuilder();
         mainSql.append("ALTER TABLE ");
-        mainSql.append(operation.table_id);
+        mainSql.append(operation.table);
         mainSql.append("\n");
         mainSql.append("    ADD COLUMN ");
         mainSql.append(operation.name);
@@ -126,7 +134,7 @@ public class Postgres extends Database {
     public String sqlDeleteColumn(DeleteColumn operation) {
         StringBuilder mainSql = new StringBuilder();
         mainSql.append("ALTER TABLE ");
-        mainSql.append(operation.table_id);
+        mainSql.append(operation.table);
         mainSql.append("\n");
         mainSql.append("    DROP COLUMN ");
         mainSql.append(operation.name);

@@ -29,7 +29,7 @@ public class Patch_Test {
         assertEquals("test_table_a", createTable.name);
         assertEquals(6, createTable.columns.size());
 
-        Column column = createTable.columns.get(0);
+        CreateTable.Column column = createTable.columns.get(0);
         assertEquals("id", column.name);
         assertEquals("integer", column.type);
         assertEquals(Boolean.TRUE, column.primary);
@@ -74,12 +74,12 @@ public class Patch_Test {
         assertEquals(Boolean.FALSE, column.primary);
 
         CreateColumn createColumn = (CreateColumn) resource.operations.get(2);
-        assertEquals("test_table_a", createColumn.table_id);
+        assertEquals("test_table_a", createColumn.table);
         assertEquals("txt", createColumn.name);
         assertEquals("text", createColumn.type);
 
         DeleteColumn deleteColumn = (DeleteColumn) resource.operations.get(3);
-        assertEquals("test_table_a", deleteColumn.table_id);
+        assertEquals("test_table_a", deleteColumn.table);
         assertEquals("txt_extra", deleteColumn.name);
 
         DeleteTable deleteTable = (DeleteTable) resource.operations.get(4);

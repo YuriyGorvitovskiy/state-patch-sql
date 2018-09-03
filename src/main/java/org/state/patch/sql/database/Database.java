@@ -26,10 +26,18 @@ public abstract class Database {
         public SelectBuilder whereMatch(String... columns);
 
         /**
+         * contribute to SQL the following
+         *
+         * ORDER BY columns[0] ASC, ..., columns[n] ASC
+         */
+        public SelectBuilder orderBy(String... columns);
+
+        /**
          *
          * @return complete Query statement SQL
          */
         public String toSql();
+
     }
 
     public final BasicDataSource datasource;

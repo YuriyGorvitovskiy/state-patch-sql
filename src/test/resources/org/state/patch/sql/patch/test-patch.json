@@ -48,13 +48,13 @@
         },
         {
             "@type": "create-column",
-            "table_id": "test_table_a",
+            "table": "test_table_a",
             "name": "txt",
             "type": "text"
         },
         {
             "@type": "delete-column",
-            "table_id": "test_table_a",
+            "table": "test_table_a",
             "name": "txt_extra"
         },
         {

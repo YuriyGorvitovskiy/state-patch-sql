@@ -17,26 +17,15 @@
         },
         {
             "@type": "create-table",
-            "name": "schema_table",
-            "columns": [
-                {
-                    "name": "id",
-                    "type": "name",
-                    "primary": true
-                }
-            ]
-        },
-        {
-            "@type": "create-table",
             "name": "schema_column",
             "columns": [
                 {
-                    "name": "table_id",
+                    "name": "table_name",
                     "type": "name",
                     "primary": true
                 },
                 {
-                    "name": "name",
+                    "name": "column_name",
                     "type": "name",
                     "primary": true
                 },
