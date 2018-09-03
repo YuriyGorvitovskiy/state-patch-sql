@@ -22,7 +22,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "txt",
+                    "name": "txt_extra",
                     "type": "text"
                 },
                 {
@@ -32,8 +32,69 @@
             ]
         },
         {
+            "@type": "create-table",
+            "name": "test_table_b",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "primary": true
+                },
+                {
+                    "name": "num",
+                    "type": "floating"
+                }
+            ]
+        },
+        {
+            "@type": "create-column",
+            "table_id": "test_table_a",
+            "name": "txt",
+            "type": "text"
+        },
+        {
+            "@type": "delete-column",
+            "table_id": "test_table_a",
+            "name": "txt_extra"
+        },
+        {
             "@type": "delete-table",
-            "name": "test_table_a"
+            "name": "test_table_b"
+        },
+        {
+            "@type": "insert",
+            "id": "test_table_a:1",
+            "attributes": {
+                "num": 12.3,
+                "bool": true,
+                "name": "Tom",
+                "txt": "Hello, world!",
+                "stamp": "2018-09-02 17:15:07Z"
+            }
+        },
+        {
+            "@type": "insert",
+            "id": "test_table_a:2",
+            "attributes": {
+                "num": 23.4,
+                "bool": false,
+                "name": "John",
+                "txt": "Hello, space!",
+                "stamp": "2018-09-02 17:16:43Z",
+                "extra": "Should be skipped"
+            }
+        },
+        {
+            "@type": "change",
+            "id": "test_table_a:1",
+            "attributes": {
+                "txt": "Hello, Universe!",
+                "extra": "Should be skipped"
+            }
+        },
+        {
+            "@type": "delete",
+            "id": "test_table_a:2"
         }
     ]
 }

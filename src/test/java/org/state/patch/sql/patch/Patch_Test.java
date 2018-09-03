@@ -23,7 +23,7 @@ public class Patch_Test {
 
         // Validate
         assertNotNull(resource);
-        assertEquals(2, resource.operations.size());
+        assertEquals(9, resource.operations.size());
 
         CreateTable createTable = (CreateTable) resource.operations.get(0);
         assertEquals("test_table_a", createTable.name);
@@ -50,7 +50,7 @@ public class Patch_Test {
         assertEquals(Boolean.FALSE, column.primary);
 
         column = createTable.columns.get(4);
-        assertEquals("txt", column.name);
+        assertEquals("txt_extra", column.name);
         assertEquals("text", column.type);
         assertEquals(Boolean.FALSE, column.primary);
 
@@ -59,7 +59,58 @@ public class Patch_Test {
         assertEquals("datetime", column.type);
         assertEquals(Boolean.FALSE, column.primary);
 
-        DeleteTable deleteTable = (DeleteTable) resource.operations.get(1);
-        assertEquals("test_table_a", deleteTable.name);
+        createTable = (CreateTable) resource.operations.get(1);
+        assertEquals("test_table_b", createTable.name);
+        assertEquals(2, createTable.columns.size());
+
+        column = createTable.columns.get(0);
+        assertEquals("id", column.name);
+        assertEquals("integer", column.type);
+        assertEquals(Boolean.TRUE, column.primary);
+
+        column = createTable.columns.get(1);
+        assertEquals("num", column.name);
+        assertEquals("floating", column.type);
+        assertEquals(Boolean.FALSE, column.primary);
+
+        CreateColumn createColumn = (CreateColumn) resource.operations.get(2);
+        assertEquals("test_table_a", createColumn.table_id);
+        assertEquals("txt", createColumn.name);
+        assertEquals("text", createColumn.type);
+
+        DeleteColumn deleteColumn = (DeleteColumn) resource.operations.get(3);
+        assertEquals("test_table_a", deleteColumn.table_id);
+        assertEquals("txt_extra", deleteColumn.name);
+
+        DeleteTable deleteTable = (DeleteTable) resource.operations.get(4);
+        assertEquals("test_table_b", deleteTable.name);
+
+        InsertRecord insertRecord = (InsertRecord) resource.operations.get(5);
+        assertEquals("test_table_a:1", insertRecord.id);
+        assertEquals(Double.valueOf(12.3), insertRecord.attributes.get("num"));
+        assertEquals(Boolean.TRUE, insertRecord.attributes.get("bool"));
+        assertEquals("Tom", insertRecord.attributes.get("name"));
+        assertEquals("Hello, world!", insertRecord.attributes.get("txt"));
+        assertEquals("2018-09-02 17:15:07Z", insertRecord.attributes.get("stamp"));
+        assertEquals(5, insertRecord.attributes.size());
+
+        insertRecord = (InsertRecord) resource.operations.get(6);
+        assertEquals("test_table_a:2", insertRecord.id);
+        assertEquals(Double.valueOf(23.4), insertRecord.attributes.get("num"));
+        assertEquals(Boolean.FALSE, insertRecord.attributes.get("bool"));
+        assertEquals("John", insertRecord.attributes.get("name"));
+        assertEquals("Hello, space!", insertRecord.attributes.get("txt"));
+        assertEquals("2018-09-02 17:16:43Z", insertRecord.attributes.get("stamp"));
+        assertEquals("Should be skipped", insertRecord.attributes.get("extra"));
+        assertEquals(6, insertRecord.attributes.size());
+
+        ChangeRecord changeRecord = (ChangeRecord) resource.operations.get(7);
+        assertEquals("test_table_a:1", changeRecord.id);
+        assertEquals("Hello, Universe!", changeRecord.attributes.get("txt"));
+        assertEquals("Should be skipped", changeRecord.attributes.get("extra"));
+        assertEquals(2, changeRecord.attributes.size());
+
+        DeleteRecord deleteRecord = (DeleteRecord) resource.operations.get(8);
+        assertEquals("test_table_a:2", deleteRecord.id);
     }
 }

@@ -10,6 +10,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @Type(value = DeleteTable.class, name = "delete-table"),
         @Type(value = CreateColumn.class, name = "create-column"),
         @Type(value = DeleteColumn.class, name = "delete-column"),
+        @Type(value = InsertRecord.class, name = "insert"),
+        @Type(value = ChangeRecord.class, name = "change"),
+        @Type(value = DeleteRecord.class, name = "delete"),
 })
 public abstract class Operation {
 }
