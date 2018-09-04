@@ -9,8 +9,8 @@ import java.util.function.BiFunction;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.patch.CreateTable;
-import org.state.patch.sql.patch.DeleteTable;
+import org.state.patch.sql.patch.OpTableCreate;
+import org.state.patch.sql.patch.OpTableDelete;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,12 +18,12 @@ public class Postgres_Test {
 
     @Test
     public void test_CreateTable() throws Exception {
-        test_Generator("create-table", CreateTable.class, (p, r) -> p.sqlCreateTable(r));
+        test_Generator("create-table", OpTableCreate.class, (p, r) -> p.sqlCreateTable(r));
     }
 
     @Test
     public void test_DeleteTable() throws Exception {
-        test_Generator("delete-table", DeleteTable.class, (p, r) -> p.sqlDeleteTable(r));
+        test_Generator("delete-table", OpTableDelete.class, (p, r) -> p.sqlDeleteTable(r));
     }
 
     @Test

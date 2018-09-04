@@ -5,6 +5,6 @@ import java.util.List;
 
 public class Patch {
 
-    public List<Operation> operations = new ArrayList<>();
+    public List<Operation> ops = new ArrayList<>();
 
 }

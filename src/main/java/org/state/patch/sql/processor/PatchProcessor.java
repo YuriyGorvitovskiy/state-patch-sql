@@ -13,13 +13,13 @@ import java.util.function.Consumer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.database.Database;
-import org.state.patch.sql.patch.ChangeRecord;
-import org.state.patch.sql.patch.CreateColumn;
-import org.state.patch.sql.patch.CreateTable;
-import org.state.patch.sql.patch.DeleteColumn;
-import org.state.patch.sql.patch.DeleteRecord;
-import org.state.patch.sql.patch.DeleteTable;
-import org.state.patch.sql.patch.InsertRecord;
+import org.state.patch.sql.patch.OpColumnCreate;
+import org.state.patch.sql.patch.OpColumnDelete;
+import org.state.patch.sql.patch.OpRecordChange;
+import org.state.patch.sql.patch.OpRecordDelete;
+import org.state.patch.sql.patch.OpRecordInsert;
+import org.state.patch.sql.patch.OpTableCreate;
+import org.state.patch.sql.patch.OpTableDelete;
 import org.state.patch.sql.patch.Operation;
 import org.state.patch.sql.patch.Patch;
 
@@ -143,26 +143,26 @@ public class PatchProcessor implements Consumer<Patch> {
     }
 
     public void process(Patch patch, boolean updateSchema) {
-        for (Operation operation : patch.operations) {
-            if (operation instanceof CreateTable) {
-                createTable((CreateTable) operation, updateSchema);
-            } else if (operation instanceof DeleteTable) {
-                deleteTable((DeleteTable) operation, updateSchema);
-            } else if (operation instanceof CreateColumn) {
-                createColumn((CreateColumn) operation, updateSchema);
-            } else if (operation instanceof DeleteColumn) {
-                deleteColumn((DeleteColumn) operation, updateSchema);
-            } else if (operation instanceof InsertRecord) {
-                insertRecord((InsertRecord) operation, updateSchema);
-            } else if (operation instanceof ChangeRecord) {
-                changeRecord((ChangeRecord) operation, updateSchema);
-            } else if (operation instanceof DeleteRecord) {
-                deleteRecord((DeleteRecord) operation, updateSchema);
+        for (Operation operation : patch.ops) {
+            if (operation instanceof OpTableCreate) {
+                createTable((OpTableCreate) operation, updateSchema);
+            } else if (operation instanceof OpTableDelete) {
+                deleteTable((OpTableDelete) operation, updateSchema);
+            } else if (operation instanceof OpColumnCreate) {
+                createColumn((OpColumnCreate) operation, updateSchema);
+            } else if (operation instanceof OpColumnDelete) {
+                deleteColumn((OpColumnDelete) operation, updateSchema);
+            } else if (operation instanceof OpRecordInsert) {
+                insertRecord((OpRecordInsert) operation, updateSchema);
+            } else if (operation instanceof OpRecordChange) {
+                changeRecord((OpRecordChange) operation, updateSchema);
+            } else if (operation instanceof OpRecordDelete) {
+                deleteRecord((OpRecordDelete) operation, updateSchema);
             }
         }
     }
 
-    private void insertRecord(InsertRecord operation, boolean updateSchema) {
+    private void insertRecord(OpRecordInsert operation, boolean updateSchema) {
         System.out.println("Insert record '" + operation.id + "'.");
         String[] parts = operation.id.split(":");
         Table table = tables.get(parts[0]);
@@ -180,7 +180,7 @@ public class PatchProcessor implements Consumer<Patch> {
             columnNames.add(column.name);
         }
 
-        for (String key : operation.attributes.keySet()) {
+        for (String key : operation.attrs.keySet()) {
             Column column = table.columns.get(key);
             if (null != column && !column.primary) {
                 columnNames.add(column.name);
@@ -198,7 +198,7 @@ public class PatchProcessor implements Consumer<Patch> {
                         statement,
                         i,
                         column.type,
-                        (i < parts.length ? parts[i] : operation.attributes.get(columnName)));
+                        (i < parts.length ? parts[i] : operation.attrs.get(columnName)));
                     i++;
                 }
                 statement.executeUpdate();
@@ -209,7 +209,7 @@ public class PatchProcessor implements Consumer<Patch> {
         }
     }
 
-    private void changeRecord(ChangeRecord operation, boolean updateSchema) {
+    private void changeRecord(OpRecordChange operation, boolean updateSchema) {
         System.out.println("Update record '" + operation.id + "'.");
         String[] parts = operation.id.split(":");
         Table table = tables.get(parts[0]);
@@ -228,7 +228,7 @@ public class PatchProcessor implements Consumer<Patch> {
         }
 
         List<String> updateColumns = new ArrayList<>();
-        for (String key : operation.attributes.keySet()) {
+        for (String key : operation.attrs.keySet()) {
             Column column = table.columns.get(key);
             if (null != column && !column.primary) {
                 updateColumns.add(column.name);
@@ -246,7 +246,7 @@ public class PatchProcessor implements Consumer<Patch> {
                         statement,
                         i,
                         column.type,
-                        operation.attributes.get(columnName));
+                        operation.attrs.get(columnName));
                     i++;
                 }
                 for (Column column : table.primary) {
@@ -265,7 +265,7 @@ public class PatchProcessor implements Consumer<Patch> {
         }
     }
 
-    private void deleteRecord(DeleteRecord operation, boolean updateSchema) {
+    private void deleteRecord(OpRecordDelete operation, boolean updateSchema) {
         System.out.println("Delete record '" + operation.id + "'.");
         String[] parts = operation.id.split(":");
         Table table = tables.get(parts[0]);
@@ -303,11 +303,11 @@ public class PatchProcessor implements Consumer<Patch> {
         }
     }
 
-    private void createTable(CreateTable operation, boolean updateSchema) {
-        System.out.println("Creating table '" + operation.name + "'.");
+    private void createTable(OpTableCreate op, boolean updateSchema) {
+        System.out.println("Creating table '" + op.table + "'.");
         String sql = null;
         try (Connection connection = database.datasource.getConnection()) {
-            sql = database.sqlCreateTable(operation);
+            sql = database.sqlCreateTable(op);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.execute();
             }
@@ -318,8 +318,8 @@ public class PatchProcessor implements Consumer<Patch> {
             sql = database.sqlInsert("schema_column", "table_name", "column_name", "type", "primary_ix");
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 long index = 1;
-                for (CreateTable.Column column : operation.columns) {
-                    statement.setString(1, operation.name);
+                for (OpTableCreate.Column column : op.columns) {
+                    statement.setString(1, op.table);
                     statement.setString(2, column.name);
                     statement.setString(3, column.type);
                     if (column.primary) {
@@ -332,9 +332,9 @@ public class PatchProcessor implements Consumer<Patch> {
                 statement.executeBatch();
             }
 
-            Table table = new Table(operation.name);
+            Table table = new Table(op.table);
             tables.put(table.name, table);
-            for (CreateTable.Column column : operation.columns) {
+            for (OpTableCreate.Column column : op.columns) {
                 Column col = new Column(column.name, column.type, column.primary);
                 if (col.primary) {
                     table.primary.add(col);
@@ -346,8 +346,8 @@ public class PatchProcessor implements Consumer<Patch> {
         }
     }
 
-    private void deleteTable(DeleteTable operation, boolean updateSchema) {
-        System.out.println("Deleting table '" + operation.name + "'.");
+    private void deleteTable(OpTableDelete operation, boolean updateSchema) {
+        System.out.println("Deleting table '" + operation.table + "'.");
         String sql = null;
         try (Connection connection = database.datasource.getConnection()) {
             sql = database.sqlDeleteTable(operation);
@@ -361,19 +361,19 @@ public class PatchProcessor implements Consumer<Patch> {
 
             sql = database.sqlDelete("schema_column", "table_name");
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, operation.name);
+                statement.setString(1, operation.table);
                 statement.executeUpdate();
             }
 
-            tables.remove(operation.name);
+            tables.remove(operation.table);
 
         } catch (Throwable ex) {
             throw new RuntimeException("Failed SQL:\n" + sql, ex);
         }
     }
 
-    private void createColumn(CreateColumn operation, boolean updateSchema) {
-        System.out.println("Creating column '" + operation.table + "." + operation.name + "'.");
+    private void createColumn(OpColumnCreate operation, boolean updateSchema) {
+        System.out.println("Creating column '" + operation.table + "." + operation.column + "'.");
         String sql = null;
         try (Connection connection = database.datasource.getConnection()) {
             sql = database.sqlCreateColumn(operation);
@@ -388,7 +388,7 @@ public class PatchProcessor implements Consumer<Patch> {
             sql = database.sqlInsert("schema_column", "table_name", "column_name", "type", "primary_ix");
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, operation.table);
-                statement.setString(2, operation.name);
+                statement.setString(2, operation.column);
                 statement.setString(3, operation.type);
                 statement.setNull(4, database.getNullType("integer"));
 
@@ -396,14 +396,14 @@ public class PatchProcessor implements Consumer<Patch> {
             }
 
             Table table = tables.get(operation.table);
-            table.columns.put(operation.name, new Column(operation.name, operation.table, false));
+            table.columns.put(operation.column, new Column(operation.column, operation.type, false));
         } catch (Throwable ex) {
             throw new RuntimeException("Failed SQL:\n" + sql, ex);
         }
     }
 
-    private void deleteColumn(DeleteColumn operation, boolean updateSchema) {
-        System.out.println("Deleting column '" + operation.table + "." + operation.name + "'.");
+    private void deleteColumn(OpColumnDelete operation, boolean updateSchema) {
+        System.out.println("Deleting column '" + operation.table + "." + operation.column + "'.");
         String sql = null;
         try (Connection connection = database.datasource.getConnection()) {
             sql = database.sqlDeleteColumn(operation);
@@ -418,13 +418,13 @@ public class PatchProcessor implements Consumer<Patch> {
             sql = database.sqlDelete("schema_column", "table_name", "column_name");
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, operation.table);
-                statement.setString(2, operation.name);
+                statement.setString(2, operation.column);
                 statement.executeUpdate();
             }
 
             Table table = tables.get(operation.table);
             if (null != table) {
-                table.columns.remove(operation.name);
+                table.columns.remove(operation.column);
             }
 
         } catch (Throwable ex) {

@@ -1,8 +1,8 @@
 {
-    "operations": [
+    "ops": [
         {
             "@type": "create-table",
-            "name": "schema_version",
+            "table": "schema_version",
             "columns": [
                 {
                     "name": "id",
@@ -17,7 +17,7 @@
         },
         {
             "@type": "create-table",
-            "name": "schema_column",
+            "table": "schema_column",
             "columns": [
                 {
                     "name": "table_name",

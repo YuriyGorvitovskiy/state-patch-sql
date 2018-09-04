@@ -8,10 +8,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.patch.CreateColumn;
-import org.state.patch.sql.patch.CreateTable;
-import org.state.patch.sql.patch.DeleteColumn;
-import org.state.patch.sql.patch.DeleteTable;
+import org.state.patch.sql.patch.OpColumnCreate;
+import org.state.patch.sql.patch.OpColumnDelete;
+import org.state.patch.sql.patch.OpTableCreate;
+import org.state.patch.sql.patch.OpTableDelete;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -84,15 +84,15 @@ public class Postgres extends Database {
     }
 
     @Override
-    public String sqlCreateTable(CreateTable table) {
+    public String sqlCreateTable(OpTableCreate op) {
         StringBuilder mainSql = new StringBuilder();
         StringBuilder primaryKeySql = new StringBuilder();
         mainSql.append("CREATE TABLE ");
-        mainSql.append(table.name);
+        mainSql.append(op.table);
         mainSql.append(" (\n");
         String tableSQLSeparator = "    ";
         String primarySQLSeparator = "";
-        for (CreateTable.Column column : table.columns) {
+        for (OpTableCreate.Column column : op.columns) {
             mainSql.append(tableSQLSeparator);
             mainSql.append(column.name);
             mainSql.append("  ");
@@ -115,23 +115,23 @@ public class Postgres extends Database {
     }
 
     @Override
-    public String sqlDeleteTable(DeleteTable operation) {
+    public String sqlDeleteTable(OpTableDelete operation) {
         StringBuilder mainSql = new StringBuilder();
         mainSql.append("DROP TABLE IF EXISTS ");
-        mainSql.append(operation.name);
+        mainSql.append(operation.table);
         mainSql.append(" CASCADE;");
 
         return mainSql.toString();
     }
 
     @Override
-    public String sqlCreateColumn(CreateColumn operation) {
+    public String sqlCreateColumn(OpColumnCreate operation) {
         StringBuilder mainSql = new StringBuilder();
         mainSql.append("ALTER TABLE ");
         mainSql.append(operation.table);
         mainSql.append("\n");
         mainSql.append("    ADD COLUMN ");
-        mainSql.append(operation.name);
+        mainSql.append(operation.column);
         mainSql.append("  ");
         mainSql.append(toSQLType(operation.type));
         mainSql.append(";");
@@ -140,13 +140,13 @@ public class Postgres extends Database {
     }
 
     @Override
-    public String sqlDeleteColumn(DeleteColumn operation) {
+    public String sqlDeleteColumn(OpColumnDelete operation) {
         StringBuilder mainSql = new StringBuilder();
         mainSql.append("ALTER TABLE ");
         mainSql.append(operation.table);
         mainSql.append("\n");
         mainSql.append("    DROP COLUMN ");
-        mainSql.append(operation.name);
+        mainSql.append(operation.column);
         mainSql.append(";");
 
         return mainSql.toString();

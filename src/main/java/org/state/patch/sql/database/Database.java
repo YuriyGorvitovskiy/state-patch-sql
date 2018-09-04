@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.patch.CreateColumn;
-import org.state.patch.sql.patch.CreateTable;
-import org.state.patch.sql.patch.DeleteColumn;
-import org.state.patch.sql.patch.DeleteTable;
+import org.state.patch.sql.patch.OpColumnCreate;
+import org.state.patch.sql.patch.OpTableCreate;
+import org.state.patch.sql.patch.OpColumnDelete;
+import org.state.patch.sql.patch.OpTableDelete;
 
 public abstract class Database {
 
@@ -60,13 +60,13 @@ public abstract class Database {
         this.datasource.setPassword(config.password);
     }
 
-    public abstract String sqlCreateTable(CreateTable table);
+    public abstract String sqlCreateTable(OpTableCreate table);
 
-    public abstract String sqlDeleteTable(DeleteTable operation);
+    public abstract String sqlDeleteTable(OpTableDelete operation);
 
-    public abstract String sqlCreateColumn(CreateColumn operation);
+    public abstract String sqlCreateColumn(OpColumnCreate operation);
 
-    public abstract String sqlDeleteColumn(DeleteColumn operation);
+    public abstract String sqlDeleteColumn(OpColumnDelete operation);
 
     /**
      * @return prepared SQL statement with 1 parameter – table name.

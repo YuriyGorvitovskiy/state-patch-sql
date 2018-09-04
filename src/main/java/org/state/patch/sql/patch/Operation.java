@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(property = "@type", use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
-        @Type(value = CreateTable.class, name = "create-table"),
-        @Type(value = DeleteTable.class, name = "delete-table"),
-        @Type(value = CreateColumn.class, name = "create-column"),
-        @Type(value = DeleteColumn.class, name = "delete-column"),
-        @Type(value = InsertRecord.class, name = "insert"),
-        @Type(value = ChangeRecord.class, name = "change"),
-        @Type(value = DeleteRecord.class, name = "delete"),
+        @Type(value = OpTableCreate.class, name = "create-table"),
+        @Type(value = OpTableDelete.class, name = "delete-table"),
+        @Type(value = OpColumnCreate.class, name = "create-column"),
+        @Type(value = OpColumnDelete.class, name = "delete-column"),
+        @Type(value = OpRecordInsert.class, name = "insert"),
+        @Type(value = OpRecordChange.class, name = "change"),
+        @Type(value = OpRecordDelete.class, name = "delete"),
 })
 public abstract class Operation {
 }

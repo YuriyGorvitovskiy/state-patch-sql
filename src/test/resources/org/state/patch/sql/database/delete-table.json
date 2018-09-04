@@ -1,4 +1,4 @@
 {
     "@type": "delete-table",
-    "name": "test_table_a"
+    "table": "test_table_a"
 }

@@ -3,7 +3,7 @@ package org.state.patch.sql.patch;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateTable extends Operation {
+public class OpTableCreate extends Operation {
 
     public static class Column {
         public String  name;
@@ -11,6 +11,6 @@ public class CreateTable extends Operation {
         public boolean primary = false;
     }
 
-    public String       name;
+    public String       table;
     public List<Column> columns = new ArrayList<>();
 }

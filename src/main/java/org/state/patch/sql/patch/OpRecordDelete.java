@@ -1,5 +1,5 @@
 package org.state.patch.sql.patch;
 
-public class DeleteRecord extends Operation {
+public class OpRecordDelete extends Operation {
     public String id;
 }
