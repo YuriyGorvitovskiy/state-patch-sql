@@ -1,0 +1,65 @@
+{
+    "ops": [
+        {
+            "@type": "create-table",
+            "table": "pptest_alpha",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "primary": true
+                },
+                {
+                    "name": "num",
+                    "type": "floating"
+                },
+                {
+                    "name": "bool",
+                    "type": "boolean"
+                },
+                {
+                    "name": "name",
+                    "type": "name"
+                },
+                {
+                    "name": "txt_extra",
+                    "type": "text"
+                },
+                {
+                    "name": "stamp",
+                    "type": "datetime"
+                }
+            ]
+        },
+        {
+            "@type": "create-table",
+            "table": "pptest_beta",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "primary": true
+                },
+                {
+                    "name": "num",
+                    "type": "floating"
+                }
+            ]
+        },
+        {
+            "@type": "create-column",
+            "table": "pptest_alpha",
+            "column": "txt",
+            "type": "text"
+        },
+        {
+            "@type": "delete-column",
+            "table": "pptest_alpha",
+            "column": "txt_extra"
+        },
+        {
+            "@type": "delete-table",
+            "table": "pptest_beta"
+        }
+    ]
+}

@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("I'm state-patch-sql");
 
-        ServiceConfig config = Configurator.extract("org.state.patch.sql", new ServiceConfig());
+        ServiceConfig config = Configurator.extract(System.getProperties(), "org.state.patch.sql", new ServiceConfig());
 
         System.out.println("Configuring Patch Consumer.");
         PatchConsumer consumer = PatchConsumer.createConsumer(config.patchtopic);

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 
 /*
@@ -11,7 +12,7 @@ import java.util.Set;
  */
 public class Configurator {
 
-    public static <T> T extract(String prefix, T config) {
+    public static <T> T extract(Properties props, String prefix, T config) {
         for (Field field : config.getClass().getFields()) {
             int mod = field.getModifiers();
 
@@ -23,7 +24,7 @@ public class Configurator {
             }
 
             String key = prefix + "." + field.getName();
-            Object value = System.getProperty(key);
+            Object value = props.getProperty(key);
 
             try {
                 Class<?> clazz = field.getType();
@@ -100,9 +101,9 @@ public class Configurator {
                 } else if (Map.class.isAssignableFrom(clazz)) {
                     @SuppressWarnings({ "rawtypes" })
                     Map map = (Map) field.get(config);
-                    extractMap(key, map);
+                    extractMap(props, key, map);
                 } else {
-                    extract(key, field.get(config));
+                    extract(props, key, field.get(config));
                 }
             } catch (Throwable ex) {
                 System.err.println("Failed to extract property: '" + key + "' with value: " + value + "'");
@@ -113,9 +114,9 @@ public class Configurator {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static Map extractMap(String prefix, Map config) {
+    public static Map extractMap(Properties props, String prefix, Map config) {
         prefix = prefix + ".";
-        for (Map.Entry<?, ?> property : System.getProperties().entrySet()) {
+        for (Map.Entry<?, ?> property : props.entrySet()) {
             String propKey = Objects.toString(property.getKey());
             if (propKey.startsWith(prefix)) {
                 Object value = property.getValue();

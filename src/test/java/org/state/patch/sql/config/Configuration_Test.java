@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.junit.Test;
 
@@ -39,26 +40,27 @@ public class Configuration_Test {
     @Test
     public void test_extract() {
         // Setup
-        System.setProperty("org.config.test.stringvalue", "string-value");
-        System.setProperty("org.config.test.boolvalue", "true");
-        System.setProperty("org.config.test.bytevalue", "123");
-        System.setProperty("org.config.test.shortvalue", "1234");
-        System.setProperty("org.config.test.intvalue", "12345");
-        System.setProperty("org.config.test.longvalue", "1234567890");
-        System.setProperty("org.config.test.floatvalue", "12.34");
-        System.setProperty("org.config.test.doublevalue", "1234.567");
-        System.setProperty("org.config.test.map.simple-string", "simple-string");
-        System.setProperty("org.config.test.map.complex.long", "complex-string");
-        System.setProperty("org.config.test.bottom.boolvalue", "true");
-        System.setProperty("org.config.test.bottom.bytevalue", "123");
-        System.setProperty("org.config.test.bottom.shortvalue", "1234");
-        System.setProperty("org.config.test.bottom.intvalue", "12345");
-        System.setProperty("org.config.test.bottom.longvalue", "1234567890");
-        System.setProperty("org.config.test.bottom.floatvalue", "12.34");
-        System.setProperty("org.config.test.bottom.doublevalue", "1234.567");
+        Properties props = new Properties();
+        props.setProperty("org.config.test.stringvalue", "string-value");
+        props.setProperty("org.config.test.boolvalue", "true");
+        props.setProperty("org.config.test.bytevalue", "123");
+        props.setProperty("org.config.test.shortvalue", "1234");
+        props.setProperty("org.config.test.intvalue", "12345");
+        props.setProperty("org.config.test.longvalue", "1234567890");
+        props.setProperty("org.config.test.floatvalue", "12.34");
+        props.setProperty("org.config.test.doublevalue", "1234.567");
+        props.setProperty("org.config.test.map.simple-string", "simple-string");
+        props.setProperty("org.config.test.map.complex.long", "complex-string");
+        props.setProperty("org.config.test.bottom.boolvalue", "true");
+        props.setProperty("org.config.test.bottom.bytevalue", "123");
+        props.setProperty("org.config.test.bottom.shortvalue", "1234");
+        props.setProperty("org.config.test.bottom.intvalue", "12345");
+        props.setProperty("org.config.test.bottom.longvalue", "1234567890");
+        props.setProperty("org.config.test.bottom.floatvalue", "12.34");
+        props.setProperty("org.config.test.bottom.doublevalue", "1234.567");
 
         // Execute
-        TopConfig config = Configurator.extract("org.config.test", new TopConfig());
+        TopConfig config = Configurator.extract(props, "org.config.test", new TopConfig());
 
         // Validate
         assertEquals("string-value", config.stringvalue);
@@ -87,7 +89,7 @@ public class Configuration_Test {
     @Test
     public void test_extract_default() {
         // Execute
-        TopConfig config = Configurator.extract("org.config.test_defult", new TopConfig());
+        TopConfig config = Configurator.extract(new Properties(), "org.config.test_defult", new TopConfig());
 
         // Validate
         assertEquals("default", config.stringvalue);
