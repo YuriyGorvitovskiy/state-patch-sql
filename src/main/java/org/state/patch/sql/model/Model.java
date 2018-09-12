@@ -36,7 +36,6 @@ public class Model {
             typeAttrs.add(new Attribute(opAttr.attribName,
                                         opAttr.columnName,
                                         opAttr.valueType,
-                                        opAttr.valueReferenceType,
                                         opAttr.valueInitial,
                                         op.issuedBy,
                                         op.issuedAt,
@@ -45,6 +44,7 @@ public class Model {
         }
         types.put(op.type, new EntityType(op.type,
                                           op.table,
+                                          op.identity,
                                           typeAttrs,
                                           op.issuedBy,
                                           op.issuedAt,
@@ -65,7 +65,6 @@ public class Model {
         newAttrs.add(new Attribute(op.attr.attribName,
                                    op.attr.columnName,
                                    op.attr.valueType,
-                                   op.attr.valueReferenceType,
                                    op.attr.valueInitial,
                                    op.issuedBy,
                                    op.issuedAt,
@@ -74,6 +73,7 @@ public class Model {
 
         types.put(oldType.typeName, new EntityType(oldType.typeName,
                                                    oldType.tableName,
+                                                   oldType.identity,
                                                    newAttrs,
                                                    op.issuedBy,
                                                    op.issuedAt,
@@ -90,6 +90,7 @@ public class Model {
 
         types.put(oldType.typeName, new EntityType(oldType.typeName,
                                                    oldType.tableName,
+                                                   oldType.identity,
                                                    newAttrs,
                                                    op.issuedBy,
                                                    op.issuedAt,

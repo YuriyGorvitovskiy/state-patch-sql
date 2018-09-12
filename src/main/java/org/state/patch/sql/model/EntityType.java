@@ -10,21 +10,23 @@ public class EntityType extends Traced {
 
     public final String                 typeName;
     public final String                 tableName;
+    public final Identity               identity;
     public final Map<String, Attribute> attrs;
 
-    public EntityType(
-            String typeName,
-            String tableName,
-            List<Attribute> attrs,
-            ReferenceExternal modifiedBy,
-            Date modifiedAt,
-            long modifiedEventId,
-            long modifiedPatchId) {
+    public EntityType(String typeName,
+                      String tableName,
+                      Identity identity,
+                      List<Attribute> attrs,
+                      ReferenceExternal modifiedBy,
+                      Date modifiedAt,
+                      long modifiedEventId,
+                      long modifiedPatchId) {
 
         super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
 
         this.typeName = typeName;
         this.tableName = tableName;
+        this.identity = identity;
 
         // To Preserve order of the attributes use LinkedHashMap
         Map<String, Attribute> ordered = new LinkedHashMap<>();

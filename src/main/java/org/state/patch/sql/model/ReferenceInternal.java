@@ -1,21 +1,23 @@
 package org.state.patch.sql.model;
 
+import java.util.Arrays;
+
 public class ReferenceInternal extends ReferenceAbstract {
     public static final String SEPARATOR = ":";
 
-    public final String type;
-    public final long   id;
+    public final String   type;
+    public final String[] ids;
 
     public ReferenceInternal(String stringValue) {
         super(stringValue);
         String[] parts = stringValue.split(SEPARATOR);
-        this.type = parts[parts.length - 2];
-        this.id = Long.parseLong(parts[parts.length - 1]);
+        this.type = parts[0];
+        this.ids = Arrays.copyOfRange(parts, 1, parts.length);
     }
 
-    public ReferenceInternal(String type, long id) {
-        super(type + SEPARATOR + id);
+    public ReferenceInternal(String type, String... ids) {
+        super(type + SEPARATOR + String.join(SEPARATOR, ids));
         this.type = type;
-        this.id = id;
+        this.ids = ids;
     }
 }
