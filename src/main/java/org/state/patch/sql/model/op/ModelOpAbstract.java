@@ -8,19 +8,16 @@ import org.state.patch.sql.model.ValueType;
 public abstract class ModelOpAbstract {
 
     public static class Attribute {
-        public final String    attribName;
-        public final String    columnName;
-        public final ValueType valueType;
-        public final Object    valueInitial;
+        public final String    name;
+        public final ValueType type;
+        public final Object    initial;
 
         public Attribute(String attribName,
-                         String columnName,
                          ValueType valueType,
                          Object valueInitial) {
-            this.attribName = attribName;
-            this.columnName = columnName;
-            this.valueType = valueType;
-            this.valueInitial = valueInitial;
+            this.name = attribName;
+            this.type = valueType;
+            this.initial = valueInitial;
         }
     }
 

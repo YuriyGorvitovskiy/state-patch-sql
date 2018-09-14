@@ -8,13 +8,11 @@ import java.util.Map;
 
 public class EntityType extends Traced {
 
-    public final String                 typeName;
-    public final String                 tableName;
+    public final String                 name;
     public final Attribute              identity;
     public final Map<String, Attribute> attrs;
 
-    public EntityType(String typeName,
-                      String tableName,
+    public EntityType(String name,
                       Attribute identity,
                       List<Attribute> attrs,
                       ReferenceExternal modifiedBy,
@@ -24,21 +22,20 @@ public class EntityType extends Traced {
 
         super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
 
-        this.typeName = typeName;
-        this.tableName = tableName;
+        this.name = name;
         this.identity = identity;
 
         // To Preserve order of the attributes use LinkedHashMap
         Map<String, Attribute> ordered = new LinkedHashMap<>();
-        ordered.put(identity.attribName, identity);
+        ordered.put(identity.name, identity);
         for (Attribute attr : attrs) {
-            ordered.put(attr.attribName, attr);
+            ordered.put(attr.name, attr);
         }
         this.attrs = Collections.unmodifiableMap(ordered);
     }
 
     @Override
     public String toString() {
-        return "EntityType (" + typeName + ")";
+        return "EntityType (" + name + ")";
     }
 }

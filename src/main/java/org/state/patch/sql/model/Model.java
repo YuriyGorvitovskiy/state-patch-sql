@@ -31,10 +31,9 @@ public class Model {
     }
 
     public void createType(ModelOpCreateType op) {
-        Attribute identity = new Attribute(op.identity.attribName,
-                                           op.identity.columnName,
-                                           op.identity.valueType,
-                                           op.identity.valueInitial,
+        Attribute identity = new Attribute(op.identity.name,
+                                           op.identity.type,
+                                           op.identity.initial,
                                            op.issuedBy,
                                            op.issuedAt,
                                            op.eventId,
@@ -42,17 +41,15 @@ public class Model {
 
         List<Attribute> typeAttrs = new ArrayList<>(op.attrs.size());
         for (ModelOpCreateType.Attribute opAttr : op.attrs) {
-            typeAttrs.add(new Attribute(opAttr.attribName,
-                                        opAttr.columnName,
-                                        opAttr.valueType,
-                                        opAttr.valueInitial,
+            typeAttrs.add(new Attribute(opAttr.name,
+                                        opAttr.type,
+                                        opAttr.initial,
                                         op.issuedBy,
                                         op.issuedAt,
                                         op.eventId,
                                         op.patchId));
         }
         types.put(op.type, new EntityType(op.type,
-                                          op.table,
                                           identity,
                                           typeAttrs,
                                           op.issuedBy,
@@ -71,23 +68,21 @@ public class Model {
 
         List<Attribute> newAttrs = new ArrayList<>(oldAttrs.size() + 1);
         newAttrs.addAll(oldType.attrs.values());
-        newAttrs.add(new Attribute(op.attr.attribName,
-                                   op.attr.columnName,
-                                   op.attr.valueType,
-                                   op.attr.valueInitial,
+        newAttrs.add(new Attribute(op.attr.name,
+                                   op.attr.type,
+                                   op.attr.initial,
                                    op.issuedBy,
                                    op.issuedAt,
                                    op.eventId,
                                    op.patchId));
 
-        types.put(oldType.typeName, new EntityType(oldType.typeName,
-                                                   oldType.tableName,
-                                                   oldType.identity,
-                                                   newAttrs,
-                                                   op.issuedBy,
-                                                   op.issuedAt,
-                                                   op.eventId,
-                                                   op.patchId));
+        types.put(oldType.name, new EntityType(oldType.name,
+                                               oldType.identity,
+                                               newAttrs,
+                                               op.issuedBy,
+                                               op.issuedAt,
+                                               op.eventId,
+                                               op.patchId));
 
     }
 
@@ -95,15 +90,14 @@ public class Model {
         EntityType oldType = types.get(op.type);
 
         List<Attribute> newAttrs = new ArrayList<>(oldType.attrs.values());
-        newAttrs.removeIf(a -> Objects.equals(a.attribName, op.attribName));
+        newAttrs.removeIf(a -> Objects.equals(a.name, op.attribName));
 
-        types.put(oldType.typeName, new EntityType(oldType.typeName,
-                                                   oldType.tableName,
-                                                   oldType.identity,
-                                                   newAttrs,
-                                                   op.issuedBy,
-                                                   op.issuedAt,
-                                                   op.eventId,
-                                                   op.patchId));
+        types.put(oldType.name, new EntityType(oldType.name,
+                                               oldType.identity,
+                                               newAttrs,
+                                               op.issuedBy,
+                                               op.issuedAt,
+                                               op.eventId,
+                                               op.patchId));
     }
 }
