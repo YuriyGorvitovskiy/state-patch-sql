@@ -31,6 +31,15 @@ public class Model {
     }
 
     public void createType(ModelOpCreateType op) {
+        Attribute identity = new Attribute(op.identity.attribName,
+                                           op.identity.columnName,
+                                           op.identity.valueType,
+                                           op.identity.valueInitial,
+                                           op.issuedBy,
+                                           op.issuedAt,
+                                           op.eventId,
+                                           op.patchId);
+
         List<Attribute> typeAttrs = new ArrayList<>(op.attrs.size());
         for (ModelOpCreateType.Attribute opAttr : op.attrs) {
             typeAttrs.add(new Attribute(opAttr.attribName,
@@ -44,7 +53,7 @@ public class Model {
         }
         types.put(op.type, new EntityType(op.type,
                                           op.table,
-                                          op.identity,
+                                          identity,
                                           typeAttrs,
                                           op.issuedBy,
                                           op.issuedAt,

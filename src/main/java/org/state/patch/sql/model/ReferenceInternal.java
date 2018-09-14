@@ -1,23 +1,26 @@
 package org.state.patch.sql.model;
 
-import java.util.Arrays;
-
 public class ReferenceInternal extends ReferenceAbstract {
     public static final String SEPARATOR = ":";
 
-    public final String   type;
-    public final String[] ids;
+    public final String type;
+
+    /**
+     * To avoid unnecessary mapping we only one id should be used.
+     * We will keep it in string form, until we are ready to interact with DB.
+     */
+    public final String id;
 
     public ReferenceInternal(String stringValue) {
         super(stringValue);
         String[] parts = stringValue.split(SEPARATOR);
-        this.type = parts[0];
-        this.ids = Arrays.copyOfRange(parts, 1, parts.length);
+        this.type = parts[parts.length - 2];
+        this.id = parts[parts.length - 1];
     }
 
-    public ReferenceInternal(String type, String... ids) {
-        super(type + SEPARATOR + String.join(SEPARATOR, ids));
+    public ReferenceInternal(String type, String id) {
+        super(type + SEPARATOR + id);
         this.type = type;
-        this.ids = ids;
+        this.id = id;
     }
 }

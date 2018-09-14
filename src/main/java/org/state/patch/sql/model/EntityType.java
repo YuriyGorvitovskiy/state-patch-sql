@@ -10,12 +10,12 @@ public class EntityType extends Traced {
 
     public final String                 typeName;
     public final String                 tableName;
-    public final Identity               identity;
+    public final Attribute              identity;
     public final Map<String, Attribute> attrs;
 
     public EntityType(String typeName,
                       String tableName,
-                      Identity identity,
+                      Attribute identity,
                       List<Attribute> attrs,
                       ReferenceExternal modifiedBy,
                       Date modifiedAt,
@@ -30,6 +30,7 @@ public class EntityType extends Traced {
 
         // To Preserve order of the attributes use LinkedHashMap
         Map<String, Attribute> ordered = new LinkedHashMap<>();
+        ordered.put(identity.attribName, identity);
         for (Attribute attr : attrs) {
             ordered.put(attr.attribName, attr);
         }

@@ -59,15 +59,6 @@ public enum PrimitiveType implements ValueType {
     /**
      * <ul>
      *  <li>JSON: string,</li>
-     *  <li>Java: ReferenceInternal,</li>
-     *  <li>Postgres: BIGINT</li>
-     *  </ul>
-     */
-    REFERENCE_INTERNAL,
-
-    /**
-     * <ul>
-     *  <li>JSON: string,</li>
      *  <li>Java: ReferenceExternal,</li>
      *  <li>Postgres: CHARACTER VARYING(256)</li>
      *  </ul>
