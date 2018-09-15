@@ -1,9 +1,9 @@
-package org.state.patch.sql.consumer;
+package org.state.patch.sql.zzz.consumer;
 
 import java.util.function.Consumer;
 
 import org.state.patch.sql.config.PatchTopicConfig;
-import org.state.patch.sql.old.patch.Patch;
+import org.state.patch.sql.zzz.patch.Patch;
 
 public interface PatchConsumer {
 

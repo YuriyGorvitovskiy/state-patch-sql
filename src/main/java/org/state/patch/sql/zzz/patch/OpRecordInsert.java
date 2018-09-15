@@ -1,4 +1,4 @@
-package org.state.patch.sql.old.patch;
+package org.state.patch.sql.zzz.patch;
 
 import java.util.HashMap;
 import java.util.Map;

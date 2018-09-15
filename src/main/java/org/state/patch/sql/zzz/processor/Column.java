@@ -1,4 +1,4 @@
-package org.state.patch.sql.processor;
+package org.state.patch.sql.zzz.processor;
 
 public class Column {
     public final String  name;

@@ -11,8 +11,11 @@ import java.util.Objects;
 import org.state.patch.sql.control.op.ControlOp;
 import org.state.patch.sql.control.op.ControlOpBackup;
 import org.state.patch.sql.control.op.ControlOpSuspend;
+import org.state.patch.sql.data.Reference;
 import org.state.patch.sql.data.ReferenceExternal;
+import org.state.patch.sql.data.ReferenceInteger;
 import org.state.patch.sql.data.ReferenceInternal;
+import org.state.patch.sql.data.ReferenceString;
 import org.state.patch.sql.data.op.DataOp;
 import org.state.patch.sql.data.op.DataOpDelete;
 import org.state.patch.sql.data.op.DataOpInsert;
@@ -77,8 +80,11 @@ public class JsonTranslator {
         long patchId = patch.patch_id;
 
         List<DataOp> ops = new ArrayList<>(patch.ops.size());
-        for (JsonDataOp op : patch.ops) {
-            ops.add(fromJson(op, eventBy, eventAt, eventId, patchId));
+        for (JsonDataOp jsonOp : patch.ops) {
+            DataOp op = fromJson(jsonOp, eventBy, eventAt, eventId, patchId);
+            if (null != op) {
+                ops.add(op);
+            }
         }
 
         return new PatchData(Collections.unmodifiableList(ops),
@@ -95,8 +101,11 @@ public class JsonTranslator {
         long patchId = patch.patch_id;
 
         List<ModelOp> ops = new ArrayList<>(patch.ops.size());
-        for (JsonModelOp op : patch.ops) {
-            ops.add(fromJson(op, eventBy, eventAt, eventId, patchId));
+        for (JsonModelOp jsonOp : patch.ops) {
+            ModelOp op = fromJson(jsonOp, eventBy, eventAt, eventId, patchId);
+            if (null != op) {
+                ops.add(op);
+            }
         }
 
         return new PatchModel(Collections.unmodifiableList(ops),
@@ -113,8 +122,11 @@ public class JsonTranslator {
         long patchId = patch.patch_id;
 
         List<ControlOp> ops = new ArrayList<>(patch.ops.size());
-        for (JsonControlOp op : patch.ops) {
-            ops.add(fromJson(op, eventBy, eventAt, eventId, patchId));
+        for (JsonControlOp jsonOp : patch.ops) {
+            ControlOp op = fromJson(jsonOp, eventBy, eventAt, eventId, patchId);
+            if (null != op) {
+                ops.add(op);
+            }
         }
 
         return new PatchControl(Collections.unmodifiableList(ops),
@@ -172,7 +184,7 @@ public class JsonTranslator {
         if (op instanceof JsonControlOpBackup) {
             return fromJson((JsonControlOpBackup) op, eventBy, eventAt, eventId, patchId);
         }
-        throw new Exception("Unknown model op: " + op);
+        throw new Exception("Unknown control op: " + op);
     }
 
     private DataOpUpdate fromJson(JsonDataOpUpdate op,
@@ -180,7 +192,12 @@ public class JsonTranslator {
                                   Date eventAt,
                                   long eventId,
                                   long patchId) throws Exception {
-        ReferenceInternal entityId = new ReferenceInternal(op.entity_id);
+        ReferenceInternal entityId = entityIdFromJson(op.entity_id);
+        if (null == entityId) {
+            // Skip operation for unmanaged Entity Type
+            return null;
+        }
+
         Map<String, Object> attrs = fromJson(op.attrs, entityId.type);
 
         return new DataOpUpdate(entityId,
@@ -196,7 +213,12 @@ public class JsonTranslator {
                                   Date eventAt,
                                   long eventId,
                                   long patchId) throws Exception {
-        ReferenceInternal entityId = new ReferenceInternal(op.entity_id);
+        ReferenceInternal entityId = entityIdFromJson(op.entity_id);
+        if (null == entityId) {
+            // Skip operation for unmanaged Entity Type
+            return null;
+        }
+
         Map<String, Object> attrs = fromJson(op.attrs, entityId.type);
 
         return new DataOpInsert(entityId,
@@ -207,8 +229,16 @@ public class JsonTranslator {
                                 patchId);
     }
 
-    private DataOpDelete fromJson(JsonDataOpDelete op, ReferenceExternal eventBy, Date eventAt, long eventId, long patchId) {
-        ReferenceInternal entityId = new ReferenceInternal(op.entity_id);
+    private DataOpDelete fromJson(JsonDataOpDelete op,
+                                  ReferenceExternal eventBy,
+                                  Date eventAt,
+                                  long eventId,
+                                  long patchId) throws Exception {
+        ReferenceInternal entityId = entityIdFromJson(op.entity_id);
+        if (null == entityId) {
+            // Skip operation for unmanaged Entity Type
+            return null;
+        }
         return new DataOpDelete(entityId,
                                 eventBy,
                                 eventAt,
@@ -342,9 +372,9 @@ public class JsonTranslator {
         HashMap<String, Object> translated = new HashMap<>();
         for (Map.Entry<String, Object> jsonAttr : jsonAttrs.entrySet()) {
             Attribute modelAttr = entityType.attrs.get(jsonAttr.getKey());
-            if (null == modelAttr) {
-                translated.put(jsonAttr.getKey(), jsonAttr.getValue());
-            } else {
+
+            // Skip unmanaged attributes
+            if (null != modelAttr) {
                 translated.put(jsonAttr.getKey(), fromJson(modelAttr.type, jsonAttr.getValue()));
             }
         }
@@ -373,7 +403,7 @@ public class JsonTranslator {
                     return dateFromJson(json);
             }
         } else if (type instanceof ReferenceType) {
-            return new ReferenceInternal(Objects.toString(json));
+            return referenceFromJson((ReferenceType) type, json);
         }
         throw new Exception("Unknown value type: " + type);
     }
@@ -421,4 +451,33 @@ public class JsonTranslator {
         return DATE_FORMAT.parse(Objects.toString(json));
     }
 
+    private ReferenceInternal entityIdFromJson(Object json) throws Exception {
+        String[] parts = Objects.toString(json).split(Reference.SEPARATOR);
+        String entityTypeName = parts[parts.length - 2];
+        String storageId = parts[parts.length - 1];
+
+        EntityType entityType = model.getEntityType(entityTypeName);
+        if (null == entityType) {
+            return null;
+        }
+
+        ReferenceType refType = (ReferenceType) entityType.identity.type;
+        return referenceFromJson(refType, storageId);
+    }
+
+    private Reference referenceFromJson(ReferenceType type, Object json) throws Exception {
+        String[] parts = Objects.toString(json).split(Reference.SEPARATOR);
+        String storageId = parts[parts.length - 1];
+
+        return referenceFromJson(type, storageId);
+    }
+
+    private ReferenceInternal referenceFromJson(ReferenceType refType, String storageId) throws Exception {
+        if (PrimitiveType.INTEGER == refType.storageType) {
+            return new ReferenceInteger(refType.entityType, integerFromJson(storageId));
+        } else if (PrimitiveType.STRING == refType.storageType) {
+            return new ReferenceString(refType.entityType, storageId);
+        }
+        throw new Exception("Unknown reference storage type: " + refType.storageType);
+    }
 }

@@ -3,13 +3,13 @@ package org.state.patch.sql.data.op;
 import java.util.Date;
 import java.util.Map;
 
+import org.state.patch.sql.data.Reference;
 import org.state.patch.sql.data.ReferenceExternal;
-import org.state.patch.sql.data.ReferenceInternal;
 
 public class DataOpInsert extends DataOp {
     public final Map<String, Object> attrs;
 
-    public DataOpInsert(ReferenceInternal id,
+    public DataOpInsert(Reference id,
                         Map<String, Object> attrs,
                         ReferenceExternal modifiedBy,
                         Date modifiedAt,

@@ -1,6 +1,6 @@
 package org.state.patch.sql.config;
 
-import org.state.patch.sql.database.Postgres;
+import org.state.patch.sql.zzz.database.Postgres;
 
 public class DatabaseConfig {
     public String engine   = Postgres.NAME;

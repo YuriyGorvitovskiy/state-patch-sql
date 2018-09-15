@@ -2,9 +2,9 @@ package org.state.patch.sql;
 
 import org.state.patch.sql.config.Configurator;
 import org.state.patch.sql.config.ServiceConfig;
-import org.state.patch.sql.consumer.PatchConsumer;
-import org.state.patch.sql.database.Database;
-import org.state.patch.sql.processor.PatchProcessor;
+import org.state.patch.sql.zzz.consumer.PatchConsumer;
+import org.state.patch.sql.zzz.database.Database;
+import org.state.patch.sql.zzz.processor.PatchProcessor;
 
 public class Main {
 

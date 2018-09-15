@@ -1,4 +1,4 @@
-package org.state.patch.sql.consumer;
+package org.state.patch.sql.zzz.consumer;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -8,7 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.state.patch.sql.config.PatchTopicConfig;
-import org.state.patch.sql.old.patch.Patch;
+import org.state.patch.sql.zzz.patch.Patch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

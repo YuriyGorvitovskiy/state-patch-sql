@@ -1,14 +1,14 @@
-package org.state.patch.sql.database;
+package org.state.patch.sql.zzz.database;
 
 import java.sql.PreparedStatement;
 import java.util.List;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.old.patch.OpColumnCreate;
-import org.state.patch.sql.old.patch.OpColumnDelete;
-import org.state.patch.sql.old.patch.OpTableCreate;
-import org.state.patch.sql.old.patch.OpTableDelete;
+import org.state.patch.sql.zzz.patch.OpColumnCreate;
+import org.state.patch.sql.zzz.patch.OpColumnDelete;
+import org.state.patch.sql.zzz.patch.OpTableCreate;
+import org.state.patch.sql.zzz.patch.OpTableDelete;
 
 public abstract class Database {
 

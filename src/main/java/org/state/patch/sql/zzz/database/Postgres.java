@@ -1,4 +1,4 @@
-package org.state.patch.sql.database;
+package org.state.patch.sql.zzz.database;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -8,10 +8,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.old.patch.OpColumnCreate;
-import org.state.patch.sql.old.patch.OpColumnDelete;
-import org.state.patch.sql.old.patch.OpTableCreate;
-import org.state.patch.sql.old.patch.OpTableDelete;
+import org.state.patch.sql.zzz.patch.OpColumnCreate;
+import org.state.patch.sql.zzz.patch.OpColumnDelete;
+import org.state.patch.sql.zzz.patch.OpTableCreate;
+import org.state.patch.sql.zzz.patch.OpTableDelete;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
