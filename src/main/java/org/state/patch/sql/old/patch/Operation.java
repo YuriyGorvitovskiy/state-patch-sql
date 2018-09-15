@@ -1,4 +1,4 @@
-package org.state.patch.sql.patch;
+package org.state.patch.sql.old.patch;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;

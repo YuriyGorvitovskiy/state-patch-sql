@@ -9,8 +9,8 @@ import java.util.function.BiFunction;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.patch.OpTableCreate;
-import org.state.patch.sql.patch.OpTableDelete;
+import org.state.patch.sql.old.patch.OpTableCreate;
+import org.state.patch.sql.old.patch.OpTableDelete;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

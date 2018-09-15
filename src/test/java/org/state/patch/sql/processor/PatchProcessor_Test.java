@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.state.patch.sql.config.Configurator;
 import org.state.patch.sql.config.ServiceConfig;
 import org.state.patch.sql.database.Database;
-import org.state.patch.sql.patch.Patch;
+import org.state.patch.sql.old.patch.Patch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

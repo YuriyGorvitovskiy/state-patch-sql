@@ -2,6 +2,9 @@ package org.state.patch.sql.model;
 
 import java.util.Date;
 
+import org.state.patch.sql.data.ReferenceExternal;
+import org.state.patch.sql.data.Traced;
+
 public class Attribute extends Traced {
 
     public final String    name;

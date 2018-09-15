@@ -7,6 +7,14 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.state.patch.sql.old.patch.OpColumnCreate;
+import org.state.patch.sql.old.patch.OpColumnDelete;
+import org.state.patch.sql.old.patch.OpRecordChange;
+import org.state.patch.sql.old.patch.OpRecordDelete;
+import org.state.patch.sql.old.patch.OpRecordInsert;
+import org.state.patch.sql.old.patch.OpTableCreate;
+import org.state.patch.sql.old.patch.OpTableDelete;
+import org.state.patch.sql.old.patch.Patch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

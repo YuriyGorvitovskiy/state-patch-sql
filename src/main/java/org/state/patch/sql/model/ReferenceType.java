@@ -7,7 +7,7 @@ package org.state.patch.sql.model;
  *  <li>Postgres: dictates by storageType: INTEGER or STRING</li>
  *  </ul>
  */
-public class ReferenceType {
+public class ReferenceType implements ValueType {
 
     public final String        entityType;
     public final PrimitiveType storageType;

@@ -13,15 +13,15 @@ import java.util.function.Consumer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.database.Database;
-import org.state.patch.sql.patch.OpColumnCreate;
-import org.state.patch.sql.patch.OpColumnDelete;
-import org.state.patch.sql.patch.OpRecordChange;
-import org.state.patch.sql.patch.OpRecordDelete;
-import org.state.patch.sql.patch.OpRecordInsert;
-import org.state.patch.sql.patch.OpTableCreate;
-import org.state.patch.sql.patch.OpTableDelete;
-import org.state.patch.sql.patch.Operation;
-import org.state.patch.sql.patch.Patch;
+import org.state.patch.sql.old.patch.OpColumnCreate;
+import org.state.patch.sql.old.patch.OpColumnDelete;
+import org.state.patch.sql.old.patch.OpRecordChange;
+import org.state.patch.sql.old.patch.OpRecordDelete;
+import org.state.patch.sql.old.patch.OpRecordInsert;
+import org.state.patch.sql.old.patch.OpTableCreate;
+import org.state.patch.sql.old.patch.OpTableDelete;
+import org.state.patch.sql.old.patch.Operation;
+import org.state.patch.sql.old.patch.Patch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

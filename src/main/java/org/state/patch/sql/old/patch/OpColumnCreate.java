@@ -1,4 +1,4 @@
-package org.state.patch.sql.patch;
+package org.state.patch.sql.old.patch;
 
 public class OpColumnCreate extends Operation {
     public String table;

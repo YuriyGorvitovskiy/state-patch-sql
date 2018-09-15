@@ -8,7 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.state.patch.sql.config.PatchTopicConfig;
-import org.state.patch.sql.patch.Patch;
+import org.state.patch.sql.old.patch.Patch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

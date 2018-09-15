@@ -1,4 +1,4 @@
-package org.state.patch.sql.patch;
+package org.state.patch.sql.old.patch;
 
 import java.util.ArrayList;
 import java.util.List;

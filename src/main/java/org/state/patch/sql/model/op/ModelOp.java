@@ -2,10 +2,10 @@ package org.state.patch.sql.model.op;
 
 import java.util.Date;
 
-import org.state.patch.sql.model.ReferenceExternal;
+import org.state.patch.sql.data.ReferenceExternal;
 import org.state.patch.sql.model.ValueType;
 
-public abstract class ModelOpAbstract {
+public abstract class ModelOp {
 
     public static class Attribute {
         public final String    name;
@@ -27,12 +27,11 @@ public abstract class ModelOpAbstract {
     public final long              eventId;
     public final long              patchId;
 
-    protected ModelOpAbstract(
-                              String type,
-                              ReferenceExternal issuedBy,
-                              Date issuedAt,
-                              long eventId,
-                              long patchId) {
+    protected ModelOp(String type,
+                      ReferenceExternal issuedBy,
+                      Date issuedAt,
+                      long eventId,
+                      long patchId) {
         this.type = type;
         this.issuedBy = issuedBy;
         this.issuedAt = issuedAt;

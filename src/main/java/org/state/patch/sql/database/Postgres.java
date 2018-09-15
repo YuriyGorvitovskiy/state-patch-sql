@@ -8,10 +8,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.state.patch.sql.config.DatabaseConfig;
-import org.state.patch.sql.patch.OpColumnCreate;
-import org.state.patch.sql.patch.OpColumnDelete;
-import org.state.patch.sql.patch.OpTableCreate;
-import org.state.patch.sql.patch.OpTableDelete;
+import org.state.patch.sql.old.patch.OpColumnCreate;
+import org.state.patch.sql.old.patch.OpColumnDelete;
+import org.state.patch.sql.old.patch.OpTableCreate;
+import org.state.patch.sql.old.patch.OpTableDelete;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 

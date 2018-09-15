@@ -1,10 +1,14 @@
 package org.state.patch.sql.patch;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
-public class Patch {
+import org.state.patch.sql.data.ReferenceExternal;
+import org.state.patch.sql.data.Traced;
 
-    public List<Operation> ops = new ArrayList<>();
+public abstract class Patch extends Traced {
+
+    protected Patch(ReferenceExternal modifiedBy, Date modifiedAt, long modifiedEventId, long modifiedPatchId) {
+        super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
+    }
 
 }

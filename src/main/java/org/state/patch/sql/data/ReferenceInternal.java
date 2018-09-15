@@ -1,4 +1,4 @@
-package org.state.patch.sql.model;
+package org.state.patch.sql.data;
 
 public class ReferenceInternal extends ReferenceAbstract {
     public static final String SEPARATOR = ":";
