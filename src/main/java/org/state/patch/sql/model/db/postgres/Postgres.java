@@ -2,21 +2,26 @@ package org.state.patch.sql.model.db.postgres;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.state.patch.sql.config.DatabaseConfig;
 import org.state.patch.sql.data.Entity;
+import org.state.patch.sql.data.ReferenceExternal;
 import org.state.patch.sql.data.ReferenceInteger;
 import org.state.patch.sql.data.ReferenceInternal;
 import org.state.patch.sql.data.ReferenceString;
@@ -38,6 +43,11 @@ import org.state.patch.sql.model.op.ModelOpDeleteType;
 
 public class Postgres implements Database {
 
+    @FunctionalInterface
+    public static interface ResultRowConsumer {
+        public void accept(ResultSet rs) throws Exception;
+    }
+
     public static final String ENGINE = "POSTGRES";
 
     final Model           model;
@@ -52,6 +62,33 @@ public class Postgres implements Database {
         this.datasource.setUrl(config.url);
         this.datasource.setUsername(config.username);
         this.datasource.setPassword(config.password);
+    }
+
+    @Override
+    public Model getModel() {
+        return model;
+    }
+
+    @Override
+    public boolean isTypeExists(String type) throws Exception {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT EXISTS (\n");
+        sql.append("   SELECT 1\n");
+        sql.append("       FROM  pg_tables\n");
+        sql.append("       WHERE   schemaname = ?\n");
+        sql.append("           AND tablename = ?\n");
+        sql.append(");");
+
+        List<Pair<ValueType, Object>> params = new ArrayList<>(2);
+        params.add(new ImmutablePair<>(PrimitiveType.STRING, config.schema));
+        params.add(new ImmutablePair<>(PrimitiveType.STRING, type));
+
+        MutableBoolean isExists = new MutableBoolean(false);
+        executeSqlQuery(sql.toString(), params, (rs) -> {
+            isExists.setValue(rs.getBoolean(1));
+        });
+
+        return isExists.booleanValue();
     }
 
     @Override
@@ -115,6 +152,9 @@ public class Postgres implements Database {
         sql.append(op.attr.name);
         sql.append("  ");
         sql.append(toSQLType(op.attr.type));
+        if (null != op.attr.initial) {
+
+        }
         sql.append(";");
 
         executeSql(sql.toString());
@@ -226,19 +266,67 @@ public class Postgres implements Database {
     }
 
     @Override
-    public List<Entity> select(Collection<ReferenceInternal> ids,
-                               Collection<Attribute> attributes) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public List<Entity> select(Collection<Attribute> attributes,
+                               EntityType entityType,
+                               Collection<Pair<Attribute, Collection<?>>> conditions,
+                               Collection<Pair<Attribute, Boolean>> sortings) throws Exception {
 
-    @Override
-    public List<Entity> select(String entityType,
-                               Collection<Attribute> attributes,
-                               Map<String, Object> conditions,
-                               Map<String, Boolean> sorting) {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder sql = new StringBuilder();
+        List<Pair<ValueType, Object>> params = new ArrayList<>(1);
+
+        sql.append("SELECT ");
+        sql.append(entityType.identity.name);
+        for (Attribute attribute : attributes) {
+            sql.append(", ");
+            sql.append(attribute.name);
+        }
+        sql.append("\n    FROM ");
+        sql.append(entityType.name);
+        if (null != conditions && !conditions.isEmpty()) {
+            String separator = "\n    WHERE ";
+            for (Pair<Attribute, Collection<?>> condition : conditions) {
+                Attribute attribute = condition.getLeft();
+                Collection<?> values = condition.getRight();
+
+                sql.append(separator);
+                sql.append(attribute.name);
+                if (1 == values.size()) {
+                    sql.append(" = ?");
+                } else {
+                    sql.append(" IN (");
+                    StringUtils.repeat("?", ", ", values.size());
+                    sql.append(")");
+                }
+                for (Object value : values) {
+                    params.add(new ImmutablePair<>(attribute.type, value));
+                }
+                separator = "\n     AND ";
+            }
+        }
+        if (null != sortings && !sortings.isEmpty()) {
+            String separator = "\n    ORDER BY ";
+            for (Pair<Attribute, Boolean> sorting : sortings) {
+                sql.append(separator);
+                sql.append(sorting.getLeft().name);
+                sql.append(sorting.getRight() ? " ASC" : " DESC");
+                separator = "\n            ,";
+            }
+        }
+        List<Entity> entities = new ArrayList<>();
+        executeSqlQuery(sql.toString(),
+                        params,
+                        (rs) -> {
+                            int pos = 1;
+                            ReferenceInternal id = (ReferenceInternal) getValue(rs, pos++, entityType.identity.type);
+                            Map<String, Object> attrs = new HashMap<>();
+                            for (Attribute attribute : attributes) {
+                                // keep nulls in attribute table.
+                                attrs.put(attribute.name, getValue(rs, pos++, attribute.type));
+                            }
+                            Entity entity = new Entity(id, Collections.unmodifiableMap(attrs));
+                            entities.add(entity);
+                        });
+        return entities;
     }
 
     private void executeSql(String sql) throws Exception {
@@ -256,6 +344,22 @@ public class Postgres implements Database {
                 setValue(ps, index++, param.getLeft(), param.getRight());
             }
             ps.execute();
+        }
+    }
+
+    private void executeSqlQuery(String sql,
+                                 List<Pair<ValueType, Object>> params,
+                                 ResultRowConsumer rowConsumer) throws Exception {
+        try (Connection con = datasource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            int index = 1;
+            for (Pair<ValueType, Object> param : params) {
+                setValue(ps, index++, param.getLeft(), param.getRight());
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                rowConsumer.accept(rs);
+            }
         }
     }
 
@@ -312,6 +416,53 @@ public class Postgres implements Database {
             }
         }
         throw new RuntimeException("Unsupported value type: " + type);
+    }
+
+    private Object getValue(ResultSet rs, int pos, ValueType type) throws Exception {
+        if (type instanceof PrimitiveType) {
+            return getValue(rs, pos, (PrimitiveType) type);
+        } else if (type instanceof ReferenceType) {
+            ReferenceType referenceType = (ReferenceType) type;
+            Object value = getValue(rs, pos, referenceType.storageType);
+            if (null == value) {
+                return null;
+            } else if (PrimitiveType.INTEGER == referenceType.storageType) {
+                return new ReferenceInteger(referenceType.entityType, (Long) value);
+            } else if (PrimitiveType.STRING == referenceType.storageType) {
+                return new ReferenceString(referenceType.entityType, (String) value);
+            }
+        }
+        throw new RuntimeException("Unsupported value type: " + type);
+    }
+
+    private Object getValue(ResultSet rs, int pos, PrimitiveType type) throws Exception {
+        switch (type) {
+            case BOOLEAN: {
+                boolean value = rs.getBoolean(pos);
+                return rs.wasNull() ? null : value;
+            }
+            case DOUBLE: {
+                double value = rs.getDouble(pos);
+                return rs.wasNull() ? null : value;
+            }
+            case INTEGER: {
+                long value = rs.getLong(pos);
+                return rs.wasNull() ? null : value;
+            }
+            case REFERENCE_EXTERNAL: {
+                String value = rs.getString(pos);
+                return rs.wasNull() ? null : new ReferenceExternal(value);
+            }
+            case STRING:
+            case TEXT: {
+                return rs.getString(pos);
+            }
+            case TIMESTAMP: {
+                Timestamp value = rs.getTimestamp(pos);
+                return rs.wasNull() ? null : new Date(value.getTime());
+            }
+        }
+        throw new RuntimeException("Unsupported primitive type: " + type);
     }
 
     private String toSQLType(ValueType type) {

@@ -7,6 +7,8 @@ import org.state.patch.sql.model.op.ModelOpDeleteType;
 
 public interface DatabaseModel {
 
+    public boolean isTypeExists(String type) throws Exception;
+
     public void createType(ModelOpCreateType op) throws Exception;
 
     public void deleteType(ModelOpDeleteType op) throws Exception;
