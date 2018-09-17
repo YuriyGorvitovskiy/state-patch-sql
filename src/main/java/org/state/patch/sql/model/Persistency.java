@@ -1,6 +1,7 @@
 package org.state.patch.sql.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -8,12 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.state.patch.sql.config.ModelConfig;
 import org.state.patch.sql.data.Entity;
 import org.state.patch.sql.data.Reference;
+import org.state.patch.sql.data.ReferenceExternal;
 import org.state.patch.sql.data.ReferenceInternal;
 import org.state.patch.sql.data.ReferenceString;
 import org.state.patch.sql.data.op.DataOp;
@@ -164,8 +168,43 @@ public class Persistency implements PatchModelProcessor {
         modelDatabase.apply(dataOp);
     }
 
-    public void load(Model entityModel) {
+    public void load(Model entityModel) throws Exception {
+        EntityType attributeType = modelModel.getEntityType(ModelType.ATTRIBUTE);
+        List<Attribute> selectAttrs = Arrays.asList(AttributeAttr.ENTITY_TYPE,
+                                                    AttributeAttr.ATTR_NAME,
+                                                    AttributeAttr.IDENTITY,
+                                                    AttributeAttr.VALUE_TYPE,
+                                                    AttributeAttr.INITIAL)
+            .stream()
+            .map((name) -> attributeType.attrs.get(name))
+            .collect(Collectors.toList());
 
+        List<Entity> entities = modelDatabase.select(selectAttrs, attributeType, null, null);
+
+        Map<String, Attribute> identities = new HashMap<>();
+        Map<String, List<Attribute>> attributes = new HashMap<>();
+        for (Entity entity : entities) {
+            String entityType = (String) entity.attrs.get(AttributeAttr.ENTITY_TYPE);
+            Attribute attribute = toAttribute(entity);
+            if ((Boolean) entity.attrs.get(AttributeAttr.IDENTITY)) {
+                identities.put(entityType, attribute);
+            } else {
+                List<Attribute> entityAttrs = attributes.computeIfAbsent(entityType, (k) -> new ArrayList<>());
+                entityAttrs.add(attribute);
+            }
+        }
+
+        for (Map.Entry<String, Attribute> entry : identities.entrySet()) {
+            EntityType entityType = new EntityType(entry.getKey(),
+                                                   entry.getValue(),
+                                                   attributes.get(entry.getKey()),
+                                                   null,
+                                                   null,
+                                                   -1,
+                                                   -1);
+
+            entityModel.add(entityType);
+        }
     }
 
     public PatchData toPatchData(ModelOpCreateType modelOp) throws Exception {
@@ -190,6 +229,20 @@ public class Persistency implements PatchModelProcessor {
         return new DataOpInsert(id, attrs, modelOp.issuedBy, modelOp.issuedAt, modelOp.eventId, modelOp.patchId);
     }
 
+    private Attribute toAttribute(Entity entity) throws Exception {
+        String name = (String) entity.attrs.get(AttributeAttr.ATTR_NAME);
+        ValueType valuetype = toValueType((String) entity.attrs.get(AttributeAttr.VALUE_TYPE));
+        Object initial = toValue(valuetype, (String) entity.attrs.get(AttributeAttr.INITIAL));
+
+        return new Attribute(name,
+                             valuetype,
+                             initial,
+                             null,
+                             null,
+                             -1,
+                             -1);
+    }
+
     private String toStringValue(ValueType type) throws Exception {
         if (type instanceof PrimitiveType) {
             return Value.PRIMITIVE
@@ -204,6 +257,17 @@ public class Persistency implements PatchModelProcessor {
                    + ((ReferenceType) type).entityType;
         }
         throw new Exception("Unsupported Value Type: " + type);
+    }
+
+    private ValueType toValueType(String stringValue) throws Exception {
+        String[] parts = StringUtils.split(stringValue, "VALUE_TYPE_SEP");
+        if (Value.PRIMITIVE.equals(parts[0])) {
+            return PrimitiveType.valueOf(parts[1]);
+        }
+        if (Value.REFERENCE.equals(parts[0])) {
+            return new ReferenceType(parts[2], PrimitiveType.valueOf(parts[1]));
+        }
+        throw new Exception("Unsupported Value Type: " + stringValue);
     }
 
     private Object toStringValue(ValueType type, Object value) throws Exception {
@@ -229,6 +293,35 @@ public class Persistency implements PatchModelProcessor {
                     return Objects.toString(value);
                 case TIMESTAMP:
                     return DATE_FORMAT.format(value);
+            }
+        }
+        throw new Exception("Unsupported Value Type: " + type);
+    }
+
+    private Object toValue(ValueType type, String stringValue) throws Exception {
+        if (null == stringValue)
+            return null;
+
+        if (type instanceof ReferenceType) {
+            return ReferenceInternal.referenceFromString((ReferenceType) type, stringValue);
+        }
+
+        if (type instanceof PrimitiveType) {
+            switch ((PrimitiveType) type) {
+                case BOOLEAN:
+                    return Boolean.valueOf(stringValue);
+                case DOUBLE:
+                    return Double.valueOf(stringValue);
+                case INTEGER:
+                    return Long.valueOf(stringValue);
+                case REFERENCE_EXTERNAL:
+                    return new ReferenceExternal(stringValue);
+                case STRING:
+                    return stringValue;
+                case TEXT:
+                    return stringValue;
+                case TIMESTAMP:
+                    return DATE_FORMAT.parse(stringValue);
             }
         }
         throw new Exception("Unsupported Value Type: " + type);

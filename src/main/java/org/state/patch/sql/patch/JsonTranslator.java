@@ -13,9 +13,7 @@ import org.state.patch.sql.control.op.ControlOpBackup;
 import org.state.patch.sql.control.op.ControlOpSuspend;
 import org.state.patch.sql.data.Reference;
 import org.state.patch.sql.data.ReferenceExternal;
-import org.state.patch.sql.data.ReferenceInteger;
 import org.state.patch.sql.data.ReferenceInternal;
-import org.state.patch.sql.data.ReferenceString;
 import org.state.patch.sql.data.op.DataOp;
 import org.state.patch.sql.data.op.DataOpDelete;
 import org.state.patch.sql.data.op.DataOpInsert;
@@ -403,7 +401,7 @@ public class JsonTranslator {
                     return dateFromJson(json);
             }
         } else if (type instanceof ReferenceType) {
-            return referenceFromJson((ReferenceType) type, json);
+            return ReferenceInternal.referenceFromObject((ReferenceType) type, json);
         }
         throw new Exception("Unknown value type: " + type);
     }
@@ -462,22 +460,6 @@ public class JsonTranslator {
         }
 
         ReferenceType refType = (ReferenceType) entityType.identity.type;
-        return referenceFromJson(refType, storageId);
-    }
-
-    private Reference referenceFromJson(ReferenceType type, Object json) throws Exception {
-        String[] parts = Objects.toString(json).split(Reference.SEPARATOR);
-        String storageId = parts[parts.length - 1];
-
-        return referenceFromJson(type, storageId);
-    }
-
-    private ReferenceInternal referenceFromJson(ReferenceType refType, String storageId) throws Exception {
-        if (PrimitiveType.INTEGER == refType.storageType) {
-            return new ReferenceInteger(refType.entityType, integerFromJson(storageId));
-        } else if (PrimitiveType.STRING == refType.storageType) {
-            return new ReferenceString(refType.entityType, storageId);
-        }
-        throw new Exception("Unknown reference storage type: " + refType.storageType);
+        return ReferenceInternal.referenceFromString(refType, storageId);
     }
 }

@@ -105,4 +105,7 @@ public class Model implements PatchModelProcessor {
                                                op.eventId,
                                                op.patchId));
     }
+
+    public void add(EntityType entityType) {
+    }
 }
