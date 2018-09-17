@@ -52,7 +52,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 public class JsonTranslator {
 
-    final static StdDateFormat DATE_FORMAT = new StdDateFormat();
+    static final StdDateFormat DATE_FORMAT = new StdDateFormat();
 
     final Model model;
 

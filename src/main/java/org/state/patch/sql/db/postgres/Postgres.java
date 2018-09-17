@@ -1,4 +1,4 @@
-package org.state.patch.sql.model.db.postgres;
+package org.state.patch.sql.db.postgres;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,13 +28,13 @@ import org.state.patch.sql.data.ReferenceString;
 import org.state.patch.sql.data.op.DataOpDelete;
 import org.state.patch.sql.data.op.DataOpInsert;
 import org.state.patch.sql.data.op.DataOpUpdate;
+import org.state.patch.sql.db.Database;
 import org.state.patch.sql.model.Attribute;
 import org.state.patch.sql.model.EntityType;
 import org.state.patch.sql.model.Model;
 import org.state.patch.sql.model.PrimitiveType;
 import org.state.patch.sql.model.ReferenceType;
 import org.state.patch.sql.model.ValueType;
-import org.state.patch.sql.model.db.Database;
 import org.state.patch.sql.model.op.ModelOp;
 import org.state.patch.sql.model.op.ModelOpAppendAttribute;
 import org.state.patch.sql.model.op.ModelOpCreateType;

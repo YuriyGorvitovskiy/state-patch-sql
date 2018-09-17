@@ -12,8 +12,9 @@ import org.state.patch.sql.model.op.ModelOpAppendAttribute;
 import org.state.patch.sql.model.op.ModelOpCreateType;
 import org.state.patch.sql.model.op.ModelOpDeleteAttribute;
 import org.state.patch.sql.model.op.ModelOpDeleteType;
+import org.state.patch.sql.patch.PatchModelProcessor;
 
-public class Model {
+public class Model implements PatchModelProcessor {
 
     Map<String, EntityType> types;
 
@@ -30,6 +31,7 @@ public class Model {
         return types.get(type);
     }
 
+    @Override
     public void createType(ModelOpCreateType op) {
         Attribute identity = new Attribute(op.identity.name,
                                            op.identity.type,
@@ -58,11 +60,13 @@ public class Model {
                                           op.patchId));
     }
 
+    @Override
     public void deleteType(ModelOpDeleteType op) {
         types.remove(op.type);
     }
 
-    public void appendAttributes(ModelOpAppendAttribute op) {
+    @Override
+    public void appendAttribute(ModelOpAppendAttribute op) {
         EntityType oldType = types.get(op.type);
         Collection<Attribute> oldAttrs = oldType.attrs.values();
 
@@ -86,7 +90,8 @@ public class Model {
 
     }
 
-    public void deleteAttributes(ModelOpDeleteAttribute op) {
+    @Override
+    public void deleteAttribute(ModelOpDeleteAttribute op) {
         EntityType oldType = types.get(op.type);
 
         List<Attribute> newAttrs = new ArrayList<>(oldType.attrs.values());

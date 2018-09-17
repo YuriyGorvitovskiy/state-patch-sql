@@ -1,4 +1,4 @@
-package org.state.patch.sql.model.db;
+package org.state.patch.sql.db;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -2,6 +2,7 @@ package org.state.patch.sql.config;
 
 public class ServiceConfig {
 
-    public final DatabaseConfig   database   = new DatabaseConfig();
+    public final ModelConfig      model      = new ModelConfig();
+    public final EntityConfig     entity     = new EntityConfig();
     public final PatchTopicConfig patchtopic = new PatchTopicConfig();
 }

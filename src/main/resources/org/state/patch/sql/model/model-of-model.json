@@ -1,0 +1,53 @@
+{
+    "@patch_type": "model.v1",
+    "event_id": -1,
+    "event_by": null,
+    "event_at": null,
+    "target_ids": null,
+    "ops": [
+        {
+            "@op_type": "create-type",
+            "entity_type": "version",
+            "id": {
+                "name": "id",
+                "type": "ref-string:version"
+            },
+            "columns": [
+                {
+                    "name": "tag",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "@op_type": "create-type",
+            "entity_type": "attribute",
+            "id": {
+                "name": "id",
+                "type": "ref-string:attribute"
+            },
+            "columns": [
+                {
+                    "name": "entity_type",
+                    "type": "string"
+                },
+                {
+                    "name": "attr_name",
+                    "type": "string"
+                },
+                {
+                    "name": "identity",
+                    "type": "boolean"
+                },
+                {
+                    "name": "value_type",
+                    "type": "string"
+                },
+                {
+                    "name": "intial",
+                    "type": "text"
+                }
+            ]
+        }
+    ]
+}

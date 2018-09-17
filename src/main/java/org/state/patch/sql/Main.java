@@ -17,7 +17,7 @@ public class Main {
         PatchConsumer consumer = PatchConsumer.createConsumer(config.patchtopic);
 
         System.out.println("Configuring Database.");
-        Database database = Database.createDatabase(config.database);
+        Database database = Database.createDatabase(config.entity.database);
 
         System.out.println("Configuring Processor.");
         PatchProcessor processor = new PatchProcessor(database);
