@@ -198,12 +198,7 @@ public class JsonTranslator {
 
         Map<String, Object> attrs = fromJson(op.attrs, entityId.type);
 
-        return new DataOpUpdate(entityId,
-                                attrs,
-                                eventBy,
-                                eventAt,
-                                eventId,
-                                patchId);
+        return new DataOpUpdate(entityId, attrs);
     }
 
     private DataOpInsert fromJson(JsonDataOpInsert op,
@@ -219,12 +214,7 @@ public class JsonTranslator {
 
         Map<String, Object> attrs = fromJson(op.attrs, entityId.type);
 
-        return new DataOpInsert(entityId,
-                                attrs,
-                                eventBy,
-                                eventAt,
-                                eventId,
-                                patchId);
+        return new DataOpInsert(entityId, attrs);
     }
 
     private DataOpDelete fromJson(JsonDataOpDelete op,
@@ -237,11 +227,7 @@ public class JsonTranslator {
             // Skip operation for unmanaged Entity Type
             return null;
         }
-        return new DataOpDelete(entityId,
-                                eventBy,
-                                eventAt,
-                                eventId,
-                                patchId);
+        return new DataOpDelete(entityId);
     }
 
     private ModelOpCreateType fromJson(JsonModelOpCreateType op,
@@ -258,11 +244,7 @@ public class JsonTranslator {
 
         return new ModelOpCreateType(op.entity_type,
                                      identity,
-                                     Collections.unmodifiableList(attrs),
-                                     eventBy,
-                                     eventAt,
-                                     eventId,
-                                     patchId);
+                                     Collections.unmodifiableList(attrs));
     }
 
     private ModelOpAppendAttribute fromJson(JsonModelOpAppendAttr op,
@@ -271,12 +253,7 @@ public class JsonTranslator {
                                             long eventId,
                                             long patchId) throws Exception {
         ModelOp.Attribute attr = fromJson(op.attr);
-        return new ModelOpAppendAttribute(op.entity_type,
-                                          attr,
-                                          eventBy,
-                                          eventAt,
-                                          eventId,
-                                          patchId);
+        return new ModelOpAppendAttribute(op.entity_type, attr);
     }
 
     private ModelOpDeleteAttribute fromJson(JsonModelOpDeleteAttr op,
@@ -284,12 +261,7 @@ public class JsonTranslator {
                                             Date eventAt,
                                             long eventId,
                                             long patchId) {
-        return new ModelOpDeleteAttribute(op.entity_type,
-                                          op.attr_name,
-                                          eventBy,
-                                          eventAt,
-                                          eventId,
-                                          patchId);
+        return new ModelOpDeleteAttribute(op.entity_type, op.attr_name);
     }
 
     private ModelOpDeleteType fromJson(JsonModelOpDeleteType op,
@@ -297,11 +269,7 @@ public class JsonTranslator {
                                        Date eventAt,
                                        long eventId,
                                        long patchId) {
-        return new ModelOpDeleteType(op.entity_type,
-                                     eventBy,
-                                     eventAt,
-                                     eventId,
-                                     patchId);
+        return new ModelOpDeleteType(op.entity_type);
     }
 
     private ControlOpSuspend fromJson(JsonControlOpSuspend op,
@@ -309,11 +277,7 @@ public class JsonTranslator {
                                       Date eventAt,
                                       long eventId,
                                       long patchId) {
-        return new ControlOpSuspend(op.shutdown,
-                                    eventBy,
-                                    eventAt,
-                                    eventId,
-                                    patchId);
+        return new ControlOpSuspend(op.shutdown);
     }
 
     private ControlOpBackup fromJson(JsonControlOpBackup op,
@@ -321,12 +285,7 @@ public class JsonTranslator {
                                      Date eventAt,
                                      long eventId,
                                      long patchId) {
-        return new ControlOpBackup(op.incremental,
-                                   op.backup_file,
-                                   eventBy,
-                                   eventAt,
-                                   eventId,
-                                   patchId);
+        return new ControlOpBackup(op.incremental, op.backup_file);
     }
 
     private ModelOp.Attribute fromJson(JsonModelAttribute attr) throws Exception {

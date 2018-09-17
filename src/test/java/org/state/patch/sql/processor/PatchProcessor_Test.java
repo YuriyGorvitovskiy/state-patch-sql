@@ -61,14 +61,14 @@ public class PatchProcessor_Test {
         }
         */
         ServiceConfig config = Configurator.extract(System.getProperties(), "org.state.patch.sql", new ServiceConfig());
-        config.database.engine = "POSTGRES";
-        config.database.driver = "org.postgresql.Driver";
+        config.entity.database.engine = "POSTGRES";
+        config.entity.database.driver = "org.postgresql.Driver";
 
-        System.out.println("URL: " + config.database.url);
-        System.out.println("Username: " + config.database.username);
-        System.out.println("Username: " + config.database.password);
+        System.out.println("URL: " + config.entity.database.url);
+        System.out.println("Username: " + config.entity.database.username);
+        System.out.println("Username: " + config.entity.database.password);
 
-        database = Database.createDatabase(config.database);
+        database = Database.createDatabase(config.entity.database);
 
         processor = new PatchProcessor(database);
         processor.prepareDatabase();

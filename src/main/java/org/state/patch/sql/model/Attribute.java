@@ -1,11 +1,6 @@
 package org.state.patch.sql.model;
 
-import java.util.Date;
-
-import org.state.patch.sql.data.ReferenceExternal;
-import org.state.patch.sql.data.Traced;
-
-public class Attribute extends Traced {
+public class Attribute {
 
     public final String    name;
     public final ValueType type;
@@ -13,14 +8,7 @@ public class Attribute extends Traced {
 
     public Attribute(String name,
                      ValueType type,
-                     Object initial,
-                     ReferenceExternal modifiedBy,
-                     Date modifiedAt,
-                     long modifiedEventId,
-                     long modifiedPatchId) {
-
-        super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
-
+                     Object initial) {
         this.name = name;
         this.type = type;
         this.initial = initial;

@@ -1,21 +1,12 @@
 package org.state.patch.sql.data.op;
 
-import java.util.Date;
-
-import org.state.patch.sql.data.ReferenceExternal;
 import org.state.patch.sql.data.ReferenceInternal;
-import org.state.patch.sql.data.Traced;
 
-public abstract class DataOp extends Traced {
+public abstract class DataOp {
 
     public final ReferenceInternal id;
 
-    protected DataOp(ReferenceInternal id,
-                     ReferenceExternal modifiedBy,
-                     Date modifiedAt,
-                     long modifiedEventId,
-                     long modifiedPatchId) {
-        super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
+    protected DataOp(ReferenceInternal id) {
         this.id = id;
     }
 }

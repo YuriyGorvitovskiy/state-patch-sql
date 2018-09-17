@@ -1,15 +1,11 @@
 package org.state.patch.sql.model;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.state.patch.sql.data.ReferenceExternal;
-import org.state.patch.sql.data.Traced;
-
-public class EntityType extends Traced {
+public class EntityType {
 
     public final String                 name;
     public final Attribute              identity;
@@ -17,14 +13,7 @@ public class EntityType extends Traced {
 
     public EntityType(String name,
                       Attribute identity,
-                      List<Attribute> attrs,
-                      ReferenceExternal modifiedBy,
-                      Date modifiedAt,
-                      long modifiedEventId,
-                      long modifiedPatchId) {
-
-        super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
-
+                      List<Attribute> attrs) {
         this.name = name;
         this.identity = identity;
 

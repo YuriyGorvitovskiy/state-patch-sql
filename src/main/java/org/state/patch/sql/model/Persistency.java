@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +125,7 @@ public class Persistency implements PatchModelProcessor {
         Map<String, Object> attrs = new HashMap<>();
         attrs.put(VersionAttr.TAG, version.tag);
 
-        DataOpInsert op = new DataOpInsert(Ref.MODEL_VERSION, attrs, null, new Date(), -1, -1);
+        DataOpInsert op = new DataOpInsert(Ref.MODEL_VERSION, attrs);
         modelDatabase.insert(op);
     }
 
@@ -148,10 +147,10 @@ public class Persistency implements PatchModelProcessor {
 
         List<DataOp> dataOps = new ArrayList<>(attrEntities.size());
         for (Entity attrEntity : attrEntities) {
-            dataOps.add(new DataOpDelete(attrEntity.id, modelOp.issuedBy, modelOp.issuedAt, modelOp.eventId, modelOp.patchId));
+            dataOps.add(new DataOpDelete(attrEntity.id));
         }
 
-        PatchData patch = new PatchData(dataOps, modelOp.issuedBy, modelOp.issuedAt, modelOp.eventId, modelOp.patchId);
+        PatchData patch = new PatchData(dataOps, null, null, -1, -1);
         modelDatabase.apply(patch);
     }
 
@@ -164,7 +163,7 @@ public class Persistency implements PatchModelProcessor {
     @Override
     public void deleteAttribute(ModelOpDeleteAttribute modelOp) throws Exception {
         ReferenceInternal id = new ReferenceString(ModelType.ATTRIBUTE, modelOp.type + TYPE_ATTR_SEP + modelOp.attribName);
-        DataOp dataOp = new DataOpDelete(id, modelOp.issuedBy, modelOp.issuedAt, modelOp.eventId, modelOp.patchId);
+        DataOp dataOp = new DataOpDelete(id);
         modelDatabase.apply(dataOp);
     }
 
@@ -197,11 +196,7 @@ public class Persistency implements PatchModelProcessor {
         for (Map.Entry<String, Attribute> entry : identities.entrySet()) {
             EntityType entityType = new EntityType(entry.getKey(),
                                                    entry.getValue(),
-                                                   attributes.get(entry.getKey()),
-                                                   null,
-                                                   null,
-                                                   -1,
-                                                   -1);
+                                                   attributes.get(entry.getKey()));
 
             entityModel.add(entityType);
         }
@@ -214,7 +209,7 @@ public class Persistency implements PatchModelProcessor {
         for (ModelOp.Attribute attr : modelOp.attrs) {
             dataOps.add(toDataOp(modelOp, attr, false));
         }
-        return new PatchData(dataOps, modelOp.issuedBy, modelOp.issuedAt, modelOp.eventId, modelOp.patchId);
+        return new PatchData(dataOps, null, null, -1, -1);
     }
 
     private DataOpInsert toDataOp(ModelOp modelOp, ModelOp.Attribute attr, boolean identity) throws Exception {
@@ -226,7 +221,7 @@ public class Persistency implements PatchModelProcessor {
         attrs.put(AttributeAttr.VALUE_TYPE, toStringValue(attr.type));
         attrs.put(AttributeAttr.INITIAL, toStringValue(attr.type, attr.initial));
 
-        return new DataOpInsert(id, attrs, modelOp.issuedBy, modelOp.issuedAt, modelOp.eventId, modelOp.patchId);
+        return new DataOpInsert(id, attrs);
     }
 
     private Attribute toAttribute(Entity entity) throws Exception {
@@ -236,11 +231,7 @@ public class Persistency implements PatchModelProcessor {
 
         return new Attribute(name,
                              valuetype,
-                             initial,
-                             null,
-                             null,
-                             -1,
-                             -1);
+                             initial);
     }
 
     private String toStringValue(ValueType type) throws Exception {

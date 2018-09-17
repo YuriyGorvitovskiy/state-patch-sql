@@ -35,29 +35,17 @@ public class Model implements PatchModelProcessor {
     public void createType(ModelOpCreateType op) {
         Attribute identity = new Attribute(op.identity.name,
                                            op.identity.type,
-                                           op.identity.initial,
-                                           op.issuedBy,
-                                           op.issuedAt,
-                                           op.eventId,
-                                           op.patchId);
+                                           op.identity.initial);
 
         List<Attribute> typeAttrs = new ArrayList<>(op.attrs.size());
         for (ModelOpCreateType.Attribute opAttr : op.attrs) {
             typeAttrs.add(new Attribute(opAttr.name,
                                         opAttr.type,
-                                        opAttr.initial,
-                                        op.issuedBy,
-                                        op.issuedAt,
-                                        op.eventId,
-                                        op.patchId));
+                                        opAttr.initial));
         }
         types.put(op.type, new EntityType(op.type,
                                           identity,
-                                          typeAttrs,
-                                          op.issuedBy,
-                                          op.issuedAt,
-                                          op.eventId,
-                                          op.patchId));
+                                          typeAttrs));
     }
 
     @Override
@@ -74,19 +62,11 @@ public class Model implements PatchModelProcessor {
         newAttrs.addAll(oldType.attrs.values());
         newAttrs.add(new Attribute(op.attr.name,
                                    op.attr.type,
-                                   op.attr.initial,
-                                   op.issuedBy,
-                                   op.issuedAt,
-                                   op.eventId,
-                                   op.patchId));
+                                   op.attr.initial));
 
         types.put(oldType.name, new EntityType(oldType.name,
                                                oldType.identity,
-                                               newAttrs,
-                                               op.issuedBy,
-                                               op.issuedAt,
-                                               op.eventId,
-                                               op.patchId));
+                                               newAttrs));
 
     }
 
@@ -99,11 +79,7 @@ public class Model implements PatchModelProcessor {
 
         types.put(oldType.name, new EntityType(oldType.name,
                                                oldType.identity,
-                                               newAttrs,
-                                               op.issuedBy,
-                                               op.issuedAt,
-                                               op.eventId,
-                                               op.patchId));
+                                               newAttrs));
     }
 
     public void add(EntityType entityType) {

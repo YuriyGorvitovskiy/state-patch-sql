@@ -1,8 +1,5 @@
 package org.state.patch.sql.model.op;
 
-import java.util.Date;
-
-import org.state.patch.sql.data.ReferenceExternal;
 import org.state.patch.sql.model.ValueType;
 
 public abstract class ModelOp {
@@ -21,21 +18,9 @@ public abstract class ModelOp {
         }
     }
 
-    public final String            type;
-    public final ReferenceExternal issuedBy;
-    public final Date              issuedAt;
-    public final long              eventId;
-    public final long              patchId;
+    public final String type;
 
-    protected ModelOp(String type,
-                      ReferenceExternal issuedBy,
-                      Date issuedAt,
-                      long eventId,
-                      long patchId) {
+    protected ModelOp(String type) {
         this.type = type;
-        this.issuedBy = issuedBy;
-        this.issuedAt = issuedAt;
-        this.eventId = eventId;
-        this.patchId = patchId;
     }
 }
