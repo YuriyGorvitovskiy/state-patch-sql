@@ -1,4 +1,4 @@
-package org.state.patch.sql.database;
+package org.state.patch.sql.zzz.database;
 
 import static org.junit.Assert.assertEquals;
 

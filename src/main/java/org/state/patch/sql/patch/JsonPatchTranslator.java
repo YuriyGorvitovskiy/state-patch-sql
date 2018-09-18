@@ -48,13 +48,13 @@ import org.state.patch.sql.patch.v1.JsonPatchModel;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-public class JsonTranslator {
+public class JsonPatchTranslator {
 
     static final StdDateFormat DATE_FORMAT = new StdDateFormat();
 
     final Model model;
 
-    public JsonTranslator(Model model) {
+    public JsonPatchTranslator(Model model) {
         this.model = model;
     }
 

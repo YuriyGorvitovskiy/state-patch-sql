@@ -15,7 +15,7 @@ public interface PatchModelProcessor {
 
     public default void loadFromResource(Class<?> resourceClass,
                                          String resourceName,
-                                         JsonTranslator jsonTranslator) throws Exception {
+                                         JsonPatchTranslator jsonTranslator) throws Exception {
         try (InputStream in = resourceClass.getResourceAsStream(resourceName)) {
             byte[] bytes = IOUtils.toByteArray(in);
             JsonPatch patch = new ObjectMapper().readValue(bytes, JsonPatch.class);

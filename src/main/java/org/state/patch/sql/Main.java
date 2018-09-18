@@ -2,7 +2,7 @@ package org.state.patch.sql;
 
 import org.state.patch.sql.config.Configurator;
 import org.state.patch.sql.config.ServiceConfig;
-import org.state.patch.sql.zzz.consumer.PatchConsumer;
+import org.state.patch.sql.message.ConsumerPatch;
 import org.state.patch.sql.zzz.database.Database;
 import org.state.patch.sql.zzz.processor.PatchProcessor;
 
@@ -14,7 +14,7 @@ public class Main {
         ServiceConfig config = Configurator.extract(System.getProperties(), "org.state.patch.sql", new ServiceConfig());
 
         System.out.println("Configuring Patch Consumer.");
-        PatchConsumer consumer = PatchConsumer.createConsumer(config.patchtopic);
+        ConsumerPatch consumer = ConsumerPatch.create(config.patchtopic);
 
         System.out.println("Configuring Database.");
         Database database = Database.createDatabase(config.entity.database);

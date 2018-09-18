@@ -1,4 +1,4 @@
-package org.state.patch.sql.zzz.consumer;
+package org.state.patch.sql.message.kafka;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -8,17 +8,18 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.state.patch.sql.config.PatchTopicConfig;
+import org.state.patch.sql.message.ConsumerPatch;
 import org.state.patch.sql.zzz.patch.Patch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class KafkaPatchConsumer implements PatchConsumer {
+public class KafkaConsumerPatch implements ConsumerPatch {
 
     public static final String NAME = "KAFKA";
 
     PatchTopicConfig config;
 
-    public KafkaPatchConsumer(PatchTopicConfig config) {
+    public KafkaConsumerPatch(PatchTopicConfig config) {
         this.config = config;
     }
 
@@ -36,6 +37,7 @@ public class KafkaPatchConsumer implements PatchConsumer {
             while (true) {
                 for (ConsumerRecord<String, byte[]> record : consumer.poll(Duration.ofMillis(1000L))) {
                     Patch patch = mapper.readValue(record.value(), Patch.class);
+                    patch.patch_id = record.offset();
                     processor.accept(patch);
                 }
                 consumer.commitSync();

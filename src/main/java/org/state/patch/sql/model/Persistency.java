@@ -28,7 +28,7 @@ import org.state.patch.sql.model.op.ModelOpAppendAttribute;
 import org.state.patch.sql.model.op.ModelOpCreateType;
 import org.state.patch.sql.model.op.ModelOpDeleteAttribute;
 import org.state.patch.sql.model.op.ModelOpDeleteType;
-import org.state.patch.sql.patch.JsonTranslator;
+import org.state.patch.sql.patch.JsonPatchTranslator;
 import org.state.patch.sql.patch.PatchData;
 import org.state.patch.sql.patch.PatchModelProcessor;
 
@@ -89,12 +89,12 @@ public class Persistency implements PatchModelProcessor {
 
     final Model          modelModel;
     final Database       modelDatabase;
-    final JsonTranslator jsonTranslator;
+    final JsonPatchTranslator jsonTranslator;
 
     public Persistency(ModelConfig config) {
         this.modelModel = new Model();
         this.modelDatabase = Database.create(this.modelModel, config.database);
-        this.jsonTranslator = new JsonTranslator(this.modelModel);
+        this.jsonTranslator = new JsonPatchTranslator(this.modelModel);
 
     }
 
