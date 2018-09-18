@@ -2,9 +2,6 @@ package org.state.patch.sql;
 
 import org.state.patch.sql.config.Configurator;
 import org.state.patch.sql.config.ServiceConfig;
-import org.state.patch.sql.message.ConsumerPatch;
-import org.state.patch.sql.zzz.database.Database;
-import org.state.patch.sql.zzz.processor.PatchProcessor;
 
 public class Main {
 
@@ -12,19 +9,11 @@ public class Main {
         System.out.println("I'm state-patch-sql");
 
         ServiceConfig config = Configurator.extract(System.getProperties(), "org.state.patch.sql", new ServiceConfig());
+        System.out.println("My name is: " + config.name);
 
-        System.out.println("Configuring Patch Consumer.");
-        ConsumerPatch consumer = ConsumerPatch.create(config.patchtopic);
-
-        System.out.println("Configuring Database.");
-        Database database = Database.createDatabase(config.entity.database);
-
-        System.out.println("Configuring Processor.");
-        PatchProcessor processor = new PatchProcessor(database);
-        processor.prepareDatabase();
-
-        System.out.println("Start Patch Consuming and Processing.");
-        consumer.run(processor);
+        System.out.println("Configuring Patch Processor.");
+        PatchProcessor processor = new PatchProcessor(config);
+        processor.run();
 
         System.out.println("Execution Completted.");
     }

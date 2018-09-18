@@ -34,7 +34,7 @@ import org.state.patch.sql.patch.PatchModelProcessor;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-public class Persistency implements PatchModelProcessor {
+public class ModelPersistency implements PatchModelProcessor {
     static interface ModelType {
         public static final String VERSION   = "version";
         public static final String ATTRIBUTE = "attribute";
@@ -91,7 +91,7 @@ public class Persistency implements PatchModelProcessor {
     final Database       modelDatabase;
     final JsonPatchTranslator jsonTranslator;
 
-    public Persistency(ModelConfig config) {
+    public ModelPersistency(ModelConfig config) {
         this.modelModel = new Model();
         this.modelDatabase = Database.create(this.modelModel, config.database);
         this.jsonTranslator = new JsonPatchTranslator(this.modelModel);
@@ -99,11 +99,11 @@ public class Persistency implements PatchModelProcessor {
     }
 
     public void initialize() throws Exception {
-        modelModel.loadFromResource(Persistency.class, "model-of-model.json", jsonTranslator);
+        modelModel.loadFromResource(ModelPersistency.class, "model-of-model.json", jsonTranslator);
 
         Version version = getVersion();
         if (Version.EMPTY_DATABASE == version) {
-            modelDatabase.loadFromResource(Persistency.class, "model-of-model.json", jsonTranslator);
+            modelDatabase.loadFromResource(ModelPersistency.class, "model-of-model.json", jsonTranslator);
             insertVersion(Version.CURRENT);
         }
         throw new Exception("Unknown model version: " + version);

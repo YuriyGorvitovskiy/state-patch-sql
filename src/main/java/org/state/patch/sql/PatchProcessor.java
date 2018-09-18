@@ -1,0 +1,72 @@
+package org.state.patch.sql;
+
+import java.util.Date;
+
+import org.state.patch.sql.config.ServiceConfig;
+import org.state.patch.sql.db.Database;
+import org.state.patch.sql.message.ConsumerPatch;
+import org.state.patch.sql.message.ProducerNotify;
+import org.state.patch.sql.model.Model;
+import org.state.patch.sql.model.ModelPersistency;
+import org.state.patch.sql.notify.JsonNotify;
+import org.state.patch.sql.notify.JsonNotifyTranslator;
+import org.state.patch.sql.notify.Notify;
+import org.state.patch.sql.patch.JsonPatch;
+import org.state.patch.sql.patch.JsonPatchTranslator;
+import org.state.patch.sql.patch.Patch;
+import org.state.patch.sql.patch.PatchControl;
+import org.state.patch.sql.patch.PatchData;
+import org.state.patch.sql.patch.PatchModel;
+
+public class PatchProcessor {
+
+    ServiceConfig        config;
+    ConsumerPatch        patchConsumer;
+    ProducerNotify       notifyProducer;
+    Model                entityModel;
+    ModelPersistency     modelPersistency;
+    Database             entityDatabase;
+    JsonPatchTranslator  patchTranslator;
+    JsonNotifyTranslator notifyTranslator;
+
+    public PatchProcessor(ServiceConfig config) {
+        this.config = config;
+        this.patchConsumer = ConsumerPatch.create(config.patch);
+        this.notifyProducer = ProducerNotify.create(config.notify);
+        this.entityModel = new Model();
+        this.modelPersistency = new ModelPersistency(config.model);
+        this.entityDatabase = Database.create(entityModel, config.entity.database);
+        this.patchTranslator = new JsonPatchTranslator(entityModel);
+        this.notifyTranslator = new JsonNotifyTranslator();
+    }
+
+    public void run() {
+        try {
+            modelPersistency.initialize();
+            modelPersistency.load(entityModel);
+            patchConsumer.run((p) -> process(p));
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void process(JsonPatch jsonPatch) {
+        try {
+            Patch patch = patchTranslator.fromJson(jsonPatch);
+            if (patch instanceof PatchData) {
+                entityDatabase.apply((PatchData) patch);
+            } else if (patch instanceof PatchModel) {
+                entityModel.apply((PatchModel) patch);
+                entityDatabase.apply((PatchModel) patch);
+                modelPersistency.apply((PatchModel) patch);
+            } else if (patch instanceof PatchControl) {
+                // TODO:
+            }
+            Notify notify = new Notify(config.name, new Date(), patch.modifiedEventId, patch.modifiedPatchId);
+            JsonNotify jsonNotify = notifyTranslator.toJson(notify);
+            notifyProducer.post(jsonNotify);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+}

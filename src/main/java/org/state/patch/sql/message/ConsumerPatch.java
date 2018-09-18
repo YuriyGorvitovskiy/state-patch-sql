@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import org.state.patch.sql.config.PatchTopicConfig;
 import org.state.patch.sql.message.kafka.KafkaConsumerPatch;
-import org.state.patch.sql.zzz.patch.Patch;
+import org.state.patch.sql.patch.JsonPatch;
 
 public interface ConsumerPatch {
 
@@ -15,6 +15,6 @@ public interface ConsumerPatch {
         throw new RuntimeException("Unkown patch topic engine: " + config.engine);
     }
 
-    public void run(Consumer<Patch> processor);
+    public void run(Consumer<JsonPatch> processor);
 
 }

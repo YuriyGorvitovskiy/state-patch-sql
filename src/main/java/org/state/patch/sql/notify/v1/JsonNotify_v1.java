@@ -1,6 +1,6 @@
-package org.state.patch.sql.model.notify.v1;
+package org.state.patch.sql.notify.v1;
 
-import org.state.patch.sql.model.notify.JsonNotify;
+import org.state.patch.sql.notify.JsonNotify;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

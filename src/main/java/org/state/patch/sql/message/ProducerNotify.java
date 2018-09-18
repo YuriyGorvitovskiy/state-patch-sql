@@ -2,7 +2,7 @@ package org.state.patch.sql.message;
 
 import org.state.patch.sql.config.NotifyTopicConfig;
 import org.state.patch.sql.message.kafka.KafkaProducerNotify;
-import org.state.patch.sql.model.notify.JsonNotify;
+import org.state.patch.sql.notify.JsonNotify;
 
 public interface ProducerNotify {
 

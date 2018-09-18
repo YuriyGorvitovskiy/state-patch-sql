@@ -1,6 +1,6 @@
-package org.state.patch.sql.model.notify;
+package org.state.patch.sql.notify;
 
-import org.state.patch.sql.model.notify.v1.JsonNotify_v1;
+import org.state.patch.sql.notify.v1.JsonNotify_v1;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 

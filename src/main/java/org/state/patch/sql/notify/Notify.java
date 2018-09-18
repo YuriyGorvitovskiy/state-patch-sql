@@ -1,4 +1,4 @@
-package org.state.patch.sql.model.notify;
+package org.state.patch.sql.notify;
 
 import java.util.Date;
 
@@ -14,4 +14,5 @@ public class Notify {
         this.eventId = eventId;
         this.patchId = patchId;
     }
+
 }

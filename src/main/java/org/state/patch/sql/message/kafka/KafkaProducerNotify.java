@@ -4,7 +4,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.state.patch.sql.config.NotifyTopicConfig;
 import org.state.patch.sql.message.ProducerNotify;
-import org.state.patch.sql.model.notify.JsonNotify;
+import org.state.patch.sql.notify.JsonNotify;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

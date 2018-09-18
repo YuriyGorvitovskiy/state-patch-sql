@@ -9,7 +9,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.state.patch.sql.config.PatchTopicConfig;
 import org.state.patch.sql.message.ConsumerPatch;
-import org.state.patch.sql.zzz.patch.Patch;
+import org.state.patch.sql.patch.JsonPatch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,7 +24,7 @@ public class KafkaConsumerPatch implements ConsumerPatch {
     }
 
     @Override
-    public void run(Consumer<Patch> processor) {
+    public void run(Consumer<JsonPatch> processor) {
         try (KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(config.consumer)) {
             // consumer.subscribe(Collections.singleton(config.patchtopic.topic));
 
@@ -36,7 +36,7 @@ public class KafkaConsumerPatch implements ConsumerPatch {
             ObjectMapper mapper = new ObjectMapper();
             while (true) {
                 for (ConsumerRecord<String, byte[]> record : consumer.poll(Duration.ofMillis(1000L))) {
-                    Patch patch = mapper.readValue(record.value(), Patch.class);
+                    JsonPatch patch = mapper.readValue(record.value(), JsonPatch.class);
                     patch.patch_id = record.offset();
                     processor.accept(patch);
                 }
