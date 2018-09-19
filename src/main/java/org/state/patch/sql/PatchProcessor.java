@@ -54,19 +54,35 @@ public class PatchProcessor {
         try {
             Patch patch = patchTranslator.fromJson(jsonPatch);
             if (patch instanceof PatchData) {
-                entityDatabase.apply((PatchData) patch);
+                process((PatchData) patch);
             } else if (patch instanceof PatchModel) {
-                entityModel.apply((PatchModel) patch);
-                entityDatabase.apply((PatchModel) patch);
-                modelPersistency.apply((PatchModel) patch);
+                process((PatchModel) patch);
             } else if (patch instanceof PatchControl) {
-                // TODO:
+                process((PatchControl) patch);
             }
-            Notify notify = new Notify(config.name, new Date(), patch.modifiedEventId, patch.modifiedPatchId);
-            JsonNotify jsonNotify = notifyTranslator.toJson(notify);
-            notifyProducer.post(jsonNotify);
+            notify(patch);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    void process(PatchData patch) throws Exception {
+        entityDatabase.apply(patch);
+    }
+
+    void process(PatchModel patch) throws Exception {
+        entityModel.apply(patch);
+        entityDatabase.apply(patch);
+        modelPersistency.apply(patch);
+    }
+
+    void process(PatchControl patch) throws Exception {
+        // TODO:
+    }
+
+    void notify(Patch patch) throws Exception {
+        Notify notify = new Notify(config.name, new Date(), patch.modifiedEventId, patch.modifiedPatchId);
+        JsonNotify jsonNotify = notifyTranslator.toJson(notify);
+        notifyProducer.post(jsonNotify);
     }
 }
