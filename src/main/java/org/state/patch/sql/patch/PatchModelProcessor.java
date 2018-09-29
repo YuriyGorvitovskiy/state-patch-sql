@@ -1,13 +1,11 @@
 package org.state.patch.sql.patch;
 
-import java.io.InputStream;
-
-import org.apache.commons.io.IOUtils;
 import org.state.patch.sql.model.op.ModelOp;
 import org.state.patch.sql.model.op.ModelOpAppendAttribute;
 import org.state.patch.sql.model.op.ModelOpCreateType;
 import org.state.patch.sql.model.op.ModelOpDeleteAttribute;
 import org.state.patch.sql.model.op.ModelOpDeleteType;
+import org.state.patch.sql.util.ResourceString;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,12 +14,10 @@ public interface PatchModelProcessor {
     public default void loadFromResource(Class<?> resourceClass,
                                          String resourceName,
                                          JsonPatchTranslator jsonTranslator) throws Exception {
-        try (InputStream in = resourceClass.getResourceAsStream(resourceName)) {
-            byte[] bytes = IOUtils.toByteArray(in);
-            JsonPatch patch = new ObjectMapper().readValue(bytes, JsonPatch.class);
-            PatchModel modelPatch = (PatchModel) jsonTranslator.fromJson(patch);
-            apply(modelPatch);
-        }
+        ResourceString json = new ResourceString(resourceClass, resourceName);
+        JsonPatch patch = new ObjectMapper().readValue(json.toString(), JsonPatch.class);
+        PatchModel modelPatch = (PatchModel) jsonTranslator.fromJson(patch);
+        apply(modelPatch);
     }
 
     public default void apply(PatchModel modelPatch) throws Exception {

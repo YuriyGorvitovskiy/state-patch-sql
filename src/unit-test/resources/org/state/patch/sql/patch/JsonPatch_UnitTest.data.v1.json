@@ -1,0 +1,44 @@
+{
+    "@patch_type": "data.v1",
+    "event_id": 1,
+    "event_by": "user:2",
+    "event_at": "2018-09-29T20:21:24.123Z",
+    "target_ids": [
+        "service1",
+        "service2"
+    ],
+    "ops":[{
+        "@op_type": "insert",
+        "entity_id": "entity:52",
+        "attrs": {
+            "attr_boolean": true,
+            "attr_integer": 12,
+            "attr_double": 34.5,
+            "attr_string": "String Value",
+            "attr_text": "Text Value",
+            "attr_time": "2018-09-29T20:52:19.345Z",
+            "attr_external_ref": "external:reference",
+            "attr_internal_ref": "entity:23",
+            "attr_optional_a": "Optional Value",
+            "attr_optional_b": null
+        }
+    },{
+        "@op_type": "update",
+        "entity_id": "entity:52",
+        "attrs": {
+            "attr_boolean": false,
+            "attr_integer": 67,
+            "attr_double": 89.01,
+            "attr_string": "New String Value",
+            "attr_text": "New Text Value",
+            "attr_time": "2018-09-29T23:30:37.678Z",
+            "attr_external_ref": "external:reference2",
+            "attr_internal_ref": "entity:45",
+            "attr_optional_a": null,
+            "attr_optional_b": "Optional Value"
+        }
+    },{
+        "@op_type": "delete",
+        "entity_id": "entity:52"
+    }]
+}

@@ -17,5 +17,4 @@ public interface MessageConsumer<M, J extends JsonMessage> {
     }
 
     public void run(Consumer<M> processor);
-
 }
