@@ -4,8 +4,8 @@ import java.util.Date;
 
 import org.state.patch.sql.config.ServiceConfig;
 import org.state.patch.sql.db.Database;
-import org.state.patch.sql.message.ConsumerPatch;
-import org.state.patch.sql.message.ProducerNotify;
+import org.state.patch.sql.message.MessageConsumer;
+import org.state.patch.sql.message.MessageProducer;
 import org.state.patch.sql.model.Model;
 import org.state.patch.sql.model.ModelPersistency;
 import org.state.patch.sql.notify.JsonNotify;
@@ -20,24 +20,24 @@ import org.state.patch.sql.patch.PatchModel;
 
 public class PatchProcessor {
 
-    ServiceConfig        config;
-    ConsumerPatch        patchConsumer;
-    ProducerNotify       notifyProducer;
-    Model                entityModel;
-    ModelPersistency     modelPersistency;
-    Database             entityDatabase;
-    JsonPatchTranslator  patchTranslator;
-    JsonNotifyTranslator notifyTranslator;
+    ServiceConfig                       config;
+    MessageConsumer<Patch, JsonPatch>   patchConsumer;
+    MessageProducer<Notify, JsonNotify> notifyProducer;
+    Model                               entityModel;
+    ModelPersistency                    modelPersistency;
+    Database                            entityDatabase;
+    JsonPatchTranslator                 patchTranslator;
+    JsonNotifyTranslator                notifyTranslator;
 
     public PatchProcessor(ServiceConfig config) {
         this.config = config;
-        this.patchConsumer = ConsumerPatch.create(config.patch);
-        this.notifyProducer = ProducerNotify.create(config.notify);
+        this.patchTranslator = new JsonPatchTranslator(entityModel);
+        this.notifyTranslator = new JsonNotifyTranslator();
+        this.patchConsumer = MessageConsumer.create(config.patch, patchTranslator);
+        this.notifyProducer = MessageProducer.create(config.notify, notifyTranslator);
         this.entityModel = new Model();
         this.modelPersistency = new ModelPersistency(config.model);
         this.entityDatabase = Database.create(entityModel, config.entity.database);
-        this.patchTranslator = new JsonPatchTranslator(entityModel);
-        this.notifyTranslator = new JsonNotifyTranslator();
     }
 
     public void run() {
@@ -50,9 +50,8 @@ public class PatchProcessor {
         }
     }
 
-    public void process(JsonPatch jsonPatch) {
+    public void process(Patch patch) {
         try {
-            Patch patch = patchTranslator.fromJson(jsonPatch);
             if (patch instanceof PatchData) {
                 process((PatchData) patch);
             } else if (patch instanceof PatchModel) {
@@ -82,7 +81,6 @@ public class PatchProcessor {
 
     void notify(Patch patch) throws Exception {
         Notify notify = new Notify(config.name, new Date(), patch.modifiedEventId, patch.modifiedPatchId);
-        JsonNotify jsonNotify = notifyTranslator.toJson(notify);
-        notifyProducer.post(jsonNotify);
+        notifyProducer.post(notify);
     }
 }

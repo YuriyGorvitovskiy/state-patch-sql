@@ -3,11 +3,11 @@ package org.state.patch.sql.config;
 import java.util.Properties;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.state.patch.sql.message.kafka.KafkaProducerNotify;
+import org.state.patch.sql.message.kafka.KafkaMessageProducer;
 
-public class NotifyTopicConfig {
+public class TopicProducerConfig {
 
-    public String engine = KafkaProducerNotify.NAME;
+    public String engine = KafkaMessageProducer.NAME;
 
     public String topic = "state-notify";
 

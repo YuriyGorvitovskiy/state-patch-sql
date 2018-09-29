@@ -5,11 +5,11 @@ import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.state.patch.sql.message.kafka.KafkaConsumerPatch;
+import org.state.patch.sql.message.kafka.KafkaMessageConsumer;
 
-public class PatchTopicConfig {
+public class TopicConsumerConfig {
 
-    public String engine = KafkaConsumerPatch.NAME;
+    public String engine = KafkaMessageConsumer.NAME;
 
     public String topic = "state-patch";
 

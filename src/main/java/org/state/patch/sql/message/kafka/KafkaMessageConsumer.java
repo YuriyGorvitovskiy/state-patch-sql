@@ -7,24 +7,31 @@ import java.util.function.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
-import org.state.patch.sql.config.PatchTopicConfig;
-import org.state.patch.sql.message.ConsumerPatch;
-import org.state.patch.sql.patch.JsonPatch;
+import org.state.patch.sql.config.TopicConsumerConfig;
+import org.state.patch.sql.message.JsonMessage;
+import org.state.patch.sql.message.MessageConsumer;
+import org.state.patch.sql.translator.JsonTranslator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class KafkaConsumerPatch implements ConsumerPatch {
+public class KafkaMessageConsumer<M, J extends JsonMessage> implements MessageConsumer<M, J> {
 
     public static final String NAME = "KAFKA";
 
-    PatchTopicConfig config;
+    final TopicConsumerConfig  config;
+    final JsonTranslator<M, J> translator;
+    final Class<J>             messageClass;
+    final ObjectMapper         mapper;
 
-    public KafkaConsumerPatch(PatchTopicConfig config) {
+    public KafkaMessageConsumer(TopicConsumerConfig config, JsonTranslator<M, J> translator) {
         this.config = config;
+        this.translator = translator;
+        this.messageClass = translator.getJsonClass();
+        this.mapper = new ObjectMapper();
     }
 
     @Override
-    public void run(Consumer<JsonPatch> processor) {
+    public void run(Consumer<M> processor) {
         try (KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(config.consumer)) {
             // consumer.subscribe(Collections.singleton(config.patchtopic.topic));
 
@@ -32,13 +39,12 @@ public class KafkaConsumerPatch implements ConsumerPatch {
             consumer.assign(Collections.singleton(tp));
 
             // consumer.seek(tp, 0L);
-
-            ObjectMapper mapper = new ObjectMapper();
             while (true) {
                 for (ConsumerRecord<String, byte[]> record : consumer.poll(Duration.ofMillis(1000L))) {
-                    JsonPatch patch = mapper.readValue(record.value(), JsonPatch.class);
-                    patch.patch_id = record.offset();
-                    processor.accept(patch);
+                    J json = mapper.readValue(record.value(), messageClass);
+                    json.message_id = record.offset();
+                    M message = translator.fromJson(json);
+                    processor.accept(message);
                 }
                 consumer.commitSync();
             }

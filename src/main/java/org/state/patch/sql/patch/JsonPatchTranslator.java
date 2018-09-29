@@ -42,13 +42,14 @@ import org.state.patch.sql.patch.v1.JsonModelOpAppendAttr;
 import org.state.patch.sql.patch.v1.JsonModelOpCreateType;
 import org.state.patch.sql.patch.v1.JsonModelOpDeleteAttr;
 import org.state.patch.sql.patch.v1.JsonModelOpDeleteType;
-import org.state.patch.sql.patch.v1.JsonPatchControl;
-import org.state.patch.sql.patch.v1.JsonPatchData;
-import org.state.patch.sql.patch.v1.JsonPatchModel;
+import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
+import org.state.patch.sql.patch.v1.JsonPatchData_v1;
+import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
+import org.state.patch.sql.translator.JsonTranslator;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-public class JsonPatchTranslator {
+public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     static final StdDateFormat DATE_FORMAT = new StdDateFormat();
 
@@ -58,24 +59,35 @@ public class JsonPatchTranslator {
         this.model = model;
     }
 
+    @Override
+    public Class<Patch> getEntityClass() {
+        return Patch.class;
+    }
+
+    @Override
+    public Class<JsonPatch> getJsonClass() {
+        return JsonPatch.class;
+    }
+
+    @Override
     public Patch fromJson(JsonPatch patch) throws Exception {
-        if (patch instanceof JsonPatchData) {
-            return fromJson((JsonPatchData) patch);
+        if (patch instanceof JsonPatchData_v1) {
+            return fromJson((JsonPatchData_v1) patch);
         }
-        if (patch instanceof JsonPatchModel) {
-            return fromJson((JsonPatchModel) patch);
+        if (patch instanceof JsonPatchModel_v1) {
+            return fromJson((JsonPatchModel_v1) patch);
         }
-        if (patch instanceof JsonPatchControl) {
-            return fromJson((JsonPatchControl) patch);
+        if (patch instanceof JsonPatchControl_v1) {
+            return fromJson((JsonPatchControl_v1) patch);
         }
         throw new Exception("Unknown patch: " + patch);
     }
 
-    private PatchData fromJson(JsonPatchData patch) throws Exception {
+    private PatchData fromJson(JsonPatchData_v1 patch) throws Exception {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
         Date eventAt = DATE_FORMAT.parse(patch.event_at);
         long eventId = patch.event_id;
-        long patchId = patch.patch_id;
+        long patchId = patch.message_id;
 
         List<DataOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonDataOp jsonOp : patch.ops) {
@@ -92,11 +104,11 @@ public class JsonPatchTranslator {
                              patchId);
     }
 
-    private PatchModel fromJson(JsonPatchModel patch) throws Exception {
+    private PatchModel fromJson(JsonPatchModel_v1 patch) throws Exception {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
         Date eventAt = DATE_FORMAT.parse(patch.event_at);
         long eventId = patch.event_id;
-        long patchId = patch.patch_id;
+        long patchId = patch.message_id;
 
         List<ModelOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonModelOp jsonOp : patch.ops) {
@@ -113,11 +125,11 @@ public class JsonPatchTranslator {
                               patchId);
     }
 
-    private PatchControl fromJson(JsonPatchControl patch) throws Exception {
+    private PatchControl fromJson(JsonPatchControl_v1 patch) throws Exception {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
         Date eventAt = DATE_FORMAT.parse(patch.event_at);
         long eventId = patch.event_id;
-        long patchId = patch.patch_id;
+        long patchId = patch.message_id;
 
         List<ControlOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonControlOp jsonOp : patch.ops) {
@@ -421,4 +433,11 @@ public class JsonPatchTranslator {
         ReferenceType refType = (ReferenceType) entityType.identity.type;
         return ReferenceInternal.referenceFromString(refType, storageId);
     }
+
+    @Override
+    public JsonPatch toJson(Patch entiry) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
