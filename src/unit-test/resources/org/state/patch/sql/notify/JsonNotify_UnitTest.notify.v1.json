@@ -1,0 +1,7 @@
+{
+    "@notify_type": "patch.processed.v1",
+    "event_id": 1,
+    "patch_id": 2,
+    "processed_by": "service1",
+    "processed_at": "2018-09-30T22:19:47.123Z"
+}

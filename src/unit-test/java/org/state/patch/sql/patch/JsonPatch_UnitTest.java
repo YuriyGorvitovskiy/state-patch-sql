@@ -24,11 +24,12 @@ import org.state.patch.sql.patch.v1.JsonModelOpDeleteType;
 import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
 import org.state.patch.sql.patch.v1.JsonPatchData_v1;
 import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
+import org.state.patch.sql.util.Json;
 import org.state.patch.sql.util.ResourceString;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@FixMethodOrder(MethodSorters.JVM)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class JsonPatch_UnitTest {
     final ObjectMapper mapper = new ObjectMapper();
 
@@ -49,8 +50,8 @@ public class JsonPatch_UnitTest {
 
         // Validate JsonPatch_v1
         assertEquals(1L, patch_v1.event_id);
+        assertEquals(Json.DATE_FORMAT.parse("2018-09-29T20:21:24.123Z"), patch_v1.event_at);
         assertEquals("user:2", patch_v1.event_by);
-        assertEquals("2018-09-29T20:21:24.123Z", patch_v1.event_at);
         assertEquals("service1", patch_v1.target_ids.get(0));
         assertEquals("service2", patch_v1.target_ids.get(1));
         assertEquals(2, patch_v1.target_ids.size());
@@ -88,8 +89,8 @@ public class JsonPatch_UnitTest {
 
         // Validate JsonPatch_v1
         assertEquals(2L, patch_v1.event_id);
+        assertEquals(Json.DATE_FORMAT.parse("2018-09-30T06:31:57.123Z"), patch_v1.event_at);
         assertEquals("user:3", patch_v1.event_by);
-        assertEquals("2018-09-30T06:31:57.123Z", patch_v1.event_at);
         assertEquals(0, patch_v1.target_ids.size());
 
         // Validate JsonPatchData_v1
@@ -126,8 +127,8 @@ public class JsonPatch_UnitTest {
 
         // Validate JsonPatch_v1
         assertEquals(3L, patch_v1.event_id);
+        assertEquals(Json.DATE_FORMAT.parse("2018-09-30T21:45:58.567Z"), patch_v1.event_at);
         assertEquals("user:4", patch_v1.event_by);
-        assertEquals("2018-09-30T21:45:58.567Z", patch_v1.event_at);
         assertEquals("service3", patch_v1.target_ids.get(0));
         assertEquals(1, patch_v1.target_ids.size());
 

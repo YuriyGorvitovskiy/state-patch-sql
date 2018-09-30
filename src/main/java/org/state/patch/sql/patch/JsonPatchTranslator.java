@@ -46,12 +46,9 @@ import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
 import org.state.patch.sql.patch.v1.JsonPatchData_v1;
 import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
 import org.state.patch.sql.translator.JsonTranslator;
-
-import com.fasterxml.jackson.databind.util.StdDateFormat;
+import org.state.patch.sql.util.Json;
 
 public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
-
-    static final StdDateFormat DATE_FORMAT = new StdDateFormat();
 
     final Model model;
 
@@ -85,7 +82,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     private PatchData fromJson(JsonPatchData_v1 patch) throws Exception {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
-        Date eventAt = DATE_FORMAT.parse(patch.event_at);
+        Date eventAt = patch.event_at;
         long eventId = patch.event_id;
         long patchId = patch.message_id;
 
@@ -106,7 +103,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     private PatchModel fromJson(JsonPatchModel_v1 patch) throws Exception {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
-        Date eventAt = DATE_FORMAT.parse(patch.event_at);
+        Date eventAt = patch.event_at;
         long eventId = patch.event_id;
         long patchId = patch.message_id;
 
@@ -127,7 +124,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     private PatchControl fromJson(JsonPatchControl_v1 patch) throws Exception {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
-        Date eventAt = DATE_FORMAT.parse(patch.event_at);
+        Date eventAt = patch.event_at;
         long eventId = patch.event_id;
         long patchId = patch.message_id;
 
@@ -417,7 +414,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         if (json instanceof Number) {
             return new Date(((Number) json).longValue());
         }
-        return DATE_FORMAT.parse(Objects.toString(json));
+        return Json.DATE_FORMAT.parse(Objects.toString(json));
     }
 
     private ReferenceInternal entityIdFromJson(Object json) throws Exception {
