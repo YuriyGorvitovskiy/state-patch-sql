@@ -12,7 +12,14 @@ import org.state.patch.sql.patch.v1.JsonDataOp;
 import org.state.patch.sql.patch.v1.JsonDataOpDelete;
 import org.state.patch.sql.patch.v1.JsonDataOpInsert;
 import org.state.patch.sql.patch.v1.JsonDataOpUpdate;
+import org.state.patch.sql.patch.v1.JsonModelAttribute;
+import org.state.patch.sql.patch.v1.JsonModelOp;
+import org.state.patch.sql.patch.v1.JsonModelOpAppendAttr;
+import org.state.patch.sql.patch.v1.JsonModelOpCreateType;
+import org.state.patch.sql.patch.v1.JsonModelOpDeleteAttr;
+import org.state.patch.sql.patch.v1.JsonModelOpDeleteType;
 import org.state.patch.sql.patch.v1.JsonPatchData_v1;
+import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
 import org.state.patch.sql.util.ResourceString;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,12 +66,37 @@ public class JsonPatch_UnitTest {
 
     @Test
     public void read_patch_model_v1() throws Exception {
-        fail("Not yet implemented");
+        // Setup
+        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, "JsonPatch_UnitTest.model.v1.json");
+
+        // Execute
+        JsonPatch patch = mapper.readValue(resource.toString(), JsonPatch.class);
+
+        //Validate
+        assertNotNull(patch);
+        JsonPatchModel_v1 patch_v1 = (JsonPatchModel_v1) patch;
+
+        // Validate JsonPatch_v1
+        assertEquals(2L, patch_v1.event_id);
+        assertEquals("user:3", patch_v1.event_by);
+        assertEquals("2018-09-30T06:31:57.123Z", patch_v1.event_at);
+        assertEquals(0, patch_v1.target_ids.size());
+
+        // Validate JsonPatchData_v1
+        assertModelOpCreateType(patch_v1.ops.get(0));
+        assertModelOpAppendAttr(patch_v1.ops.get(1));
+        assertModelOpDeleteAttr(patch_v1.ops.get(2));
+        assertModelOpDeleteType(patch_v1.ops.get(3));
+        assertEquals(4, patch_v1.ops.size());
     }
 
     @Test
     public void write_patch_model_v1() throws Exception {
-        fail("Not yet implemented");
+        // Setup
+        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, "JsonPatch_UnitTest.model.v1.json");
+
+        // Execute & Validate
+        Asserts.asserJsonRoundtrip(mapper, resource.toString(), JsonPatch.class);
     }
 
     @Test
@@ -130,4 +162,65 @@ public class JsonPatch_UnitTest {
         JsonDataOpDelete op = (JsonDataOpDelete) jsonDataOp;
         assertNotNull(op);
     }
+
+    private void assertModeOp(JsonModelOp jsonModelOp) {
+        assertNotNull(jsonModelOp);
+        assertEquals("entity", jsonModelOp.entity_type);
+    }
+
+    private void assertModelAttr(String id, String type, Object initial, JsonModelAttribute attr) {
+        assertNotNull(attr);
+        assertEquals(id, attr.name);
+        assertEquals(type, attr.type);
+        assertEquals(initial, attr.initial);
+    }
+
+    private void assertModelOpCreateType(JsonModelOp jsonModelOp) {
+        // Verify JsonModelOp
+        assertModeOp(jsonModelOp);
+
+        // Verify JsonModelOpCreateType
+        JsonModelOpCreateType op = (JsonModelOpCreateType) jsonModelOp;
+        assertModelAttr("id", "integer", null, op.id);
+
+        assertNotNull(op.attrs);
+        assertModelAttr("attr_boolean", "boolean", true, op.attrs.get(0));
+        assertModelAttr("attr_integer", "integer", 1, op.attrs.get(1));
+        assertModelAttr("attr_double", "double", 2.34, op.attrs.get(2));
+        assertModelAttr("attr_string", "string", "S", op.attrs.get(3));
+        assertModelAttr("attr_text", "text", "", op.attrs.get(4));
+        assertModelAttr("attr_time", "timestamp", "1970-01-01T00:00:00.000Z", op.attrs.get(5));
+        assertModelAttr("attr_external_ref", "refext", null, op.attrs.get(6));
+        assertModelAttr("attr_ref_integer", "ref-integer:entity", null, op.attrs.get(7));
+        assertModelAttr("attr_ref_string", "ref-string:type2", null, op.attrs.get(8));
+        assertEquals(9, op.attrs.size());
+    }
+
+    private void assertModelOpDeleteType(JsonModelOp jsonModelOp) {
+        // Verify JsonModelOp
+        assertModeOp(jsonModelOp);
+
+        // Verify JsonModelOpDeleteType
+        JsonModelOpDeleteType op = (JsonModelOpDeleteType) jsonModelOp;
+        assertNotNull(op);
+    }
+
+    private void assertModelOpAppendAttr(JsonModelOp jsonModelOp) {
+        // Verify JsonModelOp
+        assertModeOp(jsonModelOp);
+
+        // Verify JsonModelOpAppendAttr
+        JsonModelOpAppendAttr op = (JsonModelOpAppendAttr) jsonModelOp;
+        assertModelAttr("attr_optional", "string", null, op.attr);
+    }
+
+    private void assertModelOpDeleteAttr(JsonModelOp jsonModelOp) {
+        // Verify JsonModelOp
+        assertModeOp(jsonModelOp);
+
+        // Verify JsonModelOpDeleteAttr
+        JsonModelOpDeleteAttr op = (JsonModelOpDeleteAttr) jsonModelOp;
+        assertEquals("attr_optional", op.attr_name);
+    }
+
 }
