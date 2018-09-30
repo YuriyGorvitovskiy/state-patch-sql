@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Asserts {
+public interface Asserts {
 
     public static void asserJson(String expectedJson, String actualJson) throws Exception {
         final ObjectMapper mapper = new ObjectMapper();

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
                 @Type(value = JsonControlOpSuspend.class, name = "suspend"),
                 @Type(value = JsonControlOpBackup.class, name = "backup"),
+                @Type(value = JsonControlOpPing.class, name = "ping"),
 })
 public class JsonControlOp {
 }

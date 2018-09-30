@@ -1,0 +1,17 @@
+{
+    "@patch_type": "control.v1",
+    "event_id": 3,
+    "event_by": "user:4",
+    "event_at": "2018-09-30T21:45:58.567Z",
+    "target_ids": ["service3"],
+    "ops":[{
+        "@op_type": "suspend",
+        "shutdown": true
+    },{
+        "@op_type": "backup",
+        "incremental": false,
+        "backup_file": "/etc/backup/2018-09-30.bkp"
+    },{
+        "@op_type": "ping"
+    }]
+}

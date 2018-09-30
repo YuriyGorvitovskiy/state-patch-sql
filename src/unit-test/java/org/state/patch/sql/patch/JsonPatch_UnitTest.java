@@ -2,12 +2,15 @@ package org.state.patch.sql.patch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.state.patch.sql.Asserts;
+import org.state.patch.sql.patch.v1.JsonControlOp;
+import org.state.patch.sql.patch.v1.JsonControlOpBackup;
+import org.state.patch.sql.patch.v1.JsonControlOpPing;
+import org.state.patch.sql.patch.v1.JsonControlOpSuspend;
 import org.state.patch.sql.patch.v1.JsonDataOp;
 import org.state.patch.sql.patch.v1.JsonDataOpDelete;
 import org.state.patch.sql.patch.v1.JsonDataOpInsert;
@@ -18,6 +21,7 @@ import org.state.patch.sql.patch.v1.JsonModelOpAppendAttr;
 import org.state.patch.sql.patch.v1.JsonModelOpCreateType;
 import org.state.patch.sql.patch.v1.JsonModelOpDeleteAttr;
 import org.state.patch.sql.patch.v1.JsonModelOpDeleteType;
+import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
 import org.state.patch.sql.patch.v1.JsonPatchData_v1;
 import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
 import org.state.patch.sql.util.ResourceString;
@@ -39,6 +43,9 @@ public class JsonPatch_UnitTest {
         //Validate
         assertNotNull(patch);
         JsonPatchData_v1 patch_v1 = (JsonPatchData_v1) patch;
+
+        // Validate JsonMessage
+        assertEquals(0L, patch_v1.message_id);
 
         // Validate JsonPatch_v1
         assertEquals(1L, patch_v1.event_id);
@@ -76,6 +83,9 @@ public class JsonPatch_UnitTest {
         assertNotNull(patch);
         JsonPatchModel_v1 patch_v1 = (JsonPatchModel_v1) patch;
 
+        // Validate JsonMessage
+        assertEquals(0L, patch_v1.message_id);
+
         // Validate JsonPatch_v1
         assertEquals(2L, patch_v1.event_id);
         assertEquals("user:3", patch_v1.event_by);
@@ -101,12 +111,40 @@ public class JsonPatch_UnitTest {
 
     @Test
     public void read_patch_control_v1() throws Exception {
-        fail("Not yet implemented");
+        // Setup
+        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, "JsonPatch_UnitTest.control.v1.json");
+
+        // Execute
+        JsonPatch patch = mapper.readValue(resource.toString(), JsonPatch.class);
+
+        //Validate
+        assertNotNull(patch);
+        JsonPatchControl_v1 patch_v1 = (JsonPatchControl_v1) patch;
+
+        // Validate JsonMessage
+        assertEquals(0L, patch_v1.message_id);
+
+        // Validate JsonPatch_v1
+        assertEquals(3L, patch_v1.event_id);
+        assertEquals("user:4", patch_v1.event_by);
+        assertEquals("2018-09-30T21:45:58.567Z", patch_v1.event_at);
+        assertEquals("service3", patch_v1.target_ids.get(0));
+        assertEquals(1, patch_v1.target_ids.size());
+
+        // Validate JsonPatchData_v1
+        assertControlOpSuspend(patch_v1.ops.get(0));
+        assertControlOpBackup(patch_v1.ops.get(1));
+        assertControlOpPing(patch_v1.ops.get(2));
+        assertEquals(3, patch_v1.ops.size());
     }
 
     @Test
     public void write_patch_control_v1() throws Exception {
-        fail("Not yet implemented");
+        // Setup
+        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, "JsonPatch_UnitTest.control.v1.json");
+
+        // Execute & Validate
+        Asserts.asserJsonRoundtrip(mapper, resource.toString(), JsonPatch.class);
     }
 
     private void assertDataOp(JsonDataOp jsonDataOp) {
@@ -163,7 +201,7 @@ public class JsonPatch_UnitTest {
         assertNotNull(op);
     }
 
-    private void assertModeOp(JsonModelOp jsonModelOp) {
+    private void assertModelOp(JsonModelOp jsonModelOp) {
         assertNotNull(jsonModelOp);
         assertEquals("entity", jsonModelOp.entity_type);
     }
@@ -177,7 +215,7 @@ public class JsonPatch_UnitTest {
 
     private void assertModelOpCreateType(JsonModelOp jsonModelOp) {
         // Verify JsonModelOp
-        assertModeOp(jsonModelOp);
+        assertModelOp(jsonModelOp);
 
         // Verify JsonModelOpCreateType
         JsonModelOpCreateType op = (JsonModelOpCreateType) jsonModelOp;
@@ -198,7 +236,7 @@ public class JsonPatch_UnitTest {
 
     private void assertModelOpDeleteType(JsonModelOp jsonModelOp) {
         // Verify JsonModelOp
-        assertModeOp(jsonModelOp);
+        assertModelOp(jsonModelOp);
 
         // Verify JsonModelOpDeleteType
         JsonModelOpDeleteType op = (JsonModelOpDeleteType) jsonModelOp;
@@ -207,7 +245,7 @@ public class JsonPatch_UnitTest {
 
     private void assertModelOpAppendAttr(JsonModelOp jsonModelOp) {
         // Verify JsonModelOp
-        assertModeOp(jsonModelOp);
+        assertModelOp(jsonModelOp);
 
         // Verify JsonModelOpAppendAttr
         JsonModelOpAppendAttr op = (JsonModelOpAppendAttr) jsonModelOp;
@@ -216,11 +254,43 @@ public class JsonPatch_UnitTest {
 
     private void assertModelOpDeleteAttr(JsonModelOp jsonModelOp) {
         // Verify JsonModelOp
-        assertModeOp(jsonModelOp);
+        assertModelOp(jsonModelOp);
 
         // Verify JsonModelOpDeleteAttr
         JsonModelOpDeleteAttr op = (JsonModelOpDeleteAttr) jsonModelOp;
         assertEquals("attr_optional", op.attr_name);
+    }
+
+    private void assertControlOp(JsonControlOp jsonControlOp) {
+        assertNotNull(jsonControlOp);
+    }
+
+    private void assertControlOpSuspend(JsonControlOp jsonControlOp) {
+        // Verify jsonControlOp
+        assertControlOp(jsonControlOp);
+
+        // Verify JsonControlOpSuspend
+        JsonControlOpSuspend op = (JsonControlOpSuspend) jsonControlOp;
+        assertEquals(true, op.shutdown);
+    }
+
+    private void assertControlOpBackup(JsonControlOp jsonControlOp) {
+        // Verify jsonControlOp
+        assertControlOp(jsonControlOp);
+
+        // Verify JsonControlOpBackup
+        JsonControlOpBackup op = (JsonControlOpBackup) jsonControlOp;
+        assertEquals(false, op.incremental);
+        assertEquals("/etc/backup/2018-09-30.bkp", op.backup_file);
+    }
+
+    private void assertControlOpPing(JsonControlOp jsonControlOp) {
+        // Verify jsonControlOp
+        assertControlOp(jsonControlOp);
+
+        // Verify JsonControlOpPing
+        JsonControlOpPing op = (JsonControlOpPing) jsonControlOp;
+        assertNotNull(op);
     }
 
 }
