@@ -2,6 +2,8 @@ package org.state.patch.sql;
 
 import static org.junit.Assert.assertEquals;
 
+import org.state.patch.sql.translator.JsonTranslator;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,12 +18,27 @@ public interface Asserts {
         assertEquals(expectedTree, actualTree);
     }
 
-    public static <T> void asserJsonRoundtrip(ObjectMapper mapper, String jsonString, Class<T> jsonClass) throws Exception {
+    public static <J> void asserJsonRoundtrip(ObjectMapper mapper, String jsonString, Class<J> jsonClass) throws Exception {
         // Setup
-        T jsonInstance = mapper.readValue(jsonString, jsonClass);
+        J jsonInstance = mapper.readValue(jsonString, jsonClass);
 
         // Execute
         String jsonRoundtripString = mapper.writeValueAsString(jsonInstance);
+
+        //Validate
+        Asserts.asserJson(jsonString, jsonRoundtripString);
+    }
+
+    public static <E, J> void asserJsonTranslatorRoundtrip(JsonTranslator<E, J> translator,
+                                                           ObjectMapper mapper,
+                                                           String jsonString) throws Exception {
+        // Setup
+        J jsonInstance = mapper.readValue(jsonString, translator.getJsonClass());
+        E entity = translator.fromJson(jsonInstance);
+
+        // Execute
+        J jsonRoundtripInstance = translator.toJson(entity);
+        String jsonRoundtripString = mapper.writeValueAsString(jsonRoundtripInstance);
 
         //Validate
         Asserts.asserJson(jsonString, jsonRoundtripString);

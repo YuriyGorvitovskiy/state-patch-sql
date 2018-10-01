@@ -3,11 +3,7 @@ package org.state.patch.sql.notify;
 import org.state.patch.sql.notify.v1.JsonNotify_v1;
 import org.state.patch.sql.translator.JsonTranslator;
 
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-
 public class JsonNotifyTranslator implements JsonTranslator<Notify, JsonNotify> {
-
-    static final StdDateFormat DATE_FORMAT = new StdDateFormat();
 
     @Override
     public Class<Notify> getEntityClass() {
@@ -32,8 +28,17 @@ public class JsonNotifyTranslator implements JsonTranslator<Notify, JsonNotify> 
 
     @Override
     public Notify fromJson(JsonNotify json) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        if (json instanceof JsonNotify_v1) {
+            return fromJson((JsonNotify_v1) json);
+        }
+        throw new Exception("Unknown notify: " + json);
+    }
+
+    public Notify fromJson(JsonNotify_v1 json) {
+        return new Notify(json.processed_by,
+                          json.processed_at,
+                          json.event_id,
+                          json.patch_id);
     }
 
 }
