@@ -35,7 +35,7 @@ public class JsonNotify_UnitTest {
 
         // Validate JsonNotify_v1
         assertEquals("service1", notify_v1.processed_by);
-        assertEquals(Json.DATE_FORMAT.parse("2018-09-30T22:19:47.123Z"), notify_v1.processed_at);
+        assertEquals(Json.DATE_PARSE.parse("2018-09-30T22:19:47.123Z"), notify_v1.processed_at);
         assertEquals(1L, notify_v1.event_id);
         assertEquals(2L, notify_v1.patch_id);
     }

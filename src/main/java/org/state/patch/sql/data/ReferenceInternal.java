@@ -14,14 +14,14 @@ public abstract class ReferenceInternal extends Reference {
         this.type = type;
     }
 
-    public static ReferenceInternal referenceFromString(ReferenceType type, String stringValue) throws Exception {
+    public static ReferenceInternal referenceFromString(ReferenceType type, String stringValue) {
         String[] parts = stringValue.split(Reference.SEPARATOR);
         String storageId = parts[parts.length - 1];
 
-        return referenceFromString(type, storageId);
+        return referenceFromObject(type, storageId);
     }
 
-    public static ReferenceInternal referenceFromObject(ReferenceType refType, Object storageId) throws Exception {
+    public static ReferenceInternal referenceFromObject(ReferenceType refType, Object storageId) {
         if (PrimitiveType.INTEGER == refType.storageType) {
             if (storageId instanceof Number) {
                 return new ReferenceInteger(refType.entityType, ((Number) storageId).longValue());
@@ -30,7 +30,7 @@ public abstract class ReferenceInternal extends Reference {
         } else if (PrimitiveType.STRING == refType.storageType) {
             return new ReferenceString(refType.entityType, Objects.toString(storageId));
         }
-        throw new Exception("Unknown reference storage type: " + refType.storageType);
+        throw new RuntimeException("Unknown reference storage type: " + refType.storageType);
     }
 
 }

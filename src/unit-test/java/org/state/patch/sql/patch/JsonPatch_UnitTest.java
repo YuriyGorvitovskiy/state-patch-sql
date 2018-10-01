@@ -50,7 +50,7 @@ public class JsonPatch_UnitTest {
 
         // Validate JsonPatch_v1
         assertEquals(1L, patch_v1.event_id);
-        assertEquals(Json.DATE_FORMAT.parse("2018-09-29T20:21:24.123Z"), patch_v1.event_at);
+        assertEquals(Json.DATE_PARSE.parse("2018-09-29T20:21:24.123Z"), patch_v1.event_at);
         assertEquals("user:2", patch_v1.event_by);
         assertEquals("service1", patch_v1.target_ids.get(0));
         assertEquals("service2", patch_v1.target_ids.get(1));
@@ -65,11 +65,8 @@ public class JsonPatch_UnitTest {
 
     @Test
     public void write_patch_data_v1() throws Exception {
-        // Setup
-        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, "JsonPatch_UnitTest.data.v1.json");
-
         // Execute & Validate
-        Asserts.asserJsonRoundtrip(mapper, resource.toString(), JsonPatch.class);
+        assertRoundTrip("JsonPatch_UnitTest.data.v1.json");
     }
 
     @Test
@@ -89,7 +86,7 @@ public class JsonPatch_UnitTest {
 
         // Validate JsonPatch_v1
         assertEquals(2L, patch_v1.event_id);
-        assertEquals(Json.DATE_FORMAT.parse("2018-09-30T06:31:57.123Z"), patch_v1.event_at);
+        assertEquals(Json.DATE_PARSE.parse("2018-09-30T06:31:57.123Z"), patch_v1.event_at);
         assertEquals("user:3", patch_v1.event_by);
         assertEquals(0, patch_v1.target_ids.size());
 
@@ -103,11 +100,8 @@ public class JsonPatch_UnitTest {
 
     @Test
     public void write_patch_model_v1() throws Exception {
-        // Setup
-        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, "JsonPatch_UnitTest.model.v1.json");
-
         // Execute & Validate
-        Asserts.asserJsonRoundtrip(mapper, resource.toString(), JsonPatch.class);
+        assertRoundTrip("JsonPatch_UnitTest.model.v1.json");
     }
 
     @Test
@@ -127,7 +121,7 @@ public class JsonPatch_UnitTest {
 
         // Validate JsonPatch_v1
         assertEquals(3L, patch_v1.event_id);
-        assertEquals(Json.DATE_FORMAT.parse("2018-09-30T21:45:58.567Z"), patch_v1.event_at);
+        assertEquals(Json.DATE_PARSE.parse("2018-09-30T21:45:58.567Z"), patch_v1.event_at);
         assertEquals("user:4", patch_v1.event_by);
         assertEquals("service3", patch_v1.target_ids.get(0));
         assertEquals(1, patch_v1.target_ids.size());
@@ -141,11 +135,14 @@ public class JsonPatch_UnitTest {
 
     @Test
     public void write_patch_control_v1() throws Exception {
-        // Setup
-        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, "JsonPatch_UnitTest.control.v1.json");
-
         // Execute & Validate
+        assertRoundTrip("JsonPatch_UnitTest.control.v1.json");
+    }
+
+    private void assertRoundTrip(String resourceName) throws Exception {
+        ResourceString resource = new ResourceString(JsonPatch_UnitTest.class, resourceName);
         Asserts.asserJsonRoundtrip(mapper, resource.toString(), JsonPatch.class);
+
     }
 
     private void assertDataOp(JsonDataOp jsonDataOp) {
@@ -167,10 +164,11 @@ public class JsonPatch_UnitTest {
         assertEquals("Text Value", op.attrs.get("attr_text"));
         assertEquals("2018-09-29T20:52:19.345Z", op.attrs.get("attr_time"));
         assertEquals("external:reference", op.attrs.get("attr_external_ref"));
-        assertEquals("entity:23", op.attrs.get("attr_internal_ref"));
+        assertEquals("entity:23", op.attrs.get("attr_ref_integer"));
+        assertEquals("type2:001-234-23", op.attrs.get("attr_ref_string"));
         assertEquals("Optional Value", op.attrs.get("attr_optional_a"));
         assertEquals(null, op.attrs.get("attr_optional_b"));
-        assertEquals(10, op.attrs.size());
+        assertEquals(11, op.attrs.size());
     }
 
     private void assertDataOpUpdate(JsonDataOp jsonDataOp) {
@@ -187,10 +185,11 @@ public class JsonPatch_UnitTest {
         assertEquals("New Text Value", op.attrs.get("attr_text"));
         assertEquals("2018-09-29T23:30:37.678Z", op.attrs.get("attr_time"));
         assertEquals("external:reference2", op.attrs.get("attr_external_ref"));
-        assertEquals("entity:45", op.attrs.get("attr_internal_ref"));
+        assertEquals("entity:45", op.attrs.get("attr_ref_integer"));
+        assertEquals("type2:001-234-56", op.attrs.get("attr_ref_string"));
         assertEquals(null, op.attrs.get("attr_optional-a"));
         assertEquals("Optional Value", op.attrs.get("attr_optional_b"));
-        assertEquals(10, op.attrs.size());
+        assertEquals(11, op.attrs.size());
     }
 
     private void assertDataOpDelete(JsonDataOp jsonDataOp) {
@@ -220,7 +219,7 @@ public class JsonPatch_UnitTest {
 
         // Verify JsonModelOpCreateType
         JsonModelOpCreateType op = (JsonModelOpCreateType) jsonModelOp;
-        assertModelAttr("id", "integer", null, op.id);
+        assertModelAttr("id", "ref-integer:entity", null, op.id);
 
         assertNotNull(op.attrs);
         assertModelAttr("attr_boolean", "boolean", true, op.attrs.get(0));

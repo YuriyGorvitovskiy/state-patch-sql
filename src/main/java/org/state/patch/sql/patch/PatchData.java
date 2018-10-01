@@ -11,11 +11,12 @@ public class PatchData extends Patch {
     public final List<DataOp> operations;
 
     public PatchData(List<DataOp> operations,
+                     List<String> targetIds,
                      ReferenceExternal modifiedBy,
                      Date modifiedAt,
                      long modifiedEventId,
                      long modifiedPatchId) {
-        super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
+        super(targetIds, modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
         this.operations = operations;
     }
 

@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import org.state.patch.sql.control.op.ControlOp;
 import org.state.patch.sql.control.op.ControlOpBackup;
+import org.state.patch.sql.control.op.ControlOpPing;
 import org.state.patch.sql.control.op.ControlOpSuspend;
 import org.state.patch.sql.data.Reference;
 import org.state.patch.sql.data.ReferenceExternal;
@@ -31,6 +32,7 @@ import org.state.patch.sql.model.op.ModelOpDeleteAttribute;
 import org.state.patch.sql.model.op.ModelOpDeleteType;
 import org.state.patch.sql.patch.v1.JsonControlOp;
 import org.state.patch.sql.patch.v1.JsonControlOpBackup;
+import org.state.patch.sql.patch.v1.JsonControlOpPing;
 import org.state.patch.sql.patch.v1.JsonControlOpSuspend;
 import org.state.patch.sql.patch.v1.JsonDataOp;
 import org.state.patch.sql.patch.v1.JsonDataOpDelete;
@@ -67,7 +69,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
     }
 
     @Override
-    public Patch fromJson(JsonPatch patch) throws Exception {
+    public Patch fromJson(JsonPatch patch) {
         if (patch instanceof JsonPatchData_v1) {
             return fromJson((JsonPatchData_v1) patch);
         }
@@ -77,128 +79,225 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         if (patch instanceof JsonPatchControl_v1) {
             return fromJson((JsonPatchControl_v1) patch);
         }
-        throw new Exception("Unknown patch: " + patch);
+        throw new RuntimeException("Unknown patch: " + patch);
     }
 
-    private PatchData fromJson(JsonPatchData_v1 patch) throws Exception {
+    @Override
+    public JsonPatch toJson(Patch patch) {
+        if (patch instanceof PatchData) {
+            return toJson((PatchData) patch);
+        }
+        if (patch instanceof PatchModel) {
+            return toJson((PatchModel) patch);
+        }
+        if (patch instanceof PatchControl) {
+            return toJson((PatchControl) patch);
+        }
+        throw new RuntimeException("Unknown patch: " + patch);
+    }
+
+    PatchData fromJson(JsonPatchData_v1 patch) {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
         Date eventAt = patch.event_at;
         long eventId = patch.event_id;
         long patchId = patch.message_id;
 
+        List<String> targetIds = new ArrayList<>(patch.target_ids);
+
         List<DataOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonDataOp jsonOp : patch.ops) {
-            DataOp op = fromJson(jsonOp, eventBy, eventAt, eventId, patchId);
+            DataOp op = fromJson(jsonOp);
             if (null != op) {
                 ops.add(op);
             }
         }
 
         return new PatchData(Collections.unmodifiableList(ops),
+                             Collections.unmodifiableList(targetIds),
                              eventBy,
                              eventAt,
                              eventId,
                              patchId);
     }
 
-    private PatchModel fromJson(JsonPatchModel_v1 patch) throws Exception {
+    JsonPatchData_v1 toJson(PatchData patch) {
+        JsonPatchData_v1 json = new JsonPatchData_v1();
+        json.target_ids.addAll(patch.targetIds);
+        json.message_id = patch.modifiedPatchId;
+        json.event_id = patch.modifiedEventId;
+        json.event_by = patch.modifiedBy.toString();
+        json.event_at = patch.modifiedAt;
+
+        for (DataOp op : patch.operations) {
+            json.ops.add(toJson(op));
+        }
+
+        return json;
+    }
+
+    PatchModel fromJson(JsonPatchModel_v1 patch) {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
         Date eventAt = patch.event_at;
         long eventId = patch.event_id;
         long patchId = patch.message_id;
 
+        List<String> targetIds = new ArrayList<>(patch.target_ids);
+
         List<ModelOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonModelOp jsonOp : patch.ops) {
-            ModelOp op = fromJson(jsonOp, eventBy, eventAt, eventId, patchId);
+            ModelOp op = fromJson(jsonOp);
             if (null != op) {
                 ops.add(op);
             }
         }
 
         return new PatchModel(Collections.unmodifiableList(ops),
+                              Collections.unmodifiableList(targetIds),
                               eventBy,
                               eventAt,
                               eventId,
                               patchId);
     }
 
-    private PatchControl fromJson(JsonPatchControl_v1 patch) throws Exception {
+    JsonPatchModel_v1 toJson(PatchModel patch) {
+        JsonPatchModel_v1 json = new JsonPatchModel_v1();
+        json.target_ids.addAll(patch.targetIds);
+        json.message_id = patch.modifiedPatchId;
+        json.event_id = patch.modifiedEventId;
+        json.event_by = patch.modifiedBy.toString();
+        json.event_at = patch.modifiedAt;
+
+        for (ModelOp op : patch.operations) {
+            json.ops.add(toJson(op));
+        }
+
+        return json;
+    }
+
+    PatchControl fromJson(JsonPatchControl_v1 patch) {
         ReferenceExternal eventBy = new ReferenceExternal(patch.event_by);
         Date eventAt = patch.event_at;
         long eventId = patch.event_id;
         long patchId = patch.message_id;
 
+        List<String> targetIds = new ArrayList<>(patch.target_ids);
+
         List<ControlOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonControlOp jsonOp : patch.ops) {
-            ControlOp op = fromJson(jsonOp, eventBy, eventAt, eventId, patchId);
+            ControlOp op = fromJson(jsonOp);
             if (null != op) {
                 ops.add(op);
             }
         }
 
         return new PatchControl(Collections.unmodifiableList(ops),
+                                Collections.unmodifiableList(targetIds),
                                 eventBy,
                                 eventAt,
                                 eventId,
                                 patchId);
     }
 
-    private DataOp fromJson(JsonDataOp op,
-                            ReferenceExternal eventBy,
-                            Date eventAt,
-                            long eventId,
-                            long patchId) throws Exception {
+    JsonPatchControl_v1 toJson(PatchControl patch) {
+        JsonPatchControl_v1 json = new JsonPatchControl_v1();
+        json.target_ids.addAll(patch.targetIds);
+        json.message_id = patch.modifiedPatchId;
+        json.event_id = patch.modifiedEventId;
+        json.event_by = patch.modifiedBy.toString();
+        json.event_at = patch.modifiedAt;
+
+        for (ControlOp op : patch.operations) {
+            json.ops.add(toJson(op));
+        }
+
+        return json;
+    }
+
+    DataOp fromJson(JsonDataOp op) {
         if (op instanceof JsonDataOpUpdate) {
-            return fromJson((JsonDataOpUpdate) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonDataOpUpdate) op);
         }
         if (op instanceof JsonDataOpInsert) {
-            return fromJson((JsonDataOpInsert) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonDataOpInsert) op);
         }
         if (op instanceof JsonDataOpDelete) {
-            return fromJson((JsonDataOpDelete) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonDataOpDelete) op);
         }
-        throw new Exception("Unknown data op: " + op);
+        throw new RuntimeException("Unknown data operation: " + op);
     }
 
-    private ModelOp fromJson(JsonModelOp op,
-                             ReferenceExternal eventBy,
-                             Date eventAt,
-                             long eventId,
-                             long patchId) throws Exception {
+    JsonDataOp toJson(DataOp op) {
+        if (op instanceof DataOpUpdate) {
+            return toJson((DataOpUpdate) op);
+        }
+        if (op instanceof DataOpInsert) {
+            return toJson((DataOpInsert) op);
+        }
+        if (op instanceof DataOpDelete) {
+            return toJson((DataOpDelete) op);
+        }
+        throw new RuntimeException("Unknown data operation: " + op);
+    }
+
+    ModelOp fromJson(JsonModelOp op) {
         if (op instanceof JsonModelOpCreateType) {
-            return fromJson((JsonModelOpCreateType) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonModelOpCreateType) op);
         }
         if (op instanceof JsonModelOpAppendAttr) {
-            return fromJson((JsonModelOpAppendAttr) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonModelOpAppendAttr) op);
         }
         if (op instanceof JsonModelOpDeleteAttr) {
-            return fromJson((JsonModelOpDeleteAttr) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonModelOpDeleteAttr) op);
         }
         if (op instanceof JsonModelOpDeleteType) {
-            return fromJson((JsonModelOpDeleteType) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonModelOpDeleteType) op);
         }
-        throw new Exception("Unknown model op: " + op);
+        throw new RuntimeException("Unknown model operation: " + op);
     }
 
-    private ControlOp fromJson(JsonControlOp op,
-                               ReferenceExternal eventBy,
-                               Date eventAt,
-                               long eventId,
-                               long patchId) throws Exception {
-        if (op instanceof JsonControlOpSuspend) {
-            return fromJson((JsonControlOpSuspend) op, eventBy, eventAt, eventId, patchId);
+    JsonModelOp toJson(ModelOp op) {
+        if (op instanceof ModelOpCreateType) {
+            return toJson((ModelOpCreateType) op);
+        }
+        if (op instanceof ModelOpAppendAttribute) {
+            return toJson((ModelOpAppendAttribute) op);
+        }
+        if (op instanceof ModelOpDeleteAttribute) {
+            return toJson((ModelOpDeleteAttribute) op);
+        }
+        if (op instanceof ModelOpDeleteType) {
+            return toJson((ModelOpDeleteType) op);
+        }
+        throw new RuntimeException("Unknown model operation: " + op);
+    }
+
+    ControlOp fromJson(JsonControlOp op) {
+        if (op instanceof JsonControlOpPing) {
+            return fromJson((JsonControlOpPing) op);
         }
         if (op instanceof JsonControlOpBackup) {
-            return fromJson((JsonControlOpBackup) op, eventBy, eventAt, eventId, patchId);
+            return fromJson((JsonControlOpBackup) op);
         }
-        throw new Exception("Unknown control op: " + op);
+        if (op instanceof JsonControlOpSuspend) {
+            return fromJson((JsonControlOpSuspend) op);
+        }
+        throw new RuntimeException("Unknown control operation: " + op);
     }
 
-    private DataOpUpdate fromJson(JsonDataOpUpdate op,
-                                  ReferenceExternal eventBy,
-                                  Date eventAt,
-                                  long eventId,
-                                  long patchId) throws Exception {
+    JsonControlOp toJson(ControlOp op) {
+        if (op instanceof ControlOpPing) {
+            return toJson((ControlOpPing) op);
+        }
+        if (op instanceof ControlOpBackup) {
+            return toJson((ControlOpBackup) op);
+        }
+        if (op instanceof ControlOpSuspend) {
+            return toJson((ControlOpSuspend) op);
+        }
+        throw new RuntimeException("Unknown control operation: " + op);
+    }
+
+    DataOpUpdate fromJson(JsonDataOpUpdate op) {
         ReferenceInternal entityId = entityIdFromJson(op.entity_id);
         if (null == entityId) {
             // Skip operation for unmanaged Entity Type
@@ -210,11 +309,21 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         return new DataOpUpdate(entityId, attrs);
     }
 
-    private DataOpInsert fromJson(JsonDataOpInsert op,
-                                  ReferenceExternal eventBy,
-                                  Date eventAt,
-                                  long eventId,
-                                  long patchId) throws Exception {
+    JsonDataOpUpdate toJson(DataOpUpdate op) {
+        JsonDataOpUpdate json = new JsonDataOpUpdate();
+        json.entity_id = referenceToJson(op.id);
+
+        EntityType entityType = model.getEntityType(op.id.type);
+        for (Map.Entry<String, Object> attr : op.attrs.entrySet()) {
+            String attrName = attr.getKey();
+            Attribute attribute = entityType.attrs.get(attrName);
+            Object jsonValue = toJson(attribute.type, attr.getValue());
+            json.attrs.put(attrName, jsonValue);
+        }
+        return json;
+    }
+
+    DataOpInsert fromJson(JsonDataOpInsert op) {
         ReferenceInternal entityId = entityIdFromJson(op.entity_id);
         if (null == entityId) {
             // Skip operation for unmanaged Entity Type
@@ -226,11 +335,21 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         return new DataOpInsert(entityId, attrs);
     }
 
-    private DataOpDelete fromJson(JsonDataOpDelete op,
-                                  ReferenceExternal eventBy,
-                                  Date eventAt,
-                                  long eventId,
-                                  long patchId) throws Exception {
+    JsonDataOpInsert toJson(DataOpInsert op) {
+        JsonDataOpInsert json = new JsonDataOpInsert();
+        json.entity_id = referenceToJson(op.id);
+
+        EntityType entityType = model.getEntityType(op.id.type);
+        for (Map.Entry<String, Object> attr : op.attrs.entrySet()) {
+            String attrName = attr.getKey();
+            Attribute attribute = entityType.attrs.get(attrName);
+            Object jsonValue = toJson(attribute.type, attr.getValue());
+            json.attrs.put(attrName, jsonValue);
+        }
+        return json;
+    }
+
+    DataOpDelete fromJson(JsonDataOpDelete op) {
         ReferenceInternal entityId = entityIdFromJson(op.entity_id);
         if (null == entityId) {
             // Skip operation for unmanaged Entity Type
@@ -239,11 +358,13 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         return new DataOpDelete(entityId);
     }
 
-    private ModelOpCreateType fromJson(JsonModelOpCreateType op,
-                                       ReferenceExternal eventBy,
-                                       Date eventAt,
-                                       long eventId,
-                                       long patchId) throws Exception {
+    JsonDataOpDelete toJson(DataOpDelete op) {
+        JsonDataOpDelete json = new JsonDataOpDelete();
+        json.entity_id = referenceToJson(op.id);
+        return json;
+    }
+
+    ModelOpCreateType fromJson(JsonModelOpCreateType op) {
         ModelOp.Attribute identity = fromJson(op.id);
 
         List<ModelOp.Attribute> attrs = new ArrayList<>(op.attrs.size());
@@ -256,54 +377,96 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
                                      Collections.unmodifiableList(attrs));
     }
 
-    private ModelOpAppendAttribute fromJson(JsonModelOpAppendAttr op,
-                                            ReferenceExternal eventBy,
-                                            Date eventAt,
-                                            long eventId,
-                                            long patchId) throws Exception {
+    JsonModelOpCreateType toJson(ModelOpCreateType op) {
+        JsonModelOpCreateType json = new JsonModelOpCreateType();
+        json.entity_type = op.type;
+        json.id = toJson(op.identity);
+
+        for (ModelOp.Attribute attr : op.attrs) {
+            json.attrs.add(toJson(attr));
+        }
+
+        return json;
+    }
+
+    ModelOpAppendAttribute fromJson(JsonModelOpAppendAttr op) {
         ModelOp.Attribute attr = fromJson(op.attr);
         return new ModelOpAppendAttribute(op.entity_type, attr);
     }
 
-    private ModelOpDeleteAttribute fromJson(JsonModelOpDeleteAttr op,
-                                            ReferenceExternal eventBy,
-                                            Date eventAt,
-                                            long eventId,
-                                            long patchId) {
+    JsonModelOpAppendAttr toJson(ModelOpAppendAttribute op) {
+        JsonModelOpAppendAttr json = new JsonModelOpAppendAttr();
+        json.entity_type = op.type;
+        json.attr = toJson(op.attr);
+        return json;
+    }
+
+    ModelOpDeleteAttribute fromJson(JsonModelOpDeleteAttr op) {
         return new ModelOpDeleteAttribute(op.entity_type, op.attr_name);
     }
 
-    private ModelOpDeleteType fromJson(JsonModelOpDeleteType op,
-                                       ReferenceExternal eventBy,
-                                       Date eventAt,
-                                       long eventId,
-                                       long patchId) {
+    JsonModelOpDeleteAttr toJson(ModelOpDeleteAttribute op) {
+        JsonModelOpDeleteAttr json = new JsonModelOpDeleteAttr();
+        json.entity_type = op.type;
+        json.attr_name = op.attribName;
+        return json;
+    }
+
+    ModelOpDeleteType fromJson(JsonModelOpDeleteType op) {
         return new ModelOpDeleteType(op.entity_type);
     }
 
-    private ControlOpSuspend fromJson(JsonControlOpSuspend op,
-                                      ReferenceExternal eventBy,
-                                      Date eventAt,
-                                      long eventId,
-                                      long patchId) {
-        return new ControlOpSuspend(op.shutdown);
+    JsonModelOpDeleteType toJson(ModelOpDeleteType op) {
+        JsonModelOpDeleteType json = new JsonModelOpDeleteType();
+        json.entity_type = op.type;
+        return json;
     }
 
-    private ControlOpBackup fromJson(JsonControlOpBackup op,
-                                     ReferenceExternal eventBy,
-                                     Date eventAt,
-                                     long eventId,
-                                     long patchId) {
+    ControlOpPing fromJson(JsonControlOpPing op) {
+        return new ControlOpPing();
+    }
+
+    JsonControlOpPing toJson(ControlOpPing op) {
+        JsonControlOpPing json = new JsonControlOpPing();
+        return json;
+    }
+
+    ControlOpBackup fromJson(JsonControlOpBackup op) {
         return new ControlOpBackup(op.incremental, op.backup_file);
     }
 
-    private ModelOp.Attribute fromJson(JsonModelAttribute attr) throws Exception {
+    JsonControlOpBackup toJson(ControlOpBackup op) {
+        JsonControlOpBackup json = new JsonControlOpBackup();
+        json.incremental = op.incremental;
+        json.backup_file = op.backupFile;
+        return json;
+    }
+
+    ControlOpSuspend fromJson(JsonControlOpSuspend op) {
+        return new ControlOpSuspend(op.shutdown);
+    }
+
+    JsonControlOpSuspend toJson(ControlOpSuspend op) {
+        JsonControlOpSuspend json = new JsonControlOpSuspend();
+        json.shutdown = op.shutdown;
+        return json;
+    }
+
+    ModelOp.Attribute fromJson(JsonModelAttribute attr) {
         ValueType type = fromJson(attr.type);
         Object intial = fromJson(type, attr.initial);
         return new ModelOp.Attribute(attr.name, type, intial);
     }
 
-    private ValueType fromJson(String type) throws Exception {
+    JsonModelAttribute toJson(ModelOp.Attribute attr) {
+        JsonModelAttribute json = new JsonModelAttribute();
+        json.name = attr.name;
+        json.type = toJson(attr.type);
+        json.initial = toJson(attr.type, attr.initial);
+        return json;
+    }
+
+    ValueType fromJson(String type) {
         switch (type) {
             case "boolean":
                 return PrimitiveType.BOOLEAN;
@@ -326,10 +489,42 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         if (type.startsWith("ref-string:")) {
             return new ReferenceType(type.substring("ref-string:".length()), PrimitiveType.STRING);
         }
-        throw new Exception("Unknown value type: " + type);
+        throw new RuntimeException("Unknown value type: " + type);
     }
 
-    private Map<String, Object> fromJson(Map<String, Object> jsonAttrs, String entityTypeName) throws Exception {
+    String toJson(ValueType type) {
+        if (type instanceof PrimitiveType) {
+            switch ((PrimitiveType) type) {
+                case BOOLEAN:
+                    return "boolean";
+                case INTEGER:
+                    return "integer";
+                case DOUBLE:
+                    return "double";
+                case STRING:
+                    return "string";
+                case TEXT:
+                    return "text";
+                case TIMESTAMP:
+                    return "timestamp";
+                case REFERENCE_EXTERNAL:
+                    return "refext";
+
+            }
+        }
+        if (type instanceof ReferenceType) {
+            ReferenceType refType = (ReferenceType) type;
+            if (PrimitiveType.INTEGER == refType.storageType) {
+                return "ref-integer:" + refType.entityType;
+            }
+            if (PrimitiveType.STRING == refType.storageType) {
+                return "ref-string:" + refType.entityType;
+            }
+        }
+        throw new RuntimeException("Unknown value type: " + type);
+    }
+
+    Map<String, Object> fromJson(Map<String, Object> jsonAttrs, String entityTypeName) {
         EntityType entityType = model.getEntityType(entityTypeName);
         if (null == entityType) {
             return new HashMap<>(jsonAttrs);
@@ -347,7 +542,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         return translated;
     }
 
-    private Object fromJson(ValueType type, Object json) throws Exception {
+    Object fromJson(ValueType type, Object json) {
         if (null == json) {
             return null;
         }
@@ -369,15 +564,38 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
                     return dateFromJson(json);
             }
         } else if (type instanceof ReferenceType) {
-            return ReferenceInternal.referenceFromObject((ReferenceType) type, json);
+            return ReferenceInternal.referenceFromString((ReferenceType) type, Objects.toString(json));
         }
-        throw new Exception("Unknown value type: " + type);
+        throw new RuntimeException("Unknown value type: " + type);
     }
 
-    private Boolean booleanFromJson(Object json) {
-        if (null == json) {
+    Object toJson(ValueType type, Object java) {
+        if (null == java) {
             return null;
         }
+
+        if (type instanceof PrimitiveType) {
+            switch ((PrimitiveType) type) {
+                case BOOLEAN:
+                    return booleanToJson(java);
+                case DOUBLE:
+                case INTEGER:
+                    return numberToJson(java);
+                case REFERENCE_EXTERNAL:
+                    return referenceToJson(java);
+                case STRING:
+                case TEXT:
+                    return Objects.toString(java);
+                case TIMESTAMP:
+                    return dateToJson(java);
+            }
+        } else if (type instanceof ReferenceType) {
+            return referenceToJson(java);
+        }
+        throw new RuntimeException("Unknown value type: " + type);
+    }
+
+    Boolean booleanFromJson(Object json) {
         if (json instanceof Boolean) {
             return ((Boolean) json);
         }
@@ -387,38 +605,42 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         return Boolean.valueOf(Objects.toString(json));
     }
 
-    private Long integerFromJson(Object json) {
-        if (null == json) {
-            return null;
-        }
+    Boolean booleanToJson(Object java) {
+        return (Boolean) java;
+    }
+
+    Long integerFromJson(Object json) {
         if (json instanceof Number) {
             return ((Number) json).longValue();
         }
         return Long.parseLong(Objects.toString(json));
     }
 
-    private Double doubleFromJson(Object json) {
-        if (null == json) {
-            return null;
-        }
+    Double doubleFromJson(Object json) {
         if (json instanceof Number) {
             return ((Number) json).doubleValue();
         }
         return Double.parseDouble(Objects.toString(json));
     }
 
-    private Date dateFromJson(Object json) throws Exception {
-        if (null == json) {
-            return null;
-        }
+    Number numberToJson(Object java) {
+        return (Number) java;
+    }
+
+    Date dateFromJson(Object json) {
         if (json instanceof Number) {
             return new Date(((Number) json).longValue());
         }
-        return Json.DATE_FORMAT.parse(Objects.toString(json));
+        return Json.parseDate(Objects.toString(json));
     }
 
-    private ReferenceInternal entityIdFromJson(Object json) throws Exception {
-        String[] parts = Objects.toString(json).split(Reference.SEPARATOR);
+    String dateToJson(Object java) {
+        return Json.formatDate((Date) java);
+    }
+
+    ReferenceInternal entityIdFromJson(Object json) {
+        String jsonString = Objects.toString(json);
+        String[] parts = jsonString.split(Reference.SEPARATOR);
         String entityTypeName = parts[parts.length - 2];
         String storageId = parts[parts.length - 1];
 
@@ -431,10 +653,8 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         return ReferenceInternal.referenceFromString(refType, storageId);
     }
 
-    @Override
-    public JsonPatch toJson(Patch entiry) {
-        // TODO Auto-generated method stub
-        return null;
+    String referenceToJson(Object java) {
+        return ((Reference) java).stringValue;
     }
 
 }

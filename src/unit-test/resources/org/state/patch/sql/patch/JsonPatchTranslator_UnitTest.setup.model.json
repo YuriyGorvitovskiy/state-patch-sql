@@ -1,8 +1,8 @@
 {
     "@patch_type": "model.v1",
-    "event_id": 2,
-    "event_by": "user:3",
-    "event_at": "2018-09-30T06:31:57.123Z",
+    "event_id": 0,
+    "event_by": "user:0",
+    "event_at": "2018-10-01T12:13:30.000Z",
     "target_ids": [],
     "ops":[{
         "@op_type": "create-type",
@@ -15,19 +15,19 @@
         "attrs": [{
             "name": "attr_boolean",
             "type": "boolean",
-            "initial": true
+            "initial": false
         },{
             "name": "attr_integer",
             "type": "integer",
-            "initial": 1
+            "initial": 0
         },{
             "name": "attr_double",
             "type": "double",
-            "initial": 2.34
+            "initial": 0
         },{
             "name": "attr_string",
             "type": "string",
-            "initial": "S"
+            "initial": ""
         },{
             "name": "attr_text",
             "type": "text",
@@ -44,26 +44,18 @@
             "name": "attr_ref_integer",
             "type": "ref-integer:entity",
             "initial": null
-
         },{
             "name": "attr_ref_string",
             "type": "ref-string:type2",
             "initial": null
-        }]
-    },{
-        "@op_type": "append-attr",
-        "entity_type": "entity",
-        "attr": {
-            "name": "attr_optional",
+        },{
+            "name": "attr_optional_a",
             "type": "string",
             "initial": null
-        }
-    },{
-        "@op_type": "delete-attr",
-        "entity_type": "entity",
-        "attr_name": "attr_optional"
-    },{
-        "@op_type": "delete-type",
-        "entity_type": "entity"
+        },{
+            "name": "attr_optional_b",
+            "type": "string",
+            "initial": null
+        }]
     }]
 }

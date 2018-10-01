@@ -38,7 +38,7 @@ public class JsonNotifyTranslator_UnitTest {
         //Validate
         assertNotNull(notify);
         assertEquals("service1", notify.processedBy);
-        assertEquals(Json.DATE_FORMAT.parse("2018-09-30T22:19:47.123Z"), notify.processedAt);
+        assertEquals(Json.DATE_PARSE.parse("2018-09-30T22:19:47.123Z"), notify.processedAt);
         assertEquals(1L, notify.eventId);
         assertEquals(2L, notify.patchId);
     }

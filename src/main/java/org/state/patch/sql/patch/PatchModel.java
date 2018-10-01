@@ -11,11 +11,12 @@ public class PatchModel extends Patch {
     public final List<ModelOp> operations;
 
     public PatchModel(List<ModelOp> operations,
+                      List<String> targetIds,
                       ReferenceExternal modifiedBy,
                       Date modifiedAt,
                       long modifiedEventId,
                       long modifiedPatchId) {
-        super(modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
+        super(targetIds, modifiedBy, modifiedAt, modifiedEventId, modifiedPatchId);
         this.operations = operations;
     }
 

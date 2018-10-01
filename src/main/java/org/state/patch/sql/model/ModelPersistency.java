@@ -87,8 +87,8 @@ public class ModelPersistency implements PatchModelProcessor {
         }
     }
 
-    final Model          modelModel;
-    final Database       modelDatabase;
+    final Model               modelModel;
+    final Database            modelDatabase;
     final JsonPatchTranslator jsonTranslator;
 
     public ModelPersistency(ModelConfig config) {
@@ -150,7 +150,7 @@ public class ModelPersistency implements PatchModelProcessor {
             dataOps.add(new DataOpDelete(attrEntity.id));
         }
 
-        PatchData patch = new PatchData(dataOps, null, null, -1, -1);
+        PatchData patch = new PatchData(dataOps, Collections.emptyList(), null, null, -1, -1);
         modelDatabase.apply(patch);
     }
 
@@ -209,7 +209,7 @@ public class ModelPersistency implements PatchModelProcessor {
         for (ModelOp.Attribute attr : modelOp.attrs) {
             dataOps.add(toDataOp(modelOp, attr, false));
         }
-        return new PatchData(dataOps, null, null, -1, -1);
+        return new PatchData(dataOps, Collections.emptyList(), null, null, -1, -1);
     }
 
     private DataOpInsert toDataOp(ModelOp modelOp, ModelOp.Attribute attr, boolean identity) throws Exception {

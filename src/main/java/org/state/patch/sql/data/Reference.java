@@ -21,6 +21,11 @@ public abstract class Reference {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(stringValue);
+    }
+
+    @Override
     public String toString() {
         return stringValue;
     }
