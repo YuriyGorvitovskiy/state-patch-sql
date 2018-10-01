@@ -15,6 +15,7 @@ import org.state.patch.sql.control.op.ControlOpSuspend;
 import org.state.patch.sql.data.Reference;
 import org.state.patch.sql.data.ReferenceExternal;
 import org.state.patch.sql.data.ReferenceInternal;
+import org.state.patch.sql.data.ReferenceString;
 import org.state.patch.sql.data.op.DataOp;
 import org.state.patch.sql.data.op.DataOpDelete;
 import org.state.patch.sql.data.op.DataOpInsert;
@@ -106,10 +107,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
         List<DataOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonDataOp jsonOp : patch.ops) {
-            DataOp op = fromJson(jsonOp);
-            if (null != op) {
-                ops.add(op);
-            }
+            ops.add(fromJson(jsonOp));
         }
 
         return new PatchData(Collections.unmodifiableList(ops),
@@ -145,10 +143,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
         List<ModelOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonModelOp jsonOp : patch.ops) {
-            ModelOp op = fromJson(jsonOp);
-            if (null != op) {
-                ops.add(op);
-            }
+            ops.add(fromJson(jsonOp));
         }
 
         return new PatchModel(Collections.unmodifiableList(ops),
@@ -184,10 +179,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
         List<ControlOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonControlOp jsonOp : patch.ops) {
-            ControlOp op = fromJson(jsonOp);
-            if (null != op) {
-                ops.add(op);
-            }
+            ops.add(fromJson(jsonOp));
         }
 
         return new PatchControl(Collections.unmodifiableList(ops),
@@ -299,11 +291,6 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     DataOpUpdate fromJson(JsonDataOpUpdate op) {
         ReferenceInternal entityId = entityIdFromJson(op.entity_id);
-        if (null == entityId) {
-            // Skip operation for unmanaged Entity Type
-            return null;
-        }
-
         Map<String, Object> attrs = fromJson(op.attrs, entityId.type);
 
         return new DataOpUpdate(entityId, attrs);
@@ -316,8 +303,8 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         EntityType entityType = model.getEntityType(op.id.type);
         for (Map.Entry<String, Object> attr : op.attrs.entrySet()) {
             String attrName = attr.getKey();
-            Attribute attribute = entityType.attrs.get(attrName);
-            Object jsonValue = toJson(attribute.type, attr.getValue());
+            ValueType attrType = getAttributeType(entityType, attrName);
+            Object jsonValue = toJson(attrType, attr.getValue());
             json.attrs.put(attrName, jsonValue);
         }
         return json;
@@ -325,11 +312,6 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     DataOpInsert fromJson(JsonDataOpInsert op) {
         ReferenceInternal entityId = entityIdFromJson(op.entity_id);
-        if (null == entityId) {
-            // Skip operation for unmanaged Entity Type
-            return null;
-        }
-
         Map<String, Object> attrs = fromJson(op.attrs, entityId.type);
 
         return new DataOpInsert(entityId, attrs);
@@ -342,8 +324,8 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         EntityType entityType = model.getEntityType(op.id.type);
         for (Map.Entry<String, Object> attr : op.attrs.entrySet()) {
             String attrName = attr.getKey();
-            Attribute attribute = entityType.attrs.get(attrName);
-            Object jsonValue = toJson(attribute.type, attr.getValue());
+            ValueType attrType = getAttributeType(entityType, attrName);
+            Object jsonValue = toJson(attrType, attr.getValue());
             json.attrs.put(attrName, jsonValue);
         }
         return json;
@@ -351,10 +333,6 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     DataOpDelete fromJson(JsonDataOpDelete op) {
         ReferenceInternal entityId = entityIdFromJson(op.entity_id);
-        if (null == entityId) {
-            // Skip operation for unmanaged Entity Type
-            return null;
-        }
         return new DataOpDelete(entityId);
     }
 
@@ -453,7 +431,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
     }
 
     ModelOp.Attribute fromJson(JsonModelAttribute attr) {
-        ValueType type = fromJson(attr.type);
+        ValueType type = valueTypeFromJson(attr.type);
         Object intial = fromJson(type, attr.initial);
         return new ModelOp.Attribute(attr.name, type, intial);
     }
@@ -461,12 +439,12 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
     JsonModelAttribute toJson(ModelOp.Attribute attr) {
         JsonModelAttribute json = new JsonModelAttribute();
         json.name = attr.name;
-        json.type = toJson(attr.type);
+        json.type = valueTypeToJson(attr.type);
         json.initial = toJson(attr.type, attr.initial);
         return json;
     }
 
-    ValueType fromJson(String type) {
+    ValueType valueTypeFromJson(String type) {
         switch (type) {
             case "boolean":
                 return PrimitiveType.BOOLEAN;
@@ -492,7 +470,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         throw new RuntimeException("Unknown value type: " + type);
     }
 
-    String toJson(ValueType type) {
+    String valueTypeToJson(ValueType type) {
         if (type instanceof PrimitiveType) {
             switch ((PrimitiveType) type) {
                 case BOOLEAN:
@@ -509,7 +487,6 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
                     return "timestamp";
                 case REFERENCE_EXTERNAL:
                     return "refext";
-
             }
         }
         if (type instanceof ReferenceType) {
@@ -532,19 +509,16 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
         HashMap<String, Object> translated = new HashMap<>();
         for (Map.Entry<String, Object> jsonAttr : jsonAttrs.entrySet()) {
-            Attribute modelAttr = entityType.attrs.get(jsonAttr.getKey());
-
-            // Skip unmanaged attributes
-            if (null != modelAttr) {
-                translated.put(jsonAttr.getKey(), fromJson(modelAttr.type, jsonAttr.getValue()));
-            }
+            ValueType attrType = getAttributeType(entityType, jsonAttr.getKey());
+            translated.put(jsonAttr.getKey(), fromJson(attrType, jsonAttr.getValue()));
         }
         return translated;
+
     }
 
     Object fromJson(ValueType type, Object json) {
-        if (null == json) {
-            return null;
+        if (null == json || null == type) {
+            return json;
         }
 
         if (type instanceof PrimitiveType) {
@@ -563,15 +537,16 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
                 case TIMESTAMP:
                     return dateFromJson(json);
             }
-        } else if (type instanceof ReferenceType) {
+        }
+        if (type instanceof ReferenceType) {
             return ReferenceInternal.referenceFromString((ReferenceType) type, Objects.toString(json));
         }
         throw new RuntimeException("Unknown value type: " + type);
     }
 
     Object toJson(ValueType type, Object java) {
-        if (null == java) {
-            return null;
+        if (null == type || null == java) {
+            return java;
         }
 
         if (type instanceof PrimitiveType) {
@@ -589,7 +564,8 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
                 case TIMESTAMP:
                     return dateToJson(java);
             }
-        } else if (type instanceof ReferenceType) {
+        }
+        if (type instanceof ReferenceType) {
             return referenceToJson(java);
         }
         throw new RuntimeException("Unknown value type: " + type);
@@ -646,7 +622,7 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
         EntityType entityType = model.getEntityType(entityTypeName);
         if (null == entityType) {
-            return null;
+            return new ReferenceString(entityTypeName, storageId);
         }
 
         ReferenceType refType = (ReferenceType) entityType.identity.type;
@@ -655,6 +631,17 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
     String referenceToJson(Object java) {
         return ((Reference) java).stringValue;
+    }
+
+    ValueType getAttributeType(EntityType entityType, String attrName) {
+        if (null == entityType) {
+            return null;
+        }
+        Attribute attribute = entityType.attrs.get(attrName);
+        if (null == attribute) {
+            return null;
+        }
+        return attribute.type;
     }
 
 }

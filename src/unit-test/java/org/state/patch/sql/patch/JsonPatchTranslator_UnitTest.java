@@ -90,6 +90,12 @@ public class JsonPatchTranslator_UnitTest {
     }
 
     @Test
+    public void unknown_patch_data() throws Exception {
+        // Execute & Validate
+        assertRoundTrip("JsonPatchTranslator_UnitTest.unknown.data.v1.json");
+    }
+
+    @Test
     public void from_patch_model_v1() throws Exception {
         // Execute
         Patch patch = extractPatch("JsonPatchTranslator_UnitTest.model.v1.json");
@@ -224,6 +230,105 @@ public class JsonPatchTranslator_UnitTest {
 
         // Execute
         subject.toJson((ControlOp) null);
+    }
+
+    @Test
+    public void valueTypeFromJson_unknown() throws Exception {
+        // Setup
+        String unknown = "unknown";
+
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Unknown value type: unknown");
+
+        // Execute
+        subject.valueTypeFromJson(unknown);
+    }
+
+    @Test
+    public void valueTypeToJson_unknown() throws Exception {
+        // Setup
+        ValueType unknown = new ValueType() {
+        };
+
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Unknown value type: ");
+
+        // Execute
+        subject.valueTypeToJson(unknown);
+    }
+
+    @Test
+    public void valueTypeToJson_unknown_reference() throws Exception {
+        // Setup
+        ReferenceType unknown = new ReferenceType("entity", PrimitiveType.DOUBLE);
+
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Unknown value type: ");
+
+        // Execute
+        subject.valueTypeToJson(unknown);
+    }
+
+    @Test
+    public void value_unknown_from_json() throws Exception {
+        // Setup
+        ValueType unknown = new ValueType() {
+        };
+
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Unknown value type: ");
+
+        // Execute
+        subject.fromJson(unknown, "value");
+    }
+
+    @Test
+    public void value_unknown_to_json() throws Exception {
+        // Setup
+        ValueType unknown = new ValueType() {
+        };
+
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Unknown value type: ");
+
+        // Execute
+        subject.toJson(unknown, "value");
+    }
+
+    @Test
+    public void booleanFromJson() throws Exception {
+        // Execute && Validate
+        assertEquals(Boolean.FALSE, subject.booleanFromJson(Boolean.FALSE));
+        assertEquals(Boolean.FALSE, subject.booleanFromJson(0.0));
+        assertEquals(Boolean.FALSE, subject.booleanFromJson("anything"));
+
+        assertEquals(Boolean.TRUE, subject.booleanFromJson(Boolean.TRUE));
+        assertEquals(Boolean.TRUE, subject.booleanFromJson(0.1));
+        assertEquals(Boolean.TRUE, subject.booleanFromJson("true"));
+    }
+
+    @Test
+    public void integerFromJson() throws Exception {
+        // Execute && Validate
+        assertEquals(Long.valueOf(123L), subject.integerFromJson(123));
+        assertEquals(Long.valueOf(4L), subject.integerFromJson(4.56));
+        assertEquals(Long.valueOf(7890123456789L), subject.integerFromJson("7890123456789"));
+    }
+
+    @Test
+    public void doubleFromJson() throws Exception {
+        // Execute && Validate
+        assertEquals(Double.valueOf(123), subject.doubleFromJson(123));
+        assertEquals(Double.valueOf(4.56), subject.doubleFromJson(4.56));
+        assertEquals(Double.valueOf(7890123456789L), subject.doubleFromJson("7890123456789"));
+    }
+
+    @Test
+    public void dateFromJson() throws Exception {
+        // Execute && Validate
+        assertEquals(Json.parseDate("2018-10-01T19:23:16.123Z"), subject.dateFromJson("2018-10-01T19:23:16.123Z"));
+        assertEquals(Json.parseDate("2018-10-01T16:23:16.123Z"), subject.dateFromJson("2018-10-01T19:23:16.123+0300"));
+        assertEquals(Json.parseDate("1970-01-01T00:02:03.456Z"), subject.dateFromJson(123456L));
     }
 
     private Patch extractPatch(String resourceName) throws Exception {
