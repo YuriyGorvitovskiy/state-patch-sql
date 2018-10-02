@@ -35,8 +35,10 @@ dependencies {
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.4'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.22.0'
 }
 
 test {
     systemProperties System.getProperties()
+    classpath.add(files("${projectDir}/unit-test"))
 }
