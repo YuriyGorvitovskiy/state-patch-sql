@@ -3,6 +3,7 @@ package org.state.patch.sql.data;
 import java.util.Objects;
 
 public abstract class Reference {
+
     public static final String SEPARATOR = ":";
 
     public final String stringValue;
