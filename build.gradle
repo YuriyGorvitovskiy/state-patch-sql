@@ -40,5 +40,4 @@ dependencies {
 
 test {
     systemProperties System.getProperties()
-    classpath.add(files("${projectDir}/unit-test"))
 }
