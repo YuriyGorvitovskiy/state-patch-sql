@@ -9,7 +9,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runners.MethodSorters;
-import org.state.patch.sql.Asserts;
 import org.state.patch.sql.control.op.ControlOp;
 import org.state.patch.sql.control.op.ControlOpBackup;
 import org.state.patch.sql.control.op.ControlOpPing;
@@ -33,6 +32,7 @@ import org.state.patch.sql.model.op.ModelOpDeleteType;
 import org.state.patch.sql.patch.v1.JsonControlOp;
 import org.state.patch.sql.patch.v1.JsonDataOp;
 import org.state.patch.sql.patch.v1.JsonModelOp;
+import org.state.patch.sql.test.Asserts;
 import org.state.patch.sql.util.Json;
 import org.state.patch.sql.util.ResourceString;
 

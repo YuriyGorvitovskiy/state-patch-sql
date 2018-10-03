@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.state.patch.sql.Asserts;
+import org.state.patch.sql.test.Asserts;
 import org.state.patch.sql.util.Json;
 import org.state.patch.sql.util.ResourceString;
 

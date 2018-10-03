@@ -12,12 +12,12 @@ import java.sql.ResultSet;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.state.patch.sql.config.Configurator;
 import org.state.patch.sql.config.ServiceConfig;
 import org.state.patch.sql.zzz.database.Database;
 import org.state.patch.sql.zzz.patch.Patch;
-import org.state.patch.sql.zzz.processor.PatchProcessor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 5.1. Drop 'Test' Schema; <br/>
  * 5.2. Drop 'Test_Config' Schema; <br/>
  */
+@Ignore
 public class PatchProcessor_Test {
 
     Database       database;

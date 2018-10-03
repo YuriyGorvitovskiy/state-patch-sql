@@ -2,12 +2,11 @@ package org.state.patch.sql.message.kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.state.patch.sql.config.TopicProducerConfig;
+import org.state.patch.sql.config.MessageProducerConfig;
 import org.state.patch.sql.message.JsonMessage;
 import org.state.patch.sql.message.MessageProducer;
 import org.state.patch.sql.translator.JsonTranslator;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class KafkaMessageProducer<M, J extends JsonMessage> implements MessageProducer<M, J> {
@@ -15,17 +14,18 @@ public class KafkaMessageProducer<M, J extends JsonMessage> implements MessagePr
     public static final String NAME        = "KAFKA";
     static final String        MESSAGE_KEY = "Notify.JSON";
 
-    final TopicProducerConfig           config;
-    final JsonTranslator<M, J>          translator;
-    final ObjectMapper                  mapper;
-    final KafkaProducer<String, byte[]> producer;
+    public final MessageProducerConfig           config;
+    public final JsonTranslator<M, J>          translator;
+    public final ObjectMapper                  mapper;
+    public final KafkaProducer<String, byte[]> producer;
 
-    public KafkaMessageProducer(TopicProducerConfig config, JsonTranslator<M, J> translator) {
+    public KafkaMessageProducer(MessageProducerConfig config, JsonTranslator<M, J> translator) {
         this.config = config;
         this.translator = translator;
 
         this.mapper = new ObjectMapper();
-        this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        // No implicit nulls
+        // this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         this.producer = new KafkaProducer<>(config.producer);
     }

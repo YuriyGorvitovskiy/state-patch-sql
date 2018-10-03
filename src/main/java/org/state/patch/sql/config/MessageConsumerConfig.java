@@ -7,7 +7,7 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.state.patch.sql.message.kafka.KafkaMessageConsumer;
 
-public class TopicConsumerConfig {
+public class MessageConsumerConfig {
 
     public String engine = KafkaMessageConsumer.NAME;
 

@@ -1,4 +1,4 @@
-package org.state.patch.sql;
+package org.state.patch.sql.test;
 
 import static org.junit.Assert.assertEquals;
 
