@@ -43,9 +43,7 @@ public class Model implements PatchModelProcessor {
                                         opAttr.type,
                                         opAttr.initial));
         }
-        types.put(op.type, new EntityType(op.type,
-                                          identity,
-                                          typeAttrs));
+        add(new EntityType(op.type, identity, typeAttrs));
     }
 
     @Override
@@ -64,10 +62,7 @@ public class Model implements PatchModelProcessor {
                                    op.attr.type,
                                    op.attr.initial));
 
-        types.put(oldType.name, new EntityType(oldType.name,
-                                               oldType.identity,
-                                               newAttrs));
-
+        add(new EntityType(oldType.name, oldType.identity, newAttrs));
     }
 
     @Override
@@ -77,11 +72,10 @@ public class Model implements PatchModelProcessor {
         List<Attribute> newAttrs = new ArrayList<>(oldType.attrs.values());
         newAttrs.removeIf(a -> Objects.equals(a.name, op.attribName));
 
-        types.put(oldType.name, new EntityType(oldType.name,
-                                               oldType.identity,
-                                               newAttrs));
+        add(new EntityType(oldType.name, oldType.identity, newAttrs));
     }
 
-    public void add(EntityType entityType) {
+    private void add(EntityType entityType) {
+        types.put(entityType.name, entityType);
     }
 }

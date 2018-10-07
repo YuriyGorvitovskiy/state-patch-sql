@@ -83,7 +83,7 @@ public class ModelPersistency implements PatchModelProcessor {
                     return version;
                 }
             }
-            return null;
+            throw new RuntimeException("Unknown model version: " + tag);
         }
     }
 
@@ -92,21 +92,34 @@ public class ModelPersistency implements PatchModelProcessor {
     final JsonPatchTranslator jsonTranslator;
 
     public ModelPersistency(ModelConfig config) {
-        this.modelModel = new Model();
-        this.modelDatabase = Database.create(this.modelModel, config.database);
-        this.jsonTranslator = new JsonPatchTranslator(this.modelModel);
+        this(config, new Model());
+    }
 
+    protected ModelPersistency(ModelConfig config, Model modelModel) {
+        this(modelModel, Database.create(modelModel, config.database), new JsonPatchTranslator(modelModel));
+    }
+
+    protected ModelPersistency(Model modelModel,
+                               Database modelDatabase,
+                               JsonPatchTranslator jsonTranslator) {
+        this.modelModel = modelModel;
+        this.modelDatabase = modelDatabase;
+        this.jsonTranslator = jsonTranslator;
     }
 
     public void initialize() throws Exception {
         modelModel.loadFromResource(ModelPersistency.class, "model-of-model.json", jsonTranslator);
 
         Version version = getVersion();
-        if (Version.EMPTY_DATABASE == version) {
-            modelDatabase.loadFromResource(ModelPersistency.class, "model-of-model.json", jsonTranslator);
-            insertVersion(Version.CURRENT);
+        switch (version) {
+            case EMPTY_DATABASE: {
+                modelDatabase.loadFromResource(ModelPersistency.class, "model-of-model.json", jsonTranslator);
+                insertVersion(Version.CURRENT);
+                break;
+            }
+            case CURRENT:
+                break;
         }
-        throw new Exception("Unknown model version: " + version);
     }
 
     private Version getVersion() throws Exception {
@@ -117,6 +130,7 @@ public class ModelPersistency implements PatchModelProcessor {
         EntityType versionType = modelModel.getEntityType(ModelType.VERSION);
         Entity versionEntity = modelDatabase.select(Collections.singleton(versionType.attrs.get(VersionAttr.TAG)),
                                                     Ref.MODEL_VERSION);
+
         String tag = (String) versionEntity.attrs.get(VersionAttr.TAG);
         return Version.byTag(tag);
     }
@@ -180,25 +194,25 @@ public class ModelPersistency implements PatchModelProcessor {
 
         List<Entity> entities = modelDatabase.select(selectAttrs, attributeType, null, null);
 
-        Map<String, Attribute> identities = new HashMap<>();
-        Map<String, List<Attribute>> attributes = new HashMap<>();
+        Map<String, ModelOp.Attribute> identities = new HashMap<>();
+        Map<String, List<ModelOp.Attribute>> attributes = new HashMap<>();
         for (Entity entity : entities) {
             String entityType = (String) entity.attrs.get(AttributeAttr.ENTITY_TYPE);
-            Attribute attribute = toAttribute(entity);
+            ModelOp.Attribute attribute = toAttribute(entity);
             if ((Boolean) entity.attrs.get(AttributeAttr.IDENTITY)) {
                 identities.put(entityType, attribute);
             } else {
-                List<Attribute> entityAttrs = attributes.computeIfAbsent(entityType, (k) -> new ArrayList<>());
+                List<ModelOp.Attribute> entityAttrs = attributes.computeIfAbsent(entityType, (k) -> new ArrayList<>());
                 entityAttrs.add(attribute);
             }
         }
 
-        for (Map.Entry<String, Attribute> entry : identities.entrySet()) {
-            EntityType entityType = new EntityType(entry.getKey(),
-                                                   entry.getValue(),
-                                                   attributes.get(entry.getKey()));
+        for (Map.Entry<String, ModelOp.Attribute> entry : identities.entrySet()) {
+            ModelOpCreateType createOp = new ModelOpCreateType(entry.getKey(),
+                                                               entry.getValue(),
+                                                               attributes.get(entry.getKey()));
 
-            entityModel.add(entityType);
+            entityModel.createType(createOp);
         }
     }
 
@@ -224,17 +238,17 @@ public class ModelPersistency implements PatchModelProcessor {
         return new DataOpInsert(id, attrs);
     }
 
-    private Attribute toAttribute(Entity entity) throws Exception {
+    private ModelOp.Attribute toAttribute(Entity entity) throws Exception {
         String name = (String) entity.attrs.get(AttributeAttr.ATTR_NAME);
         ValueType valuetype = toValueType((String) entity.attrs.get(AttributeAttr.VALUE_TYPE));
         Object initial = toValue(valuetype, (String) entity.attrs.get(AttributeAttr.INITIAL));
 
-        return new Attribute(name,
-                             valuetype,
-                             initial);
+        return new ModelOp.Attribute(name,
+                                     valuetype,
+                                     initial);
     }
 
-    private String toStringValue(ValueType type) throws Exception {
+    String toStringValue(ValueType type) {
         if (type instanceof PrimitiveType) {
             return Value.PRIMITIVE
                    + VALUE_TYPE_SEP
@@ -247,21 +261,21 @@ public class ModelPersistency implements PatchModelProcessor {
                    + VALUE_TYPE_SEP
                    + ((ReferenceType) type).entityType;
         }
-        throw new Exception("Unsupported Value Type: " + type);
+        throw new RuntimeException("Unsupported Value Type: " + type);
     }
 
-    private ValueType toValueType(String stringValue) throws Exception {
-        String[] parts = StringUtils.split(stringValue, "VALUE_TYPE_SEP");
+    ValueType toValueType(String stringValue) {
+        String[] parts = StringUtils.split(stringValue, VALUE_TYPE_SEP);
         if (Value.PRIMITIVE.equals(parts[0])) {
             return PrimitiveType.valueOf(parts[1]);
         }
         if (Value.REFERENCE.equals(parts[0])) {
             return new ReferenceType(parts[2], PrimitiveType.valueOf(parts[1]));
         }
-        throw new Exception("Unsupported Value Type: " + stringValue);
+        throw new RuntimeException("Unsupported Value Type: " + stringValue);
     }
 
-    private Object toStringValue(ValueType type, Object value) throws Exception {
+    String toStringValue(ValueType type, Object value) {
         if (null == value)
             return null;
 
@@ -286,10 +300,10 @@ public class ModelPersistency implements PatchModelProcessor {
                     return DATE_FORMAT.format(value);
             }
         }
-        throw new Exception("Unsupported Value Type: " + type);
+        throw new RuntimeException("Unsupported Value Type: " + type);
     }
 
-    private Object toValue(ValueType type, String stringValue) throws Exception {
+    Object toValue(ValueType type, String stringValue) throws Exception {
         if (null == stringValue)
             return null;
 
@@ -315,7 +329,7 @@ public class ModelPersistency implements PatchModelProcessor {
                     return DATE_FORMAT.parse(stringValue);
             }
         }
-        throw new Exception("Unsupported Value Type: " + type);
+        throw new RuntimeException("Unsupported Value Type: " + type);
     }
 
 }

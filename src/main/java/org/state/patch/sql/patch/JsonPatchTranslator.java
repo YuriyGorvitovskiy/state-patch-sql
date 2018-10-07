@@ -139,7 +139,8 @@ public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
         long eventId = patch.event_id;
         long patchId = patch.message_id;
 
-        List<String> targetIds = new ArrayList<>(patch.target_ids);
+        List<String> targetIds = (null == patch.target_ids) ? Collections.emptyList()
+                                                            : new ArrayList<>(patch.target_ids);
 
         List<ModelOp> ops = new ArrayList<>(patch.ops.size());
         for (JsonModelOp jsonOp : patch.ops) {
