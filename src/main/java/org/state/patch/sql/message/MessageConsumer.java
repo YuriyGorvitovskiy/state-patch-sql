@@ -13,7 +13,7 @@ public interface MessageConsumer<M, J extends JsonMessage> {
         if (KafkaMessageConsumer.NAME.equals(config.engine)) {
             return new KafkaMessageConsumer<M, J>(config, translator);
         }
-        throw new RuntimeException("Unkown message consumer engine: " + config.engine);
+        throw new RuntimeException("Unsupported message consumer engine: " + config.engine);
     }
 
     public void run(Consumer<M> processor);

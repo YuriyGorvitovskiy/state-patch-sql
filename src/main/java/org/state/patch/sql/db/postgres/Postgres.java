@@ -50,9 +50,9 @@ public class Postgres implements Database {
 
     public static final String ENGINE = "POSTGRES";
 
-    final Model           model;
-    final DatabaseConfig  config;
-    final BasicDataSource datasource;
+    public final Model           model;
+    public final DatabaseConfig  config;
+    public final BasicDataSource datasource;
 
     public Postgres(Model model, DatabaseConfig config) {
         this.model = model;

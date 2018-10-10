@@ -46,7 +46,7 @@ public class MessageProducer_UnitTest {
         JsonTranslator<String, JsonMessage> translator = Mockito.mock(JsonTranslator.class);
 
         exception.expect(RuntimeException.class);
-        exception.expectMessage("Unkown message producer engine: unknown");
+        exception.expectMessage("Unsupported message producer engine: unknown");
 
         //Execute
         MessageProducer.create(config, translator);

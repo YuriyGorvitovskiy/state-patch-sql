@@ -11,7 +11,7 @@ public interface MessageProducer<M, J extends JsonMessage> {
         if (KafkaMessageProducer.NAME.equals(config.engine)) {
             return new KafkaMessageProducer<M, J>(config, translator);
         }
-        throw new RuntimeException("Unkown message producer engine: " + config.engine);
+        throw new RuntimeException("Unsupported message producer engine: " + config.engine);
     }
 
     public void post(M notify) throws Exception;

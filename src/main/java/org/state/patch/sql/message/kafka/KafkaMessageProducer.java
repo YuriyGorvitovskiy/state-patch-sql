@@ -14,7 +14,7 @@ public class KafkaMessageProducer<M, J extends JsonMessage> implements MessagePr
     public static final String NAME        = "KAFKA";
     static final String        MESSAGE_KEY = "Notify.JSON";
 
-    public final MessageProducerConfig           config;
+    public final MessageProducerConfig         config;
     public final JsonTranslator<M, J>          translator;
     public final ObjectMapper                  mapper;
     public final KafkaProducer<String, byte[]> producer;

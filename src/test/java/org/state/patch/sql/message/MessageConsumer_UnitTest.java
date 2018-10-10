@@ -48,7 +48,7 @@ public class MessageConsumer_UnitTest {
         JsonTranslator<String, JsonMessage> translator = Mockito.mock(JsonTranslator.class);
 
         exception.expect(RuntimeException.class);
-        exception.expectMessage("Unkown message consumer engine: unknown");
+        exception.expectMessage("Unsupported message consumer engine: unknown");
 
         //Execute
         MessageConsumer.create(config, translator);
