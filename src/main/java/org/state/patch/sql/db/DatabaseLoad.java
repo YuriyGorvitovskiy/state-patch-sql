@@ -16,8 +16,8 @@ import org.state.patch.sql.model.Model;
 public interface DatabaseLoad {
 
     public default Entity select(Collection<Attribute> attributes,
-                                 ReferenceInternal ids) throws Exception {
-        List<Entity> result = select(attributes, Collections.singleton(ids));
+                                 ReferenceInternal id) throws Exception {
+        List<Entity> result = select(attributes, Collections.singleton(id));
         return result.isEmpty() ? null : result.get(0);
     }
 

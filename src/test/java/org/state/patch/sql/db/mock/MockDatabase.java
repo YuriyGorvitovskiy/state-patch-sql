@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -140,7 +141,25 @@ public class MockDatabase implements Database {
     }
 
     @Override
-    public List<Entity> select(Collection<Attribute> attributes, EntityType entityType,
+    public Entity select(Collection<Attribute> attributes, ReferenceInternal id) {
+        return filterOutAttributes(data.get(id), attributes);
+    }
+
+    @Override
+    public List<Entity> select(Collection<Attribute> attributes, Collection<ReferenceInternal> ids) {
+        List<Entity> result = new ArrayList<>();
+        for (ReferenceInternal id : ids) {
+            Entity entity = data.get(id);
+            if (null != entity) {
+                result.add(entity);
+            }
+        }
+        return filterOutAttributes(result, attributes);
+    }
+
+    @Override
+    public List<Entity> select(Collection<Attribute> attributes,
+                               EntityType entityType,
                                Collection<Pair<Attribute, Collection<?>>> conditions,
                                Collection<Pair<Attribute, Boolean>> sortings) throws Exception {
         List<Entity> result = new ArrayList<>();
@@ -154,7 +173,28 @@ public class MockDatabase implements Database {
             result.add(entity);
         }
         result.sort(createComporator(sortings));
-        return result;
+        return filterOutAttributes(result, attributes);
+    }
+
+    List<Entity> filterOutAttributes(List<Entity> entities, Collection<Attribute> attributes) {
+        List<Entity> filtered = new ArrayList<>();
+        for (Entity entity : entities) {
+            filtered.add(filterOutAttributes(entity, attributes));
+        }
+        return filtered;
+    }
+
+    Entity filterOutAttributes(Entity entity, Collection<Attribute> attributes) {
+        if (null == entity) {
+            return null;
+        }
+
+        Map<String, Object> filteredAttrs = new HashMap<>();
+        for (Attribute attribute : attributes) {
+            Object value = entity.attrs.get(attribute.name);
+            filteredAttrs.put(attribute.name, value);
+        }
+        return new Entity(entity.id, Collections.unmodifiableMap(filteredAttrs));
     }
 
     @Override
