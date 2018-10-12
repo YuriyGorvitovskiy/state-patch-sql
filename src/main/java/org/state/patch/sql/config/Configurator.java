@@ -10,21 +10,18 @@ import java.util.Set;
 /*
  * Extract System properties into configuration structure, base on dot notation and prefix.
  */
-public class Configurator {
+public interface Configurator {
 
     public static <T> T extract(Properties props, String prefix, T config) {
         for (Field field : config.getClass().getFields()) {
             int mod = field.getModifiers();
 
-            if (field.isSynthetic()
-                    || Modifier.isStatic(mod)
-                    || !Modifier.isPublic(mod)
-                    || Modifier.isTransient(mod)) {
+            if (Modifier.isStatic(mod) || Modifier.isTransient(mod)) {
                 continue;
             }
 
             String key = prefix + "." + field.getName();
-            Object value = props.getProperty(key);
+            Object value = props.get(key);
 
             try {
                 Class<?> clazz = field.getType();

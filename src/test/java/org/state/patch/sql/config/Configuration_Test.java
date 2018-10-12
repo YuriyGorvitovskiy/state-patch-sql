@@ -11,9 +11,12 @@ import org.junit.Test;
 
 public class Configuration_Test {
 
-    public class TopConfig {
+    public class BaseConfig {
         public String  stringvalue = "default";
         public Boolean boolvalue;
+    }
+
+    public class TopConfig extends BaseConfig {
         public Byte    bytevalue   = 1;
         public Short   shortvalue  = 2;
         public Integer intvalue    = 3;
@@ -25,9 +28,12 @@ public class Configuration_Test {
 
         public final BottomConfig bottom = new BottomConfig();
 
+        public transient String transientfield = "transient";
+        protected String        protectedfield = "protected";
+        String                  packagefield   = "package";
     }
 
-    public class BottomConfig {
+    public static class BottomConfig {
         public boolean boolvalue;
         public byte    bytevalue;
         public short   shortvalue;
@@ -35,10 +41,12 @@ public class Configuration_Test {
         public long    longvalue;
         public float   floatvalue;
         public double  doublevalue;
+
+        public static String staticfield = "static";
     }
 
     @Test
-    public void test_extract() {
+    public void test_extract_string() {
         // Setup
         Properties props = new Properties();
         props.setProperty("org.config.test.stringvalue", "string-value");
@@ -58,6 +66,65 @@ public class Configuration_Test {
         props.setProperty("org.config.test.bottom.longvalue", "1234567890");
         props.setProperty("org.config.test.bottom.floatvalue", "12.34");
         props.setProperty("org.config.test.bottom.doublevalue", "1234.567");
+
+        props.setProperty("org.config.test.transientfield", "something else");
+        props.setProperty("org.config.test.protectedfield", "something else");
+        props.setProperty("org.config.test.packagefield", "something else");
+        props.setProperty("org.config.test.bottom.staticfield", "something else");
+
+        // Execute
+        TopConfig config = Configurator.extract(props, "org.config.test", new TopConfig());
+
+        // Validate
+        assertEquals("string-value", config.stringvalue);
+        assertEquals(Boolean.TRUE, config.boolvalue);
+        assertEquals(Byte.valueOf((byte) 123), config.bytevalue);
+        assertEquals(Short.valueOf((short) 1234), config.shortvalue);
+        assertEquals(Integer.valueOf(12345), config.intvalue);
+        assertEquals(Long.valueOf(1234567890L), config.longvalue);
+        assertEquals(Float.valueOf(12.34F), config.floatvalue);
+        assertEquals(Double.valueOf(1234.567), config.doublevalue);
+
+        Map<String, String> expectMap = new HashMap<>();
+        expectMap.put("simple-string", "simple-string");
+        expectMap.put("complex.long", "complex-string");
+        assertEquals(expectMap, config.map);
+
+        assertEquals(true, config.bottom.boolvalue);
+        assertEquals((byte) 123, config.bottom.bytevalue);
+        assertEquals((short) 1234, config.bottom.shortvalue);
+        assertEquals(12345, config.bottom.intvalue);
+        assertEquals(1234567890L, config.bottom.longvalue);
+        assertEquals(12.34F, config.bottom.floatvalue, 0.00001);
+        assertEquals(1234.567, config.bottom.doublevalue, 0.00001);
+
+        assertEquals("transient", config.transientfield);
+        assertEquals("protected", config.protectedfield);
+        assertEquals("package", config.packagefield);
+        assertEquals("static", BottomConfig.staticfield);
+    }
+
+    @Test
+    public void test_extract_objects() {
+        // Setup
+        Properties props = new Properties();
+        props.put("org.config.test.stringvalue", "string-value");
+        props.put("org.config.test.boolvalue", true);
+        props.put("org.config.test.bytevalue", 123);
+        props.put("org.config.test.shortvalue", 1234);
+        props.put("org.config.test.intvalue", 12345);
+        props.put("org.config.test.longvalue", 1234567890L);
+        props.put("org.config.test.floatvalue", 12.34);
+        props.put("org.config.test.doublevalue", 1234.567);
+        props.put("org.config.test.map.simple-string", "simple-string");
+        props.put("org.config.test.map.complex.long", "complex-string");
+        props.put("org.config.test.bottom.boolvalue", true);
+        props.put("org.config.test.bottom.bytevalue", 123);
+        props.put("org.config.test.bottom.shortvalue", 1234);
+        props.put("org.config.test.bottom.intvalue", 12345);
+        props.put("org.config.test.bottom.longvalue", 1234567890);
+        props.put("org.config.test.bottom.floatvalue", 12.34);
+        props.put("org.config.test.bottom.doublevalue", 1234.567);
 
         // Execute
         TopConfig config = Configurator.extract(props, "org.config.test", new TopConfig());
@@ -89,7 +156,10 @@ public class Configuration_Test {
     @Test
     public void test_extract_default() {
         // Execute
-        TopConfig config = Configurator.extract(new Properties(), "org.config.test_defult", new TopConfig());
+        Properties props = new Properties();
+        props.setProperty("org.config.test.intvalue", "wrong value");
+
+        TopConfig config = Configurator.extract(props, "org.config.test", new TopConfig());
 
         // Validate
         assertEquals("default", config.stringvalue);

@@ -18,14 +18,10 @@ public class MessageConsumerConfig {
     @SuppressWarnings("serial")
     public Properties consumer = new Properties() {
         {
-            try {
-                this.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-                this.put(ConsumerConfig.GROUP_ID_CONFIG, "state-patch-sql");
-                this.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-                this.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-            } catch (Throwable ex) {
-                throw new RuntimeException(ex);
-            }
+            this.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+            this.put(ConsumerConfig.GROUP_ID_CONFIG, "state-patch-sql");
+            this.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+            this.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         }
     };
 }
