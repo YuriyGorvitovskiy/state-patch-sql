@@ -27,9 +27,6 @@ public class ResourceString {
         } catch (Exception ex) {
             throw new RuntimeException("Can't load " + describe(), ex);
         }
-        if (null == resourceString) {
-            throw new RuntimeException("Can't load " + describe());
-        }
         return resourceString;
     }
 
