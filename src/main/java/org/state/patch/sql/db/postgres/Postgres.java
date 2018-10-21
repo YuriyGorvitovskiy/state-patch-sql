@@ -85,7 +85,9 @@ public class Postgres implements Database {
 
         MutableBoolean isExists = new MutableBoolean(false);
         executeSqlQuery(sql.toString(), params, (rs) -> {
-            isExists.setValue(rs.getBoolean(1));
+            if (rs.next()) {
+                isExists.setValue(rs.getBoolean(1));
+            }
         });
 
         return isExists.booleanValue();
@@ -115,11 +117,6 @@ public class Postgres implements Database {
         sql.append(")\n");
         sql.append(");");
 
-        try (Connection con = datasource.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
-            ps.execute();
-        }
-
         executeSql(sql.toString());
     }
 
@@ -131,11 +128,6 @@ public class Postgres implements Database {
         sql.append(".");
         sql.append(op.type);
         sql.append(" CASCADE;");
-
-        try (Connection con = datasource.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
-            ps.execute();
-        }
 
         executeSql(sql.toString());
     }
@@ -281,6 +273,8 @@ public class Postgres implements Database {
             sql.append(attribute.name);
         }
         sql.append("\n    FROM ");
+        sql.append(config.schema);
+        sql.append(".");
         sql.append(entityType.name);
         if (null != conditions && !conditions.isEmpty()) {
             String separator = "\n    WHERE ";
@@ -316,15 +310,17 @@ public class Postgres implements Database {
         executeSqlQuery(sql.toString(),
                         params,
                         (rs) -> {
-                            int pos = 1;
-                            ReferenceInternal id = (ReferenceInternal) getValue(rs, pos++, entityType.identity.type);
-                            Map<String, Object> attrs = new HashMap<>();
-                            for (Attribute attribute : attributes) {
-                                // keep nulls in attribute table.
-                                attrs.put(attribute.name, getValue(rs, pos++, attribute.type));
+                            while (rs.next()) {
+                                int pos = 1;
+                                ReferenceInternal id = (ReferenceInternal) getValue(rs, pos++, entityType.identity.type);
+                                Map<String, Object> attrs = new HashMap<>();
+                                for (Attribute attribute : attributes) {
+                                    // keep nulls in attribute table.
+                                    attrs.put(attribute.name, getValue(rs, pos++, attribute.type));
+                                }
+                                Entity entity = new Entity(id, Collections.unmodifiableMap(attrs));
+                                entities.add(entity);
                             }
-                            Entity entity = new Entity(id, Collections.unmodifiableMap(attrs));
-                            entities.add(entity);
                         });
         return entities;
     }
