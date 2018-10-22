@@ -165,7 +165,8 @@ public class Postgres implements Database {
         sql.append("  ");
         sql.append(toSQLType(op.attr.type));
         if (null != op.attr.initial) {
-
+            sql.append(" DEFAULT ");
+            sql.append(toSQLLiteral(op.attr.type, op.attr.initial));
         }
         sql.append(";");
 
