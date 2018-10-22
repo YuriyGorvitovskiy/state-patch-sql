@@ -46,7 +46,7 @@ public class Postgres_FunctionalTest {
     final Long    DEFAULT_INTEGER   = 1L;
     final Double  DEFAULT_DOUBLE    = 2.3;
     final String  DEFAULT_STRING    = "Hello";
-    final String  DEFAULT_TEXT      = "Hello Text!";
+    final String  DEFAULT_TEXT      = "Hello 'Text'!";
     final Date    DEFAULT_TIMESTAMP = new Date(1234567890L);
 
     final Boolean INST1_V1_BOOLEAN   = Boolean.FALSE;
@@ -92,10 +92,11 @@ public class Postgres_FunctionalTest {
 
         // Create instance 2 with no attribute (implicit)
         // Check that all attributes has correct value
-        fail("implement next step");
+        createInstance2();
 
         // Extend type with references
         // Check that all attributes has correct value
+        fail("implement next step");
 
         // Update instance 1 with references
         // Check that all attributes has correct value
@@ -148,7 +149,6 @@ public class Postgres_FunctionalTest {
 
     private void createInstance1() throws Exception {
         // Setup
-
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(ATTR_BOOLEAN, INST1_V1_BOOLEAN);
         attributes.put(ATTR_INTEGER, INST1_V1_INTEGER);
@@ -181,5 +181,34 @@ public class Postgres_FunctionalTest {
         assertEquals(INST1_V1_STRING, actual.attrs.get(ATTR_STRING));
         assertEquals(INST1_V1_TEXT, actual.attrs.get(ATTR_TEXT));
         assertEquals(INST1_V1_TIMESTAMP, actual.attrs.get(ATTR_TIMESTAMP));
+    }
+
+    private void createInstance2() throws Exception {
+        // Setup
+        Map<String, Object> attributes = new HashMap<>();
+        DataOpInsert op = new DataOpInsert(INST2_ID, attributes);
+
+        // Execute
+        subject.insert(op);
+
+        // Validate
+        EntityType type = model.getEntityType(ENTITY_TYPE);
+        List<Attribute> selectAttributes = new ArrayList<>();
+        selectAttributes.add(type.attrs.get(ATTR_IDENTITY));
+        selectAttributes.add(type.attrs.get(ATTR_BOOLEAN));
+        selectAttributes.add(type.attrs.get(ATTR_INTEGER));
+        selectAttributes.add(type.attrs.get(ATTR_DOUBLE));
+        selectAttributes.add(type.attrs.get(ATTR_STRING));
+        selectAttributes.add(type.attrs.get(ATTR_TEXT));
+        selectAttributes.add(type.attrs.get(ATTR_TIMESTAMP));
+
+        Entity actual = subject.select(selectAttributes, INST2_ID);
+        assertEquals(INST2_ID, actual.id);
+        assertEquals(DEFAULT_BOOLEAN, actual.attrs.get(ATTR_BOOLEAN));
+        assertEquals(DEFAULT_INTEGER, actual.attrs.get(ATTR_INTEGER));
+        assertEquals(DEFAULT_DOUBLE, actual.attrs.get(ATTR_DOUBLE));
+        assertEquals(DEFAULT_STRING, actual.attrs.get(ATTR_STRING));
+        assertEquals(DEFAULT_TEXT, actual.attrs.get(ATTR_TEXT));
+        assertEquals(DEFAULT_TIMESTAMP, actual.attrs.get(ATTR_TIMESTAMP));
     }
 }

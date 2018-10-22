@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,8 @@ import org.state.patch.sql.model.op.ModelOpCreateType;
 import org.state.patch.sql.model.op.ModelOpDeleteAttribute;
 import org.state.patch.sql.model.op.ModelOpDeleteType;
 
+import com.fasterxml.jackson.databind.util.StdDateFormat;
+
 public class Postgres implements Database {
 
     @FunctionalInterface
@@ -49,6 +53,17 @@ public class Postgres implements Database {
     }
 
     public static final String ENGINE = "POSTGRES";
+
+    public static final String        DATE_TIMEZONE = "UTC";
+    public static final String        DATE_PATTERN  = "yyyy-MM-dd HH:mm:ss.SSS+0";
+    public static final StdDateFormat DATE_PARSE    = new StdDateFormat();
+
+    @SuppressWarnings("serial")
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN) {
+        {
+            this.setTimeZone(TimeZone.getTimeZone(DATE_TIMEZONE));
+        }
+    };
 
     public final Model           model;
     public final DatabaseConfig  config;
@@ -96,6 +111,7 @@ public class Postgres implements Database {
     @Override
     public void createType(ModelOpCreateType op) throws Exception {
         StringBuilder sql = new StringBuilder();
+
         sql.append("CREATE TABLE ");
         sql.append(config.schema);
         sql.append(".");
@@ -110,6 +126,10 @@ public class Postgres implements Database {
             sql.append(attr.name);
             sql.append("  ");
             sql.append(toSQLType(attr.type));
+            if (null != attr.initial) {
+                sql.append(" DEFAULT ");
+                sql.append(toSQLLiteral(attr.type, attr.initial));
+            }
         }
         sql.append(",\n    ");
         sql.append("PRIMARY KEY (");
@@ -485,4 +505,38 @@ public class Postgres implements Database {
         }
         throw new RuntimeException("Unsupported value type: " + type);
     }
+
+    private String toSQLLiteral(ValueType type, Object value) {
+        if (null == value) {
+            return "NULL";
+        }
+        if (type instanceof ReferenceType) {
+            type = ((ReferenceType) type).storageType;
+            if (PrimitiveType.INTEGER == type) {
+                value = ((ReferenceInteger) value).id;
+            } else if (PrimitiveType.STRING == type) {
+                value = ((ReferenceString) value).id;
+            } else {
+                throw new RuntimeException("Unsupported reference type: " + type);
+            }
+        }
+        if (type instanceof PrimitiveType) {
+            switch ((PrimitiveType) type) {
+                case BOOLEAN:
+                    return ((Boolean) value) ? "TRUE" : "FALSE";
+                case DOUBLE:
+                    return Double.toString(((Number) value).doubleValue());
+                case INTEGER:
+                    return Long.toString(((Number) value).longValue());
+                case REFERENCE_EXTERNAL:
+                case STRING:
+                case TEXT:
+                    return "'" + value.toString().replaceAll("'", "''") + "'";
+                case TIMESTAMP:
+                    return "timestamptz '" + DATE_FORMAT.format((Date) value) + "'";
+            }
+        }
+        throw new RuntimeException("Unsupported value type: " + type);
+    }
+
 }
