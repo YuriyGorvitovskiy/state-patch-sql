@@ -230,7 +230,7 @@ public class Postgres implements Database {
         sql.append(config.schema);
         sql.append(".");
         sql.append(op.id.type);
-        sql.append(" SET ");
+        sql.append("\n    SET ");
 
         EntityType entityType = model.getEntityType(op.id.type);
 
@@ -244,9 +244,9 @@ public class Postgres implements Database {
             sql.append(attr.name);
             sql.append(" = ?");
             params.add(new ImmutablePair<>(attr.type, entry.getValue()));
-            separator = ", ";
+            separator = "       ,";
+            sql.append("\n");
         }
-        sql.append(")\n");
         sql.append("    WHERE (");
         sql.append(entityType.identity.name);
         sql.append(" = ?)\n");

@@ -20,6 +20,7 @@ import org.state.patch.sql.data.ReferenceExternal;
 import org.state.patch.sql.data.ReferenceInteger;
 import org.state.patch.sql.data.ReferenceString;
 import org.state.patch.sql.data.op.DataOpInsert;
+import org.state.patch.sql.data.op.DataOpUpdate;
 import org.state.patch.sql.model.Attribute;
 import org.state.patch.sql.model.EntityType;
 import org.state.patch.sql.model.Model;
@@ -63,6 +64,17 @@ public class Postgres_FunctionalTest {
     final String  INST1_V1_TEXT      = "Hi Text!";
     final Date    INST1_V1_TIMESTAMP = new Date(1234509876L);
 
+    final Boolean           INST1_V2_BOOLEAN      = Boolean.TRUE;
+    final Double            INST1_V2_DOUBLE       = 4.5;
+    final String            INST1_V2_TEXT         = "Text V2!";
+    final ReferenceInteger  INST1_V2_REF_INTEGER  = new ReferenceInteger(ENTITY_TYPE, 23);
+    final ReferenceExternal INST1_V2_REF_EXTERNAL = new ReferenceExternal("http://example.com/v2");
+
+    final Long            INST2_V2_INTEGER    = 6L;
+    final String          INST2_V2_STRING     = "Welcome";
+    final Date            INST2_V2_TIMESTAMP  = new Date(6789012345L);
+    final ReferenceString INST2_V2_REF_STRING = new ReferenceString(OTHER_TYPE, "second");
+
     final ReferenceInteger INST1_ID = new ReferenceInteger(ENTITY_TYPE, 1);
     final ReferenceInteger INST2_ID = new ReferenceInteger(ENTITY_TYPE, 2);
 
@@ -105,17 +117,16 @@ public class Postgres_FunctionalTest {
         // Check that all attributes has correct value
         appendReferencesToType();
 
-        // Update instance 1 with references
+        // Update instance 1 with first half attributes and references
         // Check that all attributes has correct value
-        fail("implement next step");
+        updateInstance1();
 
-        // Update instance 2 with first half attributes and references
+        // Update instance 2 with second half attributes and references
         // Check that all attributes has correct value
-
-        // Update instance 1 with second half attributes and references
-        // Check that all attributes has correct value
+        updateInstance2();
 
         // Check select half attribute
+        fail("implement next step");
 
         // Check select filter by every attribute
 
@@ -288,6 +299,87 @@ public class Postgres_FunctionalTest {
         assertEquals(DEFAULT_TIMESTAMP, actual2.attrs.get(ATTR_TIMESTAMP));
         assertEquals(DEFAULT_REF_INTEGER, actual2.attrs.get(REF_INTEGER));
         assertEquals(DEFAULT_REF_STRING, actual2.attrs.get(REF_STRING));
+        assertEquals(DEFAULT_REF_EXTERNAL, actual2.attrs.get(REF_EXTERNAL));
+    }
+
+    private void updateInstance1() throws Exception {
+        // Setup
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(ATTR_BOOLEAN, INST1_V2_BOOLEAN);
+        attributes.put(ATTR_DOUBLE, INST1_V2_DOUBLE);
+        attributes.put(ATTR_TEXT, INST1_V2_TEXT);
+        attributes.put(REF_INTEGER, INST1_V2_REF_INTEGER);
+        attributes.put(REF_EXTERNAL, INST1_V2_REF_EXTERNAL);
+
+        DataOpUpdate op = new DataOpUpdate(INST1_ID, attributes);
+
+        // Execute
+        subject.update(op);
+
+        // Validate
+        EntityType type = model.getEntityType(ENTITY_TYPE);
+        List<Attribute> selectAttributes = new ArrayList<>();
+        selectAttributes.add(type.attrs.get(ATTR_IDENTITY));
+        selectAttributes.add(type.attrs.get(ATTR_BOOLEAN));
+        selectAttributes.add(type.attrs.get(ATTR_INTEGER));
+        selectAttributes.add(type.attrs.get(ATTR_DOUBLE));
+        selectAttributes.add(type.attrs.get(ATTR_STRING));
+        selectAttributes.add(type.attrs.get(ATTR_TEXT));
+        selectAttributes.add(type.attrs.get(ATTR_TIMESTAMP));
+        selectAttributes.add(type.attrs.get(REF_INTEGER));
+        selectAttributes.add(type.attrs.get(REF_STRING));
+        selectAttributes.add(type.attrs.get(REF_EXTERNAL));
+
+        Entity actual1 = subject.select(selectAttributes, INST1_ID);
+        assertEquals(INST1_ID, actual1.id);
+        assertEquals(INST1_V2_BOOLEAN, actual1.attrs.get(ATTR_BOOLEAN));
+        assertEquals(INST1_V1_INTEGER, actual1.attrs.get(ATTR_INTEGER));
+        assertEquals(INST1_V2_DOUBLE, actual1.attrs.get(ATTR_DOUBLE));
+        assertEquals(INST1_V1_STRING, actual1.attrs.get(ATTR_STRING));
+        assertEquals(INST1_V2_TEXT, actual1.attrs.get(ATTR_TEXT));
+        assertEquals(INST1_V1_TIMESTAMP, actual1.attrs.get(ATTR_TIMESTAMP));
+        assertEquals(INST1_V2_REF_INTEGER, actual1.attrs.get(REF_INTEGER));
+        assertEquals(DEFAULT_REF_STRING, actual1.attrs.get(REF_STRING));
+        assertEquals(INST1_V2_REF_EXTERNAL, actual1.attrs.get(REF_EXTERNAL));
+    }
+
+    private void updateInstance2() throws Exception {
+        // Setup
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(ATTR_INTEGER, INST2_V2_INTEGER);
+        attributes.put(ATTR_STRING, INST2_V2_STRING);
+        attributes.put(ATTR_TIMESTAMP, INST2_V2_TIMESTAMP);
+        attributes.put(REF_STRING, INST2_V2_REF_STRING);
+
+        DataOpUpdate op = new DataOpUpdate(INST2_ID, attributes);
+
+        // Execute
+        subject.update(op);
+
+        // Validate
+        EntityType type = model.getEntityType(ENTITY_TYPE);
+        List<Attribute> selectAttributes = new ArrayList<>();
+        selectAttributes.add(type.attrs.get(ATTR_IDENTITY));
+        selectAttributes.add(type.attrs.get(ATTR_BOOLEAN));
+        selectAttributes.add(type.attrs.get(ATTR_INTEGER));
+        selectAttributes.add(type.attrs.get(ATTR_DOUBLE));
+        selectAttributes.add(type.attrs.get(ATTR_STRING));
+        selectAttributes.add(type.attrs.get(ATTR_TEXT));
+        selectAttributes.add(type.attrs.get(ATTR_TIMESTAMP));
+        selectAttributes.add(type.attrs.get(REF_INTEGER));
+        selectAttributes.add(type.attrs.get(REF_STRING));
+        selectAttributes.add(type.attrs.get(REF_EXTERNAL));
+
+        Entity actual2 = subject.select(selectAttributes, INST2_ID);
+        assertEquals(INST2_ID, actual2.id);
+        assertEquals(DEFAULT_BOOLEAN, actual2.attrs.get(ATTR_BOOLEAN));
+        assertEquals(INST2_V2_INTEGER, actual2.attrs.get(ATTR_INTEGER));
+        assertEquals(DEFAULT_DOUBLE, actual2.attrs.get(ATTR_DOUBLE));
+        assertEquals(INST2_V2_STRING, actual2.attrs.get(ATTR_STRING));
+        assertEquals(DEFAULT_TEXT, actual2.attrs.get(ATTR_TEXT));
+        assertEquals(INST2_V2_TIMESTAMP, actual2.attrs.get(ATTR_TIMESTAMP));
+        assertEquals(DEFAULT_REF_INTEGER, actual2.attrs.get(REF_INTEGER));
+        assertEquals(INST2_V2_REF_STRING, actual2.attrs.get(REF_STRING));
         assertEquals(DEFAULT_REF_EXTERNAL, actual2.attrs.get(REF_EXTERNAL));
     }
 
