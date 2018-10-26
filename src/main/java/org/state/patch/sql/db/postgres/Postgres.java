@@ -289,9 +289,11 @@ public class Postgres implements Database {
 
         sql.append("SELECT ");
         sql.append(entityType.identity.name);
-        for (Attribute attribute : attributes) {
-            sql.append(", ");
-            sql.append(attribute.name);
+        if (null != attributes) {
+            for (Attribute attribute : attributes) {
+                sql.append(", ");
+                sql.append(attribute.name);
+            }
         }
         sql.append("\n    FROM ");
         sql.append(config.schema);
@@ -309,7 +311,7 @@ public class Postgres implements Database {
                     sql.append(" = ?");
                 } else {
                     sql.append(" IN (");
-                    StringUtils.repeat("?", ", ", values.size());
+                    sql.append(StringUtils.repeat("?", ", ", values.size()));
                     sql.append(")");
                 }
                 for (Object value : values) {
@@ -335,9 +337,11 @@ public class Postgres implements Database {
                                 int pos = 1;
                                 ReferenceInternal id = (ReferenceInternal) getValue(rs, pos++, entityType.identity.type);
                                 Map<String, Object> attrs = new HashMap<>();
-                                for (Attribute attribute : attributes) {
-                                    // keep nulls in attribute table.
-                                    attrs.put(attribute.name, getValue(rs, pos++, attribute.type));
+                                if (null != attributes) {
+                                    for (Attribute attribute : attributes) {
+                                        // keep nulls in attribute table.
+                                        attrs.put(attribute.name, getValue(rs, pos++, attribute.type));
+                                    }
                                 }
                                 Entity entity = new Entity(id, Collections.unmodifiableMap(attrs));
                                 entities.add(entity);
