@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class KafkaMessageProducer<M, J extends JsonMessage> implements MessageProducer<M, J> {
 
     public static final String NAME        = "KAFKA";
-    static final String        MESSAGE_KEY = "Notify.JSON";
+    static final String        MESSAGE_KEY = "JSON";
 
     public final MessageProducerConfig         config;
     public final JsonTranslator<M, J>          translator;
