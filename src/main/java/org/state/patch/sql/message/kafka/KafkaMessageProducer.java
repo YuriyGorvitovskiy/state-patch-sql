@@ -2,6 +2,7 @@ package org.state.patch.sql.message.kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.state.patch.sql.config.MessageProducerConfig;
 import org.state.patch.sql.message.JsonMessage;
 import org.state.patch.sql.message.MessageProducer;
@@ -19,6 +20,8 @@ public class KafkaMessageProducer<M, J extends JsonMessage> implements MessagePr
     public final ObjectMapper                  mapper;
     public final KafkaProducer<String, byte[]> producer;
 
+    long lastOffset = -1;
+
     public KafkaMessageProducer(MessageProducerConfig config, JsonTranslator<M, J> translator) {
         this.config = config;
         this.translator = translator;
@@ -27,7 +30,7 @@ public class KafkaMessageProducer<M, J extends JsonMessage> implements MessagePr
         // No implicit nulls
         // this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        this.producer = new KafkaProducer<>(config.producer);
+        this.producer = new KafkaProducer<>(config.properties);
     }
 
     @Override
@@ -35,7 +38,12 @@ public class KafkaMessageProducer<M, J extends JsonMessage> implements MessagePr
         J json = translator.toJson(notify);
         byte[] bytes = mapper.writeValueAsBytes(json);
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(config.topic, MESSAGE_KEY, bytes);
-        producer.send(record).get();
+        RecordMetadata meta = producer.send(record).get();
+        lastOffset = meta.offset();
         producer.flush();
+    }
+
+    long getLastOffset() {
+        return lastOffset;
     }
 }

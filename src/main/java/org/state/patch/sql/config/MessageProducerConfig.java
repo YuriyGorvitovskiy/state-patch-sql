@@ -14,7 +14,7 @@ public class MessageProducerConfig {
     public String topic = "state-notify";
 
     @SuppressWarnings("serial")
-    public Properties producer = new Properties() {
+    public Properties properties = new Properties() {
         {
             this.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
             this.put(ProducerConfig.ACKS_CONFIG, "all");

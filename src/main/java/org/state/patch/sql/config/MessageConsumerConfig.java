@@ -16,7 +16,7 @@ public class MessageConsumerConfig {
     public int partition = 0;
 
     @SuppressWarnings("serial")
-    public Properties consumer = new Properties() {
+    public Properties properties = new Properties() {
         {
             this.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
             this.put(ConsumerConfig.GROUP_ID_CONFIG, "state-patch-sql");
