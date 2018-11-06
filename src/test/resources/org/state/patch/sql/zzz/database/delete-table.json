@@ -1,4 +1,0 @@
-{
-    "@type": "delete-table",
-    "table": "test_table_a"
-}

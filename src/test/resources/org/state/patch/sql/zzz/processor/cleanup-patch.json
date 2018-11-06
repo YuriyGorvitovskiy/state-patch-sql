@@ -1,8 +1,0 @@
-{
-    "ops": [
-        {
-            "@type": "delete-table",
-            "table": "pptest_alpha"
-        }
-    ]
-}
