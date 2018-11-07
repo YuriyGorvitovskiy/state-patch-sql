@@ -6,8 +6,21 @@
  * user guide available at https://docs.gradle.org/4.3/userguide/java_library_plugin.html
  */
 
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:4.0.4'
+    }
+}
+
 // Apply the java-library plugin to add support for Java Library
 apply plugin: 'java'
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+// Import task types
+import com.bmuschko.gradle.docker.tasks.image.*
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -15,7 +28,6 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
 }
-
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -37,7 +49,40 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.22.0'
 }
-
 test {
     systemProperties System.getProperties()
 }
+
+jar {
+    manifest { attributes 'Main-Class': 'org.state.patch.sql.Main' }
+}
+
+task copyJar(type: Copy) {
+    dependsOn   'jar'
+    dependsOn   'build'
+
+    from        'build/libs/'
+    into        'build/docker/'
+}
+
+task copyRuntimeLibs(type: Copy) {
+    dependsOn   'copyJar'
+
+    from configurations.runtime
+    into "build/docker"
+}
+
+task copyScripts(type: Copy) {
+    dependsOn   'copyRuntimeLibs'
+
+    from "script/"
+    into "build/docker"
+}
+
+task buildDockerImage(type: DockerBuildImage) {
+    dependsOn   'copyScripts'
+
+    inputDir = file('.')
+    tag = 'yuriyg/state-patch-sql:latest'
+}
+
