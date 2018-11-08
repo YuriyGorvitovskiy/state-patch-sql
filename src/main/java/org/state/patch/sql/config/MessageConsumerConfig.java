@@ -18,6 +18,7 @@ public class MessageConsumerConfig {
     @SuppressWarnings("serial")
     public Properties properties = new Properties() {
         {
+            this.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
             this.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
             this.put(ConsumerConfig.GROUP_ID_CONFIG, "state-patch-sql");
             this.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());

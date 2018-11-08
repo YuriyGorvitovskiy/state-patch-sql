@@ -2,9 +2,25 @@
 
 cd /app
 
-JAVA_OPS=${JAVA_OPS} -Dorg.state.patch.sql.model.database
+JAVA_OPS=""
 
-CLASSPATH="."
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.entity.database.url=jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.entity.database.username=$POSTGRES_USERNAME"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.entity.database.password=$POSTGRES_PASSWORD"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.entity.database.schema=public"
+
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.model.database.url=jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.model.database.username=$POSTGRES_USERNAME"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.model.database.password=$POSTGRES_PASSWORD"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.model.database.schema=model"
+
+
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.patch.properties.bootstrap.servers=$KAFKA_HOST:$KAFKA_PORT"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.patch.topic=$KAFKA_PATCH_TOPIC"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.notify.properties.bootstrap.servers=$KAFKA_HOST:$KAFKA_PORT"
+JAVA_OPS="${JAVA_OPS} -Dorg.state.patch.sql.notify.topic=$KAFKA_NOTIFY_TOPIC"
+
+CLASSPATH=""
 CLASSPATH="${CLASSPATH}:commons-dbcp2-2.5.0.jar"
 CLASSPATH="${CLASSPATH}:commons-io-2.6.jar"
 CLASSPATH="${CLASSPATH}:commons-lang3-3.8.jar"
