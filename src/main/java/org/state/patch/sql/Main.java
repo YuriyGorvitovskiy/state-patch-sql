@@ -1,6 +1,6 @@
 package org.state.patch.sql;
 
-import org.state.patch.sql.config.Configurator;
+import org.service.common.config.Configurator;
 import org.state.patch.sql.config.ServiceConfig;
 
 public class Main {

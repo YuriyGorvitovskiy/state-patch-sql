@@ -27,6 +27,7 @@ repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenLocal()
 }
 
 sourceCompatibility = 1.8
@@ -37,6 +38,8 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.5.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8'
     compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.0.0'
+
+    compile group: 'org.gorvitovskiy.yuriy', name: 'service-common', version: '1.0.0'
 
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
@@ -58,7 +61,6 @@ jar {
 }
 
 task copyJar(type: Copy) {
-    dependsOn   'jar'
     dependsOn   'build'
 
     from        'build/libs/'

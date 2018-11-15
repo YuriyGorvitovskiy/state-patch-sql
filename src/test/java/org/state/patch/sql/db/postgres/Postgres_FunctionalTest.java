@@ -19,7 +19,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.state.patch.sql.config.Configurator;
+import org.service.common.config.Configurator;
 import org.state.patch.sql.config.DatabaseConfig;
 import org.state.patch.sql.data.Entity;
 import org.state.patch.sql.data.ReferenceExternal;

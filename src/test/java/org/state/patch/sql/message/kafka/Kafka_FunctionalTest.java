@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.state.patch.sql.config.Configurator;
+import org.service.common.config.Configurator;
 import org.state.patch.sql.config.MessageConsumerConfig;
 import org.state.patch.sql.config.MessageProducerConfig;
 import org.state.patch.sql.message.JsonMessage;
