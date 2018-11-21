@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.service.common.util.Json;
+import org.service.common.util.ResourceString;
 import org.state.patch.sql.patch.v1.JsonControlOp;
 import org.state.patch.sql.patch.v1.JsonControlOpBackup;
 import org.state.patch.sql.patch.v1.JsonControlOpPing;
@@ -24,8 +26,6 @@ import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
 import org.state.patch.sql.patch.v1.JsonPatchData_v1;
 import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
 import org.state.patch.sql.test.Asserts;
-import org.state.patch.sql.util.Json;
-import org.state.patch.sql.util.ResourceString;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

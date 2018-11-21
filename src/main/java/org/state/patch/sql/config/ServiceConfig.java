@@ -1,5 +1,8 @@
 package org.state.patch.sql.config;
 
+import org.service.common.message.MessageConsumerConfig;
+import org.service.common.message.MessageProducerConfig;
+
 public class ServiceConfig {
 
     public String                    name   = "state-patch-sql";

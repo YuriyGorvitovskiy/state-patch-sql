@@ -37,11 +37,8 @@ dependencies {
 
     compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.5.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8'
-    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.0.0'
 
-    compile group: 'org.gorvitovskiy.yuriy', name: 'service-common', version: '1.0.0'
-
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile group: 'org.gorvitovskiy.yuriy', name: 'service-common', version: '1.0.2'
 
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.6'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.6'

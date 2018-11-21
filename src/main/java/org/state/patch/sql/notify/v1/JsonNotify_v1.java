@@ -2,8 +2,8 @@ package org.state.patch.sql.notify.v1;
 
 import java.util.Date;
 
+import org.service.common.util.Json;
 import org.state.patch.sql.notify.JsonNotify;
-import org.state.patch.sql.util.Json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

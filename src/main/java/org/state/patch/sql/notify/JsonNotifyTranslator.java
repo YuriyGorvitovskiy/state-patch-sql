@@ -1,7 +1,7 @@
 package org.state.patch.sql.notify;
 
+import org.service.common.translator.JsonTranslator;
 import org.state.patch.sql.notify.v1.JsonNotify_v1;
-import org.state.patch.sql.translator.JsonTranslator;
 
 public class JsonNotifyTranslator implements JsonTranslator<Notify, JsonNotify> {
 

@@ -6,10 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.service.common.util.Json;
+import org.service.common.util.ResourceString;
 import org.state.patch.sql.notify.v1.JsonNotify_v1;
 import org.state.patch.sql.test.Asserts;
-import org.state.patch.sql.util.Json;
-import org.state.patch.sql.util.ResourceString;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

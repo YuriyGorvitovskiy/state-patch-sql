@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.service.common.translator.JsonTranslator;
+import org.service.common.util.Json;
 import org.state.patch.sql.control.op.ControlOp;
 import org.state.patch.sql.control.op.ControlOpBackup;
 import org.state.patch.sql.control.op.ControlOpPing;
@@ -48,8 +50,6 @@ import org.state.patch.sql.patch.v1.JsonModelOpDeleteType;
 import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
 import org.state.patch.sql.patch.v1.JsonPatchData_v1;
 import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
-import org.state.patch.sql.translator.JsonTranslator;
-import org.state.patch.sql.util.Json;
 
 public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 

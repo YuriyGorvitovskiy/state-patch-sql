@@ -2,10 +2,10 @@ package org.state.patch.sql;
 
 import java.util.Date;
 
+import org.service.common.message.MessageConsumer;
+import org.service.common.message.MessageProducer;
 import org.state.patch.sql.config.ServiceConfig;
 import org.state.patch.sql.db.Database;
-import org.state.patch.sql.message.MessageConsumer;
-import org.state.patch.sql.message.MessageProducer;
 import org.state.patch.sql.model.Model;
 import org.state.patch.sql.model.ModelPersistency;
 import org.state.patch.sql.notify.JsonNotify;

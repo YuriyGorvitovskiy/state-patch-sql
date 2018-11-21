@@ -1,6 +1,6 @@
 package org.state.patch.sql.notify;
 
-import org.state.patch.sql.message.JsonMessage;
+import org.service.common.message.JsonMessage;
 import org.state.patch.sql.notify.v1.JsonNotify_v1;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;

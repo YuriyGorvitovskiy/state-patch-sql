@@ -1,11 +1,11 @@
 package org.state.patch.sql.patch;
 
+import org.service.common.util.ResourceString;
 import org.state.patch.sql.model.op.ModelOp;
 import org.state.patch.sql.model.op.ModelOpAppendAttribute;
 import org.state.patch.sql.model.op.ModelOpCreateType;
 import org.state.patch.sql.model.op.ModelOpDeleteAttribute;
 import org.state.patch.sql.model.op.ModelOpDeleteType;
-import org.state.patch.sql.util.ResourceString;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

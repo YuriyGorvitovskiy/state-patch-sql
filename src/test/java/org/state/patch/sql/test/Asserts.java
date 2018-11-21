@@ -2,7 +2,7 @@ package org.state.patch.sql.test;
 
 import static org.junit.Assert.assertEquals;
 
-import org.state.patch.sql.translator.JsonTranslator;
+import org.service.common.translator.JsonTranslator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

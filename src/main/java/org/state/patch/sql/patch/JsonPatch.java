@@ -1,6 +1,6 @@
 package org.state.patch.sql.patch;
 
-import org.state.patch.sql.message.JsonMessage;
+import org.service.common.message.JsonMessage;
 import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
 import org.state.patch.sql.patch.v1.JsonPatchData_v1;
 import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
