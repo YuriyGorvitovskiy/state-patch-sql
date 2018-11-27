@@ -1,6 +1,7 @@
 package org.state.patch.sql.patch;
 
 import org.service.common.util.ResourceString;
+import org.service.protocol.patch.JsonPatch;
 import org.state.patch.sql.model.op.ModelOp;
 import org.state.patch.sql.model.op.ModelOpAppendAttribute;
 import org.state.patch.sql.model.op.ModelOpCreateType;

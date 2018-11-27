@@ -4,14 +4,14 @@ import java.util.Date;
 
 import org.service.common.message.MessageConsumer;
 import org.service.common.message.MessageProducer;
+import org.service.protocol.notify.JsonNotify;
+import org.service.protocol.patch.JsonPatch;
 import org.state.patch.sql.config.ServiceConfig;
 import org.state.patch.sql.db.Database;
 import org.state.patch.sql.model.Model;
 import org.state.patch.sql.model.ModelPersistency;
-import org.state.patch.sql.notify.JsonNotify;
 import org.state.patch.sql.notify.JsonNotifyTranslator;
 import org.state.patch.sql.notify.Notify;
-import org.state.patch.sql.patch.JsonPatch;
 import org.state.patch.sql.patch.JsonPatchTranslator;
 import org.state.patch.sql.patch.Patch;
 import org.state.patch.sql.patch.PatchControl;

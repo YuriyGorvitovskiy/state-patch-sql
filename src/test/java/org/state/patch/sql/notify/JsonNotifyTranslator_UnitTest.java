@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.service.common.util.Json;
 import org.service.common.util.ResourceString;
+import org.service.protocol.notify.JsonNotify;
 import org.state.patch.sql.test.Asserts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +30,8 @@ public class JsonNotifyTranslator_UnitTest {
     @Test
     public void from_json_notify_v1() throws Exception {
         // Setup
-        ResourceString resource = new ResourceString(JsonNotify_UnitTest.class, "JsonNotifyTranslator_UnitTest.notify.v1.json");
+        ResourceString resource = new ResourceString(JsonNotifyTranslator_UnitTest.class,
+                                                     "JsonNotifyTranslator_UnitTest.notify.v1.json");
         JsonNotify jsonNotify = mapper.readValue(resource.toString(), JsonNotify.class);
 
         // Execute
@@ -56,7 +58,8 @@ public class JsonNotifyTranslator_UnitTest {
     @Test
     public void to_json_notify_v1() throws Exception {
         // Setup
-        ResourceString resource = new ResourceString(JsonNotify_UnitTest.class, "JsonNotifyTranslator_UnitTest.notify.v1.json");
+        ResourceString resource = new ResourceString(JsonNotifyTranslator_UnitTest.class,
+                                                     "JsonNotifyTranslator_UnitTest.notify.v1.json");
 
         // Execute & Validate
         Asserts.asserJsonTranslatorRoundtrip(subject, mapper, resource.toString());

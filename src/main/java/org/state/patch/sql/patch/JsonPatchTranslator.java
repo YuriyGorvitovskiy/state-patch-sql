@@ -10,6 +10,24 @@ import java.util.Objects;
 
 import org.service.common.translator.JsonTranslator;
 import org.service.common.util.Json;
+import org.service.protocol.patch.JsonPatch;
+import org.service.protocol.patch.v1.JsonControlOp;
+import org.service.protocol.patch.v1.JsonControlOpBackup;
+import org.service.protocol.patch.v1.JsonControlOpPing;
+import org.service.protocol.patch.v1.JsonControlOpSuspend;
+import org.service.protocol.patch.v1.JsonDataOp;
+import org.service.protocol.patch.v1.JsonDataOpDelete;
+import org.service.protocol.patch.v1.JsonDataOpInsert;
+import org.service.protocol.patch.v1.JsonDataOpUpdate;
+import org.service.protocol.patch.v1.JsonModelAttribute;
+import org.service.protocol.patch.v1.JsonModelOp;
+import org.service.protocol.patch.v1.JsonModelOpAppendAttr;
+import org.service.protocol.patch.v1.JsonModelOpCreateType;
+import org.service.protocol.patch.v1.JsonModelOpDeleteAttr;
+import org.service.protocol.patch.v1.JsonModelOpDeleteType;
+import org.service.protocol.patch.v1.JsonPatchControl_v1;
+import org.service.protocol.patch.v1.JsonPatchData_v1;
+import org.service.protocol.patch.v1.JsonPatchModel_v1;
 import org.state.patch.sql.control.op.ControlOp;
 import org.state.patch.sql.control.op.ControlOpBackup;
 import org.state.patch.sql.control.op.ControlOpPing;
@@ -33,23 +51,6 @@ import org.state.patch.sql.model.op.ModelOpAppendAttribute;
 import org.state.patch.sql.model.op.ModelOpCreateType;
 import org.state.patch.sql.model.op.ModelOpDeleteAttribute;
 import org.state.patch.sql.model.op.ModelOpDeleteType;
-import org.state.patch.sql.patch.v1.JsonControlOp;
-import org.state.patch.sql.patch.v1.JsonControlOpBackup;
-import org.state.patch.sql.patch.v1.JsonControlOpPing;
-import org.state.patch.sql.patch.v1.JsonControlOpSuspend;
-import org.state.patch.sql.patch.v1.JsonDataOp;
-import org.state.patch.sql.patch.v1.JsonDataOpDelete;
-import org.state.patch.sql.patch.v1.JsonDataOpInsert;
-import org.state.patch.sql.patch.v1.JsonDataOpUpdate;
-import org.state.patch.sql.patch.v1.JsonModelAttribute;
-import org.state.patch.sql.patch.v1.JsonModelOp;
-import org.state.patch.sql.patch.v1.JsonModelOpAppendAttr;
-import org.state.patch.sql.patch.v1.JsonModelOpCreateType;
-import org.state.patch.sql.patch.v1.JsonModelOpDeleteAttr;
-import org.state.patch.sql.patch.v1.JsonModelOpDeleteType;
-import org.state.patch.sql.patch.v1.JsonPatchControl_v1;
-import org.state.patch.sql.patch.v1.JsonPatchData_v1;
-import org.state.patch.sql.patch.v1.JsonPatchModel_v1;
 
 public class JsonPatchTranslator implements JsonTranslator<Patch, JsonPatch> {
 
