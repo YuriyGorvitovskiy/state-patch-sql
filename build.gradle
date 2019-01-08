@@ -42,7 +42,7 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.5.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8'
 
-    compile group: 'org.gorvitovskiy.yuriy', name: 'service-common', version: '1.0.2'
+    compile group: 'org.gorvitovskiy.yuriy', name: 'service-common', version: '1.0.3'
     compile group: 'org.gorvitovskiy.yuriy', name: 'service-protocol', version: '1.0.1'
 
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.4'
