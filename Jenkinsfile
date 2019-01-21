@@ -25,7 +25,7 @@ pipeline {
         }
         stage ('Build Docker Image') {
             when {
-                branch 'origin/master'
+                environment name: 'GIT_BRANCH', value: 'origin/master'
             }
             steps {
                 script {
