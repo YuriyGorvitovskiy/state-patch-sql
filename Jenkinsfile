@@ -24,7 +24,9 @@ pipeline {
         stage ('Build Docker Image') {
             when { branch "master" }
             steps {
-                docker.build('yuriyg/state-patch-sql:latest')
+                script {
+                    docker.build('yuriyg/state-patch-sql:latest')
+                }
             }
         }
     }
