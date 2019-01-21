@@ -13,6 +13,8 @@ public class Main {
 
         System.out.println("Configuring Patch Processor.");
         PatchProcessor processor = new PatchProcessor(config);
+
+        System.out.println("Start Patch Processor.");
         processor.run();
 
         System.out.println("Execution Completted.");

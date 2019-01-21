@@ -51,6 +51,8 @@ public class PatchProcessor {
     }
 
     public void process(Patch patch) {
+        System.out.println("Recieve patch with id: " + patch.modifiedPatchId);
+
         try {
             if (patch instanceof PatchData) {
                 process((PatchData) patch);
