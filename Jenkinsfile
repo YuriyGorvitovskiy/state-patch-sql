@@ -18,6 +18,7 @@ pipeline {
             steps {
 
                 setBuildStatus('Build in progress...', 'PENDING')
+                sh 'printenv'
 
                 // sh './gradlew -Dtest.org.state.patch.sql.db.postgres.engine=POSTGRES -Dtest.org.state.patch.sql.db.postgres.url=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB} -Dtest.org.state.patch.sql.db.postgres.username=${POSTGRES_USERNAME} -Dtest.org.state.patch.sql.db.postgres.password=${POSTGRES_PASSWORD} -Dtest.org.state.patch.sql.db.postgres.schema=${POSTGRES_SCHEMA} clean build'
 
