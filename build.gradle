@@ -51,6 +51,14 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.22.0'
 }
 
+docker {
+    registryCredentials {
+        url = 'https://index.docker.io/v1/'
+        username = System.getProperty("org.state.patch.sql.gradle.dockerhub.username")
+        password = System.getProperty("org.state.patch.sql.gradle.dockerhub.password")
+        email    = System.getProperty("org.state.patch.sql.gradle.dockerhub.email")
+    }
+}
 
 test {
     systemProperties System.getProperties()
@@ -86,5 +94,12 @@ task buildDockerImage(type: DockerBuildImage) {
 
     inputDir = file('.')
     tags     = ['yuriyg/state-patch-sql:latest']
+}
+
+task pushDockerImage(type: DockerPushImage) {
+    dependsOn   'buildDockerImage'
+
+    imageName = 'yuriyg/state-patch-sql'
+    tag       = 'latest'
 }
 
