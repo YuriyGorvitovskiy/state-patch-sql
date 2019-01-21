@@ -11,7 +11,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.0.4'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.3.0'
     }
 }
 
@@ -50,6 +50,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.22.0'
 }
+
+
 test {
     systemProperties System.getProperties()
 }
@@ -75,14 +77,14 @@ task copyRuntimeLibs(type: Copy) {
 task copyScripts(type: Copy) {
     dependsOn   'copyRuntimeLibs'
 
-    from "script/"
-    into "build/docker"
+    from        'script/'
+    into        'build/docker'
 }
 
 task buildDockerImage(type: DockerBuildImage) {
     dependsOn   'copyScripts'
 
     inputDir = file('.')
-    tag = 'yuriyg/state-patch-sql:latest'
+    tags     = ['yuriyg/state-patch-sql:latest']
 }
 
